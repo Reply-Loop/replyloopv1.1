@@ -4,7 +4,7 @@ Main marketing site for ReplyLoop. *Keep the thank you alive.*
 
 Stack: Next.js 16 (App Router, Cache Components), TypeScript, Tailwind CSS 4. Deploy target: Vercel.
 
-> Build status: **Phase 2 of 6 complete** (home page, global SEO). Inner pages arrive in Phase 3; header links to them 404 until then.
+> Build status: **Phase 3 of 6 complete** (all core pages). Blog, privacy, and terms arrive in Phases 4 and 5; links to them 404 until then.
 
 ## Setup
 
@@ -75,6 +75,21 @@ Brass on charcoal fails as text, and darkening brass would only lower that ratio
 - SEO: per-page metadata helper (`src/lib/seo.ts`), JSON-LD graph of Organization, WebSite, and ProfessionalService on every page (no street address, no geo, no rating), `sitemap.xml` from `src/lib/routes.ts`, `robots.txt`, `llms.txt`, www-to-apex redirect, trailing-slash redirect, Search Console meta from `NEXT_PUBLIC_GSC_VERIFICATION`.
 - Tracking hooks: conversion links carry `data-track` (`cta_click_book_call`, `phone_click`, `email_click`). Phase 5 wires them to GA4 after consent.
 
+## Keyword map
+
+| Page | Primary keyword | H1 |
+|---|---|---|
+| `/` | Google review replies for local health businesses | Your next customer is reading your unanswered Google reviews. (locked) |
+| `/home-care-agencies` | home care agency SEO Utah | Home care agency SEO and review replies in Utah |
+| `/services` | local SEO and review replies for health practices | Local SEO and review replies for health practices |
+| `/services/review-replies` | Google review management for home care | Google review management for home care agencies |
+| `/services/local-seo` | Google Business Profile for home care agencies | Google Business Profile care for home care agencies |
+| `/services/social-content` | social content from Google reviews | Social content that starts from your Google reviews and profile |
+| `/services/websites` | website for a home care agency | A website for a home care agency, with a plain next step |
+| `/services/owner-qa-videos` | owner Q&A videos for local health practices | Owner Q&A videos for local health practices |
+
+Service page copy lives in `src/content/servicePages.ts`; FAQ answers in `src/content/faq.ts` (FAQPage schema on `/faq` only).
+
 ## Decisions applied from the brain (2026-11-23)
 
 Read from the ReplyLoop Brain in Drive on 2026-11-23 and confirmed by Hunter the same day.
@@ -91,7 +106,7 @@ Read from the ReplyLoop Brain in Drive on 2026-11-23 and confirmed by Hunter the
 
 1. ~~Scaffold, tokens, fonts, layout, components~~
 2. ~~Home page, global SEO (metadata, schema, sitemap, robots, llms.txt), redirects~~
-3. Service pages, home care page, about, FAQ, contact
+3. ~~Service pages, home care page, about, FAQ, contact~~
 4. MDX blog, three posts, OG images, breadcrumbs
 5. Analytics with Consent Mode v2, cookie banner, booking events, legal drafts
 6. QA: Lighthouse mobile, axe, link check, schema validation, compliance scan, `PLACEHOLDERS.md`

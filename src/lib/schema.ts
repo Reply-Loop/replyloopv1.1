@@ -139,3 +139,13 @@ export function blogPostingSchema(post: {
 export function graph(...nodes: object[]) {
   return { "@context": "https://schema.org", "@graph": nodes };
 }
+
+/** Founder. Name and title only, until bios and profiles are approved. */
+export function personSchema({ name, jobTitle }: { name: string; jobTitle: string }) {
+  return {
+    "@type": "Person",
+    name,
+    jobTitle,
+    worksFor: { "@id": orgId },
+  };
+}

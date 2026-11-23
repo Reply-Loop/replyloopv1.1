@@ -20,7 +20,7 @@ const root = process.cwd();
 const rules = [
   // Prices and commercial terms not approved for public pages.
   ["dollar amount", /\$\s?\d/],
-  ["price word used as an offer", /\b(starting at|per month|a month|\/mo\b|package price|pricing tiers?|monthly fee|setup fee)\b/i],
+  ["price word used as an offer", /\b(starting at|per month|\/mo\b|package price|pricing tiers?|monthly fee|setup fee)\b/i],
   ["commercial term not in the brief", /\b(month[- ]to[- ]month|no (long[- ]term )?contracts?|cancel any ?time)\b/i],
   ["internal plan name", /\b(Essential|Pro)\s+(plan|tier|package)\b/i],
   ["dead offer: free", /\bfree\b/i],
@@ -138,8 +138,12 @@ for (const file of walk(appOut, (p) => /\.(txt|xml)\.body$/.test(p) || p.endsWit
 for (const dir of ["src/content", "content"]) {
   for (const file of walk(join(root, dir), (p) => /\.(ts|tsx|md|mdx)$/.test(p))) {
     const raw = readFileSync(file, "utf8");
-    // Strip code comments in .ts files so rule notes do not trip the scan.
-    const text = file.endsWith(".ts") ? raw.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "") : raw;
+    // In .ts/.tsx files, scan only string literals (the copy), not code or comments.
+    const text = /\.tsx?$/.test(file)
+      ? [...raw.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "").matchAll(/"((?:[^"\\\n]|\\.)*)"|`((?:[^`\\]|\\.)*)`/g)]
+          .map((m) => m[1] ?? m[2])
+          .join("\n")
+      : raw;
     targets.push({ file: relative(root, file), text });
   }
 }

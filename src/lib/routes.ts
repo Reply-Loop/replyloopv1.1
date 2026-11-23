@@ -10,4 +10,14 @@ export type RouteEntry = {
 
 export const publicRoutes: RouteEntry[] = [
   { path: "/", priority: 1, changeFrequency: "monthly" },
+  { path: "/home-care-agencies", priority: 0.9, changeFrequency: "monthly" },
+  { path: "/services", priority: 0.8, changeFrequency: "monthly" },
+  { path: "/services/review-replies", priority: 0.8, changeFrequency: "monthly" },
+  { path: "/services/social-content", priority: 0.7, changeFrequency: "monthly" },
+  { path: "/services/local-seo", priority: 0.8, changeFrequency: "monthly" },
+  { path: "/services/websites", priority: 0.6, changeFrequency: "monthly" },
+  { path: "/services/owner-qa-videos", priority: 0.6, changeFrequency: "monthly" },
+  { path: "/faq", priority: 0.7, changeFrequency: "monthly" },
+  { path: "/about", priority: 0.5, changeFrequency: "yearly" },
+  { path: "/contact", priority: 0.6, changeFrequency: "yearly" },
 ];
