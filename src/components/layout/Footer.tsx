@@ -59,7 +59,8 @@ export function Footer() {
             </ul>
           </div>
         </div>
-        <div className="mt-14 flex flex-col gap-4 border-t border-mist/20 pt-6 text-sm text-mist sm:flex-row sm:items-center sm:justify-between">
+        <p className="mt-14 max-w-3xl text-sm text-mist">{site.notAffiliated}</p>
+        <div className="mt-6 flex flex-col gap-4 border-t border-mist/20 pt-6 text-sm text-mist sm:flex-row sm:items-center sm:justify-between">
           <p>
             © {site.copyrightYear} {site.name}
           </p>

@@ -15,6 +15,7 @@ export type IconName =
   | "check"
   | "minus"
   | "key"
+  | "book"
   | "plus";
 
 const paths: Record<IconName, React.ReactNode> = {
@@ -70,6 +71,12 @@ const paths: Record<IconName, React.ReactNode> = {
   check: <path d="m5 12.5 4.5 4.5L19 7.5" />,
   minus: <path d="M6 12h12" />,
   plus: <path d="M12 5v14M5 12h14" />,
+  book: (
+    <>
+      <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v15H5.5A1.5 1.5 0 0 1 4 17.5z" />
+      <path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v15h5.5a1.5 1.5 0 0 0 1.5-1.5z" />
+    </>
+  ),
   key: (
     <>
       <circle cx="8" cy="15" r="4" />

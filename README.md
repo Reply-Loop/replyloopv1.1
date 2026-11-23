@@ -4,8 +4,7 @@ Main marketing site for ReplyLoop. *Keep the thank you alive.*
 
 Stack: Next.js 16 (App Router, Cache Components), TypeScript, Tailwind CSS 4. Deploy target: Vercel.
 
-> Build status: **Phase 1 of 6 complete** (scaffold, tokens, fonts, layout, component library).
-> The home page is a shell with the locked H1. Full copy arrives in Phase 2.
+> Build status: **Phase 2 of 6 complete** (home page, global SEO). Inner pages arrive in Phase 3; header links to them 404 until then.
 
 ## Setup
 
@@ -18,9 +17,11 @@ npm run dev                  # http://localhost:3000
 Checks:
 
 ```bash
-npm run check        # typecheck + lint + contrast
-npm run build
+npm run check             # typecheck + lint + contrast
+npm run build:verify      # build, then the compliance scan on every rendered page
 ```
+
+`npm run check:compliance` fails on prices, dead offers (free, trial), legal terms (HIPAA, BAA, PHI, compliant), scripture or verse references, plan names, AI mentions, invented percentages or counts, client names, street addresses, speed claims, and exclamation points. Rules and their sources are in `scripts/compliance.mjs`.
 
 In development, `/styleguide` shows every component on ivory and charcoal. It returns 404 in production.
 
@@ -71,12 +72,25 @@ Brass on charcoal fails as text, and darkening brass would only lower that ratio
 - Content sources: `src/lib/site.ts` (business facts), `src/content/promises.ts` (seven red lines, customer-facing), `src/content/health.ts` (health review handling).
 - Motion: scroll-driven fade via CSS only (`.reveal`), and an optional slow trace on the loop divider. Both are off under `prefers-reduced-motion`.
 - Logo: no files were supplied in `/public/brand`, so the header uses an inline SVG loop mark with a speech tail, plus the wordmark set in Fraunces. Replace it when a vector logo arrives.
+- SEO: per-page metadata helper (`src/lib/seo.ts`), JSON-LD graph of Organization, WebSite, and ProfessionalService on every page (no street address, no geo, no rating), `sitemap.xml` from `src/lib/routes.ts`, `robots.txt`, `llms.txt`, www-to-apex redirect, trailing-slash redirect, Search Console meta from `NEXT_PUBLIC_GSC_VERIFICATION`.
 - Tracking hooks: conversion links carry `data-track` (`cta_click_book_call`, `phone_click`, `email_click`). Phase 5 wires them to GA4 after consent.
+
+## Decisions applied from the brain (2026-11-23)
+
+Read from the ReplyLoop Brain in Drive on 2026-11-23 and confirmed by Hunter the same day.
+
+- **Bundle** follows "ReplyLoop Pricing and Service Rules" (2026-11-23): review replies, 16 new pieces a month for Google Business Profile, Facebook, and Instagram, and a monthly growth workbook. Setup: voice interview, a one-time online presence audit, replies to the reviews already waiting. Websites and owner Q&A videos are "also available as one-time projects". No prices anywhere.
+- **Area served** adds Salt Lake County (text and `areaServed` schema).
+- **Approved extra lines:** "You approve each month's posts before they go out." and the not-affiliated line in the footer.
+- **About:** names and "Cofounder" titles for Hunter K. Newbold and Brigham Tiffany; bios and photos stay placeholders.
+- **No AI mention** on public pages (D-031). Enforced by the compliance scan.
+- **Approval wording:** never "the owner approves every reply". Only: a reply to a review of 3 stars or lower stays unpublished until the owner has seen it.
+- **Where the brief overrides older brain docs:** no $499 setup price (D-028 allowed it); no client name (D-030 allowed one pending written consent); Vercel, GA4 with consent, and a cookie banner (D-032 said Cloudflare Pages and Search Console only); FAQPage schema kept although design system v1 says not to use it; Next.js replaces the Astro staging site.
 
 ## Roadmap
 
 1. ~~Scaffold, tokens, fonts, layout, components~~
-2. Home page, global SEO (metadata, schema, sitemap, robots, llms.txt), redirects
+2. ~~Home page, global SEO (metadata, schema, sitemap, robots, llms.txt), redirects~~
 3. Service pages, home care page, about, FAQ, contact
 4. MDX blog, three posts, OG images, breadcrumbs
 5. Analytics with Consent Mode v2, cookie banner, booking events, legal drafts

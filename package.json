@@ -9,7 +9,9 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "check:contrast": "node scripts/contrast.mjs",
-    "check": "npm run typecheck && npm run lint && npm run check:contrast"
+    "check": "npm run typecheck && npm run lint && npm run check:contrast",
+    "check:compliance": "node scripts/compliance.mjs",
+    "build:verify": "next build && node scripts/compliance.mjs"
   },
   "dependencies": {
     "next": "16.4.6",

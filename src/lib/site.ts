@@ -9,7 +9,7 @@ export const site = {
   /** Production origin. Set NEXT_PUBLIC_SITE_URL in Vercel. */
   url: (process.env.NEXT_PUBLIC_SITE_URL ?? "https://reply-loop.com").replace(/\/$/, ""),
   description:
-    "ReplyLoop helps home care agencies and local health practices in Utah capture and answer every Google review, so honest service becomes the foundation the next customer can see.",
+    "ReplyLoop helps home care agencies and local health practices in Salt Lake County and across Utah capture and answer every Google review, so honest service becomes the foundation the next customer can see.",
   phone: {
     display: "(801) 889-7181",
     href: "tel:+18018897181",
@@ -24,8 +24,11 @@ export const site = {
     href: "https://cal.com/hunter-newbold-klaopa/intro-call",
   },
   /** Area-served language only. No street address, no geo coordinates. */
-  areaServed: ["Murray", "Salt Lake City", "Utah"] as const,
-  areaServedSentence: "Serving Murray, Salt Lake City, and Utah.",
+  areaServed: ["Murray", "Salt Lake City", "Salt Lake County", "Utah"] as const,
+  areaServedSentence: "Serving Murray, Salt Lake City, Salt Lake County, and Utah.",
+  /** Approved 2026-11-23. Never name the other products. */
+  notAffiliated:
+    "ReplyLoop at reply-loop.com is a Salt Lake County service and is not affiliated with any other product or company with a similar name.",
   copyrightYear: 2026,
 } as const;
 
