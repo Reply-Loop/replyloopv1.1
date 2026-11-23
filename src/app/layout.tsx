@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
+import { Analytics } from "@/components/analytics/Analytics";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { MobileBar } from "@/components/layout/MobileBar";
@@ -60,6 +61,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <CTABand />
         <Footer />
         <MobileBar />
+        <Analytics />
         <JsonLd data={graph(organizationSchema(), websiteSchema(), professionalServiceSchema())} />
       </body>
     </html>

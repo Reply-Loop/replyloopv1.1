@@ -4,7 +4,7 @@ Main marketing site for ReplyLoop. *Keep the thank you alive.*
 
 Stack: Next.js 16 (App Router, Cache Components), TypeScript, Tailwind CSS 4. Deploy target: Vercel.
 
-> Build status: **Phase 4 of 6 complete** (all pages plus blog and OG images). Privacy and terms arrive in Phase 5; footer links to them 404 until then.
+> Build status: **Phase 5 of 6 complete** (all pages, blog, analytics with consent, legal drafts). Phase 6 is QA.
 
 ## Setup
 
@@ -75,6 +75,21 @@ Brass on charcoal fails as text, and darkening brass would only lower that ratio
 - SEO: per-page metadata helper (`src/lib/seo.ts`), JSON-LD graph of Organization, WebSite, and ProfessionalService on every page (no street address, no geo, no rating), `sitemap.xml` from `src/lib/routes.ts`, `robots.txt`, `llms.txt`, www-to-apex redirect, trailing-slash redirect, Search Console meta from `NEXT_PUBLIC_GSC_VERIFICATION`.
 - Tracking hooks: conversion links carry `data-track` (`cta_click_book_call`, `phone_click`, `email_click`). Phase 5 wires them to GA4 after consent.
 
+## Analytics and consent
+
+`src/components/analytics/Analytics.tsx`, GA4 with Consent Mode v2:
+
+- With no `NEXT_PUBLIC_GA_ID`, nothing loads and no banner shows.
+- With an ID, a small banner asks first. Accept and Decline have equal weight. **gtag.js does not load and no cookie is set until Accept.**
+- On Accept: consent defaults are all denied, then only `analytics_storage` is granted. Ad storage, ad user data, and ad personalization stay denied.
+- Events: `cta_click_book_call`, `phone_click`, `email_click`, read from `data-track` attributes on the booking button, phone links, and email links. Sent only after consent.
+- The choice is stored in `localStorage` (`rl-consent-v1`); the footer's "Cookie settings" reopens the banner.
+- Tested with Playwright: Accept loads GA and sends both events; Decline loads nothing; the choice holds across reloads.
+
+## Legal drafts
+
+`/privacy` and `/terms` are labeled "Draft. Needs attorney review." and set to `noindex`, and they are left out of the sitemap until reviewed. Bracketed placeholders mark facts an attorney or Hunter must supply: legal entity, hosting provider, sharing, liability, governing law. Neither makes any health-privacy representation.
+
 ## Blog
 
 Posts are MDX files in `src/content/blog/<slug>.mdx` with YAML frontmatter:
@@ -126,5 +141,5 @@ Read from the ReplyLoop Brain in Drive on 2026-11-23 and confirmed by Hunter the
 2. ~~Home page, global SEO (metadata, schema, sitemap, robots, llms.txt), redirects~~
 3. ~~Service pages, home care page, about, FAQ, contact~~
 4. ~~MDX blog, three posts, OG images, breadcrumbs~~
-5. Analytics with Consent Mode v2, cookie banner, booking events, legal drafts
+5. ~~Analytics with Consent Mode v2, cookie banner, booking events, legal drafts~~
 6. QA: Lighthouse mobile, axe, link check, schema validation, compliance scan, `PLACEHOLDERS.md`

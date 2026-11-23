@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { legalNav, primaryNav, serviceNav, site } from "@/lib/site";
+import { CookieSettingsLink } from "@/components/analytics/CookieSettingsLink";
 import { EmailLink, PhoneLink } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { Logo } from "@/components/ui/Logo";
@@ -72,6 +73,7 @@ export function Footer() {
                 </Link>
               </li>
             ))}
+            <CookieSettingsLink className={linkClass} />
           </ul>
         </div>
       </Container>
