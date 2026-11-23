@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+/*
+ * ReplyLoop brand tokens. Locked 2026-11-13, confirmed 2026-11-20.
+ * Charcoal, ivory, and brass are exact. Do not approximate.
+ * Derived tones are documented with their contrast ratios in README.md
+ * and verified by `npm run check:contrast`.
+ */
+@theme {
+  --color-charcoal: #1B1F23; /* locked: dark sections, primary text on ivory */
+  --color-ivory: #F8F5EF; /* locked: light sections and cards */
+  --color-brass: #8A5F1C; /* locked: text and buttons on ivory */
+
+  --color-brass-press: #74501A; /* derived: button hover, darker than brass */
+  --color-brass-line: #B8894A; /* derived: decorative hairlines on charcoal only, never text */
+  --color-slate: #4A4F55; /* derived: secondary text on ivory */
+  --color-mist: #C9C4BA; /* derived: secondary text on charcoal */
+  --color-rule: #E2DBCF; /* derived: decorative borders on ivory */
+  --color-ink-2: #262B30; /* derived: raised surface on charcoal */
+
+  --font-serif: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* `on-dark:` styles apply inside a charcoal section. */
+/* `on-dark:` styles apply inside a charcoal section, but not inside an ivory card placed on it. */
+@custom-variant on-dark (&:where(.tone-dark, .tone-dark *):not(:where(.tone-light, .tone-light *)));
+
+@layer base {
+  :root {
+    --focus-ring: var(--color-charcoal);
+    color-scheme: light;
+  }
+
+  .tone-dark {
+    --focus-ring: var(--color-ivory);
+  }
+
+  .tone-light {
+    --focus-ring: var(--color-charcoal);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-ivory);
+    color: var(--color-charcoal);
+    font-family: var(--font-sans);
+    line-height: 1.7;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-serif);
+    line-height: 1.08;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background-color: var(--color-brass);
+    color: var(--color-ivory);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /*
+   * Quiet fade on scroll. Pure CSS progressive enhancement: content is
+   * always visible without JS, and the effect only runs where scroll-driven
+   * animations are supported and the visitor has not asked for less motion.
+   */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .reveal {
+        animation: rl-reveal linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 35%;
+      }
+    }
+  }
+
+  @keyframes rl-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Optional slow loop line on the divider. */
+  @media (prefers-reduced-motion: no-preference) {
+    .loop-trace {
+      stroke-dasharray: 6 10;
+      animation: rl-trace 24s linear infinite;
+    }
+  }
+
+  @keyframes rl-trace {
+    to {
+      stroke-dashoffset: -320;
+    }
+  }
+}
