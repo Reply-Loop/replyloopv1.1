@@ -1,28 +1,55 @@
 /**
- * Blog post registry. Each entry has a matching MDX file in content/blog/<slug>.mdx
- * (added in Phase 4). Service pages link to a related post from here.
+ * Blog post registry. Each post is an MDX file in src/content/blog/<slug>.mdx
+ * with YAML frontmatter (title, description, date, keyword). Titles and
+ * descriptions come from the frontmatter, so there is one source of truth.
  */
-export type PostMeta = { slug: string; title: string; description: string };
+import type { ComponentType } from "react";
+import Replies, {
+  frontmatter as repliesFm,
+} from "./blog/respond-to-google-reviews-without-sharing-private-details.mdx";
+import Checklist, { frontmatter as checklistFm } from "./blog/utah-home-care-local-seo-checklist.mdx";
+import Profile, {
+  frontmatter as profileFm,
+} from "./blog/what-families-look-for-on-a-home-care-google-business-profile.mdx";
+
+export type PostMeta = {
+  slug: string;
+  title: string;
+  seoTitle: string;
+  description: string;
+  date: string;
+  keyword: string;
+};
+
+export type Post = PostMeta & { Content: ComponentType };
+
+const posts: Post[] = [
+  { slug: "respond-to-google-reviews-without-sharing-private-details", ...repliesFm, Content: Replies },
+  { slug: "utah-home-care-local-seo-checklist", ...checklistFm, Content: Checklist },
+  { slug: "what-families-look-for-on-a-home-care-google-business-profile", ...profileFm, Content: Profile },
+];
+
+const meta = (p: Post): PostMeta => ({
+  slug: p.slug,
+  title: p.title,
+  seoTitle: p.seoTitle,
+  description: p.description,
+  date: p.date,
+  keyword: p.keyword,
+});
 
 export const postIndex = {
-  replies: {
-    slug: "respond-to-google-reviews-without-sharing-private-details",
-    title: "How home care agencies can respond to Google reviews without sharing private details",
-    description:
-      "A plain guide for home care owners: what a public reply can say, what it should never say, and how to move a hard conversation off the page.",
-  },
-  checklist: {
-    slug: "utah-home-care-local-seo-checklist",
-    title: "A simple local SEO checklist for Utah home care agencies",
-    description:
-      "A short, honest checklist for Utah home care owners: your Google Business Profile, your reviews, your website, and what to check each month.",
-  },
-  profile: {
-    slug: "what-families-look-for-on-a-home-care-google-business-profile",
-    title: "What families look for on a home care agency's Google Business Profile",
-    description:
-      "What a family choosing home care can see on your Google Business Profile, and the plain steps that help it answer their first questions.",
-  },
-} satisfies Record<string, PostMeta>;
+  replies: meta(posts[0]),
+  checklist: meta(posts[1]),
+  profile: meta(posts[2]),
+};
 
-export const allPostMeta: PostMeta[] = Object.values(postIndex);
+export const allPostMeta: PostMeta[] = posts.map(meta);
+
+export function getPost(slug: string): Post | undefined {
+  return posts.find((p) => p.slug === slug);
+}
+
+export function relatedPosts(slug: string, count = 2): PostMeta[] {
+  return allPostMeta.filter((p) => p.slug !== slug).slice(0, count);
+}

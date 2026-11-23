@@ -4,7 +4,7 @@ Main marketing site for ReplyLoop. *Keep the thank you alive.*
 
 Stack: Next.js 16 (App Router, Cache Components), TypeScript, Tailwind CSS 4. Deploy target: Vercel.
 
-> Build status: **Phase 3 of 6 complete** (all core pages). Blog, privacy, and terms arrive in Phases 4 and 5; links to them 404 until then.
+> Build status: **Phase 4 of 6 complete** (all pages plus blog and OG images). Privacy and terms arrive in Phase 5; footer links to them 404 until then.
 
 ## Setup
 
@@ -75,6 +75,24 @@ Brass on charcoal fails as text, and darkening brass would only lower that ratio
 - SEO: per-page metadata helper (`src/lib/seo.ts`), JSON-LD graph of Organization, WebSite, and ProfessionalService on every page (no street address, no geo, no rating), `sitemap.xml` from `src/lib/routes.ts`, `robots.txt`, `llms.txt`, www-to-apex redirect, trailing-slash redirect, Search Console meta from `NEXT_PUBLIC_GSC_VERIFICATION`.
 - Tracking hooks: conversion links carry `data-track` (`cta_click_book_call`, `phone_click`, `email_click`). Phase 5 wires them to GA4 after consent.
 
+## Blog
+
+Posts are MDX files in `src/content/blog/<slug>.mdx` with YAML frontmatter:
+
+```yaml
+title: "Full headline (the H1)"
+seoTitle: "Under about 60 characters | ReplyLoop"
+description: "Under about 155 characters"
+date: "YYYY-MM-DD"
+keyword: "primary keyword"
+```
+
+To add a post: create the file, then add it to the list in `src/content/posts.ts`. Each post must end with the plain line "This is general information, not legal advice." The compliance scan reads every post.
+
+## Open Graph images
+
+Generated at build with `next/og` (`src/lib/og.tsx`): charcoal card, ivory Fraunces headline, brass hairline and loop, no photos. Per-route images for `/`, `/home-care-agencies`, `/services` (inherited by service pages), `/blog`, and each post. Fonts are bundled in `assets/fonts` under the SIL Open Font License (license files alongside).
+
 ## Keyword map
 
 | Page | Primary keyword | H1 |
@@ -107,6 +125,6 @@ Read from the ReplyLoop Brain in Drive on 2026-11-23 and confirmed by Hunter the
 1. ~~Scaffold, tokens, fonts, layout, components~~
 2. ~~Home page, global SEO (metadata, schema, sitemap, robots, llms.txt), redirects~~
 3. ~~Service pages, home care page, about, FAQ, contact~~
-4. MDX blog, three posts, OG images, breadcrumbs
+4. ~~MDX blog, three posts, OG images, breadcrumbs~~
 5. Analytics with Consent Mode v2, cookie banner, booking events, legal drafts
 6. QA: Lighthouse mobile, axe, link check, schema validation, compliance scan, `PLACEHOLDERS.md`
