@@ -199,6 +199,7 @@ export default function HomePage() {
         <div className="mt-10 grid gap-6 md:grid-cols-2">
           <ProofSlot kind="testimonial" label="Client testimonial (written permission first)" path="src/content/proof.ts" />
           <ProofSlot kind="profile-before-after" label="Before and after profile screenshots" path="public/proof/" />
+          <ProofSlot kind="client-logos" label="Client logos (written permission first)" path="public/proof/logos/" />
         </div>
       </Section>
 

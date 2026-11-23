@@ -4,7 +4,7 @@ Main marketing site for ReplyLoop. *Keep the thank you alive.*
 
 Stack: Next.js 16 (App Router, Cache Components), TypeScript, Tailwind CSS 4. Deploy target: Vercel.
 
-> Build status: **Phase 5 of 6 complete** (all pages, blog, analytics with consent, legal drafts). Phase 6 is QA.
+> Build status: **all six phases complete.** See QA results below and `PLACEHOLDERS.md` for what still needs real content.
 
 ## Setup
 
@@ -19,7 +19,12 @@ Checks:
 ```bash
 npm run check             # typecheck + lint + contrast
 npm run build:verify      # build, then the compliance scan on every rendered page
+npm start &               # serve the production build on :3000
+npm run qa                # axe, H1/title/canonical, schema, conversion paths, links
+npm run lighthouse        # Lighthouse mobile on QA_BASE (default http://localhost:3000)
 ```
+
+`npm run qa` uses the machine's Playwright (it sets `NODE_PATH` to the global modules). On a machine without a global Playwright, install `playwright` first.
 
 `npm run check:compliance` fails on prices, dead offers (free, trial), legal terms (HIPAA, BAA, PHI, compliant), scripture or verse references, plan names, AI mentions, invented percentages or counts, client names, street addresses, speed claims, and exclamation points. Rules and their sources are in `scripts/compliance.mjs`.
 
@@ -29,7 +34,7 @@ In development, `/styleguide` shows every component on ivory and charcoal. It re
 
 | Name | Purpose | Default |
 |---|---|---|
-| `NEXT_PUBLIC_SITE_URL` | Canonical origin for metadata, sitemap, OG | `https://reply-loop.com` (inferred from the email domain; confirm) |
+| `NEXT_PUBLIC_SITE_URL` | Canonical origin for metadata, sitemap, OG | `https://reply-loop.com` (confirmed 2026-11-23) |
 | `NEXT_PUBLIC_GA_ID` | GA4 measurement ID, loaded only after consent | empty |
 | `NEXT_PUBLIC_GSC_VERIFICATION` | Search Console verification meta | empty |
 | `NEXT_PUBLIC_SHOW_PROOF_PLACEHOLDERS` | Show dashed proof placeholders in production | `false` (hidden) |
@@ -65,7 +70,37 @@ Measured with `npm run check:contrast` (WCAG 2.2):
 
 Brass on charcoal fails as text, and darkening brass would only lower that ratio. Lightening text is not allowed. So the rule is: **brass is never used as text on charcoal.** On charcoal, text is ivory or mist, and brass shows up only as the button surface (its label is ivory on brass, 5.17:1) and as decorative hairlines in `brass-line` (5.30:1 against charcoal). The `on-dark:` variant in components applies this automatically. On charcoal the button also gets a 1px `brass-line` ring, so its edge clears 3:1 against the background.
 
-## What is built so far
+## Deploy to Vercel
+
+1. Import the GitHub repo in Vercel. The framework preset is Next.js; no build settings need to change.
+2. In Project Settings, Environment Variables, set `NEXT_PUBLIC_SITE_URL=https://reply-loop.com`, plus `NEXT_PUBLIC_GA_ID` and `NEXT_PUBLIC_GSC_VERIFICATION` when you have them. Leave `NEXT_PUBLIC_SHOW_PROOF_PLACEHOLDERS` unset in Production.
+3. In Domains, add `reply-loop.com` and `www.reply-loop.com`, and set www to redirect to the apex. The app also redirects www itself, as a backstop.
+4. After the first deploy:
+   - verify the site in Google Search Console with the meta tag or a DNS TXT record;
+   - submit `https://reply-loop.com/sitemap.xml`;
+   - run Google's Rich Results Test on `/`, `/faq`, a service page, and a blog post;
+   - run Lighthouse on the live `/` and `/home-care-agencies`.
+
+No secrets live in this repo. `.env*` files are git-ignored except `.env.example`.
+
+## Pages
+
+| Route | Notes |
+|---|---|
+| `/` | Locked H1, problem, bundle, how it works, seven promises, health handling, proof (placeholder), fit, FAQ teasers |
+| `/services` | Bundle, one-time projects, who we serve |
+| `/services/review-replies`, `/social-content`, `/local-seo`, `/websites`, `/owner-qa-videos` | One template (`src/components/templates/ServicePageView.tsx`); each links to `/home-care-agencies` and a related post; Service plus BreadcrumbList schema |
+| `/home-care-agencies` | Primary SEO landing page for owners and administrators; full health section; Salt Lake County city list |
+| `/about` | Mission, founder names and titles, bio and photo slots, how we work |
+| `/faq` | Every question, FAQPage schema |
+| `/blog`, `/blog/[slug]` | Three starter guides, BlogPosting and BreadcrumbList schema, related posts |
+| `/contact` | Booking button, phone, email, service area. No address, no form. |
+| `/privacy`, `/terms` | Drafts, `noindex` |
+| `/sitemap.xml`, `/robots.txt`, `/llms.txt` | Generated |
+
+Every page ends with the same CTA band. The only conversion paths are the cal.com button (new tab), `tel:+18018897181`, and `mailto:hb@reply-loop.com`; `npm run qa` enforces this.
+
+## Foundations
 
 - Root layout: skip link, sticky header with the booking button (md and up), small-screen menu, sticky bottom bar with Call and Book on small screens, the CTA band on every page, footer with phone, email, and service area. No street address.
 - Components (`src/components/ui`): Button, BookButton, PhoneLink, EmailLink, TextLink, Card, Section, Container, Eyebrow, Rule, SectionHeading, LoopDivider, FAQ (native `<details>`), PillarCard, StepList, PromiseList, ProofSlot, CTABand, HealthHandling, Logo, Icon.
@@ -73,7 +108,7 @@ Brass on charcoal fails as text, and darkening brass would only lower that ratio
 - Motion: scroll-driven fade via CSS only (`.reveal`), and an optional slow trace on the loop divider. Both are off under `prefers-reduced-motion`.
 - Logo: no files were supplied in `/public/brand`, so the header uses an inline SVG loop mark with a speech tail, plus the wordmark set in Fraunces. Replace it when a vector logo arrives.
 - SEO: per-page metadata helper (`src/lib/seo.ts`), JSON-LD graph of Organization, WebSite, and ProfessionalService on every page (no street address, no geo, no rating), `sitemap.xml` from `src/lib/routes.ts`, `robots.txt`, `llms.txt`, www-to-apex redirect, trailing-slash redirect, Search Console meta from `NEXT_PUBLIC_GSC_VERIFICATION`.
-- Tracking hooks: conversion links carry `data-track` (`cta_click_book_call`, `phone_click`, `email_click`). Phase 5 wires them to GA4 after consent.
+- Tracking hooks: conversion links carry `data-track` (`cta_click_book_call`, `phone_click`, `email_click`), sent to GA4 only after consent.
 
 ## Analytics and consent
 
@@ -135,11 +170,43 @@ Read from the ReplyLoop Brain in Drive on 2026-11-23 and confirmed by Hunter the
 - **Approval wording:** never "the owner approves every reply". Only: a reply to a review of 3 stars or lower stays unpublished until the owner has seen it.
 - **Where the brief overrides older brain docs:** no $499 setup price (D-028 allowed it); no client name (D-030 allowed one pending written consent); Vercel, GA4 with consent, and a cookie banner (D-032 said Cloudflare Pages and Search Console only); FAQPage schema kept although design system v1 says not to use it; Next.js replaces the Astro staging site.
 
-## Roadmap
+## QA results (2026-11-23, local production build)
 
-1. ~~Scaffold, tokens, fonts, layout, components~~
-2. ~~Home page, global SEO (metadata, schema, sitemap, robots, llms.txt), redirects~~
-3. ~~Service pages, home care page, about, FAQ, contact~~
-4. ~~MDX blog, three posts, OG images, breadcrumbs~~
-5. ~~Analytics with Consent Mode v2, cookie banner, booking events, legal drafts~~
-6. QA: Lighthouse mobile, axe, link check, schema validation, compliance scan, `PLACEHOLDERS.md`
+| Check | Result |
+|---|---|
+| Typecheck, lint, build | Pass |
+| Compliance scan (30 rendered pages and content files) | 0 problems |
+| Contrast check | Pass (see above) |
+| axe-core, WCAG 2.2 A/AA, 17 pages at 390px and 1280px | 0 violations |
+| One H1, unique title and description, canonical, on every page | Pass |
+| Locked homepage H1, word for word | Pass |
+| JSON-LD parses; no address, geo, rating, or price | Pass |
+| Conversion paths (no forms; new tabs only to cal.com; exact button label) | Pass |
+| Internal links | All 200 |
+| Keyboard: skip link, menu with Escape, FAQ, visible focus | Pass |
+| Redirects: www to apex, trailing slash | 308, both |
+| Consent: GA loads only after Accept; events fire; Decline sends nothing | Pass |
+
+Lighthouse mobile (median of 3 runs, localhost):
+
+| Page | Performance | Accessibility | Best Practices | SEO | LCP | CLS |
+|---|---|---|---|---|---|---|
+| `/` | 97 | 100 | 100 | 100 | 1.0 s | 0 |
+| `/home-care-agencies` | 98 | 100 | 100 | 100 | 0.9 s | 0 |
+
+The first cold run of `/` scored 91 (total blocking time 370 ms). The two warm runs scored 97 and 99. Localhost has no network latency, so re-run Lighthouse on the live Vercel URL. INP needs real-user data; the Search Console Core Web Vitals report will show it after launch.
+
+Not checked here: Google's Rich Results Test and the schema.org validator need a public URL. Run them after the first deploy.
+
+## Placeholders
+
+See `PLACEHOLDERS.md` for every proof slot (testimonials, client logos, founder photos and bios, owner Q&A video, before and after screenshots), the placeholder logo, and the bracketed legal-draft fields.
+
+## Build phases
+
+1. Scaffold, tokens, fonts, layout, components
+2. Home page and global SEO
+3. Service pages, home care page, about, FAQ, contact
+4. MDX blog, three posts, OG images, breadcrumbs
+5. Analytics with Consent Mode v2, cookie banner, booking events, legal drafts
+6. QA: Lighthouse mobile, axe, link check, schema checks, compliance scan, `PLACEHOLDERS.md`

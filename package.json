@@ -11,7 +11,9 @@
     "check:contrast": "node scripts/contrast.mjs",
     "check": "npm run typecheck && npm run lint && npm run check:contrast",
     "check:compliance": "node scripts/compliance.mjs",
-    "build:verify": "next build && node scripts/compliance.mjs"
+    "build:verify": "next build && node scripts/compliance.mjs",
+    "qa": "NODE_PATH=$(npm root -g) node scripts/qa.cjs",
+    "lighthouse": "CHROME_PATH=${CHROME_PATH:-/opt/pw-browsers/chromium} lighthouse ${QA_BASE:-http://localhost:3000} --form-factor=mobile --chrome-flags=\"--headless=new --no-sandbox\" --view=false"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",
@@ -25,6 +27,7 @@
     "remark-mdx-frontmatter": "^6.0.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@tailwindcss/turbopack": "4.3.3",
     "@types/mdx": "^2.0.14",
     "@types/node": "^20",
@@ -32,6 +35,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
+    "lighthouse": "^13.6.0",
     "tailwindcss": "4.3.3",
     "typescript": "^5"
   },
