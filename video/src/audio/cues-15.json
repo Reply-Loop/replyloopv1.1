@@ -1,0 +1,111 @@
+{
+  "bpm": 90,
+  "fps": 30,
+  "framesPerBeat": 20,
+  "musicVersion": "v2-clean",
+  "versions": [
+    "v1-original",
+    "v2-clean",
+    "alt-a-warm",
+    "alt-b-bright",
+    "alt-c-dusty"
+  ],
+  "sections": [
+    {
+      "id": "c15-01-hook",
+      "file": "music/v2-clean/section-c15-01-hook.wav",
+      "startFrame": 0,
+      "durationInFrames": 80,
+      "audioFrames": 128,
+      "beats": 4,
+      "accents": [
+        {
+          "beat": 0,
+          "frame": 0,
+          "type": "big"
+        },
+        {
+          "beat": 2,
+          "frame": 40,
+          "type": "big"
+        }
+      ]
+    },
+    {
+      "id": "c15-02-what",
+      "file": "music/v2-clean/section-c15-02-what.wav",
+      "startFrame": 80,
+      "durationInFrames": 80,
+      "audioFrames": 128,
+      "beats": 4,
+      "accents": [
+        {
+          "beat": 0,
+          "frame": 0,
+          "type": "big"
+        },
+        {
+          "beat": 1,
+          "frame": 20,
+          "type": "small"
+        },
+        {
+          "beat": 2,
+          "frame": 40,
+          "type": "small"
+        },
+        {
+          "beat": 3,
+          "frame": 60,
+          "type": "small"
+        }
+      ]
+    },
+    {
+      "id": "c15-03-price",
+      "file": "music/v2-clean/section-c15-03-price.wav",
+      "startFrame": 160,
+      "durationInFrames": 160,
+      "audioFrames": 208,
+      "beats": 8,
+      "accents": [
+        {
+          "beat": 0,
+          "frame": 0,
+          "type": "big"
+        },
+        {
+          "beat": 4,
+          "frame": 80,
+          "type": "big"
+        },
+        {
+          "beat": 6,
+          "frame": 120,
+          "type": "small"
+        }
+      ]
+    },
+    {
+      "id": "c15-04-cta",
+      "file": "music/v2-clean/section-c15-04-cta.wav",
+      "startFrame": 320,
+      "durationInFrames": 120,
+      "audioFrames": 168,
+      "beats": 6,
+      "accents": [
+        {
+          "beat": 0,
+          "frame": 0,
+          "type": "big"
+        },
+        {
+          "beat": 3,
+          "frame": 60,
+          "type": "big"
+        }
+      ]
+    }
+  ],
+  "totalFrames": 440
+}

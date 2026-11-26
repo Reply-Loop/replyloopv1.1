@@ -1,0 +1,261 @@
+{
+  "bpm": 90,
+  "fps": 30,
+  "framesPerBeat": 20,
+  "musicVersion": "v2-clean",
+  "versions": [
+    "v1-original",
+    "v2-clean",
+    "alt-a-warm",
+    "alt-b-bright",
+    "alt-c-dusty"
+  ],
+  "sections": [
+    {
+      "id": "01-hook",
+      "file": "music/v2-clean/section-01-hook.wav",
+      "startFrame": 0,
+      "durationInFrames": 160,
+      "audioFrames": 208,
+      "beats": 8,
+      "accents": [
+        {
+          "beat": 0,
+          "frame": 0,
+          "type": "big"
+        },
+        {
+          "beat": 4,
+          "frame": 80,
+          "type": "big"
+        }
+      ]
+    },
+    {
+      "id": "02-stat",
+      "file": "music/v2-clean/section-02-stat.wav",
+      "startFrame": 160,
+      "durationInFrames": 120,
+      "audioFrames": 168,
+      "beats": 6,
+      "accents": [
+        {
+          "beat": 0,
+          "frame": 0,
+          "type": "big"
+        },
+        {
+          "beat": 4,
+          "frame": 80,
+          "type": "small"
+        }
+      ]
+    },
+    {
+      "id": "03-what-we-do",
+      "file": "music/v2-clean/section-03-what-we-do.wav",
+      "startFrame": 280,
+      "durationInFrames": 160,
+      "audioFrames": 208,
+      "beats": 8,
+      "accents": [
+        {
+          "beat": 0,
+          "frame": 0,
+          "type": "big"
+        },
+        {
+          "beat": 4,
+          "frame": 80,
+          "type": "small"
+        },
+        {
+          "beat": 5,
+          "frame": 100,
+          "type": "small"
+        },
+        {
+          "beat": 6,
+          "frame": 120,
+          "type": "small"
+        },
+        {
+          "beat": 7,
+          "frame": 140,
+          "type": "small"
+        }
+      ]
+    },
+    {
+      "id": "04-setup-499",
+      "file": "music/v2-clean/section-04-setup-499.wav",
+      "startFrame": 440,
+      "durationInFrames": 320,
+      "audioFrames": 368,
+      "beats": 16,
+      "accents": [
+        {
+          "beat": 0,
+          "frame": 0,
+          "type": "big"
+        },
+        {
+          "beat": 4,
+          "frame": 80,
+          "type": "small"
+        },
+        {
+          "beat": 6,
+          "frame": 120,
+          "type": "small"
+        },
+        {
+          "beat": 8,
+          "frame": 160,
+          "type": "small"
+        },
+        {
+          "beat": 10,
+          "frame": 200,
+          "type": "small"
+        },
+        {
+          "beat": 12,
+          "frame": 240,
+          "type": "big"
+        }
+      ]
+    },
+    {
+      "id": "05-monthly-350",
+      "file": "music/v2-clean/section-05-monthly-350.wav",
+      "startFrame": 760,
+      "durationInFrames": 400,
+      "audioFrames": 448,
+      "beats": 20,
+      "accents": [
+        {
+          "beat": 0,
+          "frame": 0,
+          "type": "big"
+        },
+        {
+          "beat": 4,
+          "frame": 80,
+          "type": "small"
+        },
+        {
+          "beat": 6,
+          "frame": 120,
+          "type": "small"
+        },
+        {
+          "beat": 8,
+          "frame": 160,
+          "type": "small"
+        },
+        {
+          "beat": 10,
+          "frame": 200,
+          "type": "small"
+        },
+        {
+          "beat": 12,
+          "frame": 240,
+          "type": "small"
+        },
+        {
+          "beat": 14,
+          "frame": 280,
+          "type": "small"
+        },
+        {
+          "beat": 16,
+          "frame": 320,
+          "type": "big"
+        }
+      ]
+    },
+    {
+      "id": "06-price-math",
+      "file": "music/v2-clean/section-06-price-math.wav",
+      "startFrame": 1160,
+      "durationInFrames": 200,
+      "audioFrames": 249,
+      "beats": 10,
+      "accents": [
+        {
+          "beat": 0,
+          "frame": 0,
+          "type": "big"
+        },
+        {
+          "beat": 3,
+          "frame": 60,
+          "type": "big"
+        },
+        {
+          "beat": 6,
+          "frame": 120,
+          "type": "big"
+        },
+        {
+          "beat": 9,
+          "frame": 180,
+          "type": "small"
+        }
+      ]
+    },
+    {
+      "id": "07-owner-control",
+      "file": "music/v2-clean/section-07-owner-control.wav",
+      "startFrame": 1360,
+      "durationInFrames": 200,
+      "audioFrames": 249,
+      "beats": 10,
+      "accents": [
+        {
+          "beat": 0,
+          "frame": 0,
+          "type": "small"
+        },
+        {
+          "beat": 3,
+          "frame": 60,
+          "type": "small"
+        },
+        {
+          "beat": 6,
+          "frame": 120,
+          "type": "small"
+        },
+        {
+          "beat": 8,
+          "frame": 160,
+          "type": "big"
+        }
+      ]
+    },
+    {
+      "id": "08-cta",
+      "file": "music/v2-clean/section-08-cta.wav",
+      "startFrame": 1560,
+      "durationInFrames": 160,
+      "audioFrames": 208,
+      "beats": 8,
+      "accents": [
+        {
+          "beat": 0,
+          "frame": 0,
+          "type": "big"
+        },
+        {
+          "beat": 4,
+          "frame": 80,
+          "type": "big"
+        }
+      ]
+    }
+  ],
+  "totalFrames": 1720
+}
