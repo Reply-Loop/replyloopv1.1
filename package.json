@@ -18,7 +18,9 @@
     "loop:fit": "python3 -I scripts/loop/fit-loop.py && node scripts/loop/build-loop.mjs",
     "brand:derive": "node scripts/brand/derive.mjs",
     "build:static": "STATIC_EXPORT=1 next build && node scripts/static-finish.mjs && node scripts/compliance.mjs --out",
-    "deploy:pages": "npm run build:static && wrangler pages deploy out --project-name=reply-loop-staging --branch=main"
+    "deploy:pages": "npm run build:static && wrangler pages deploy out --project-name=reply-loop-staging --branch=main",
+    "build:worker": "npm run build:static && node scripts/build-worker.mjs",
+    "deploy:worker": "npm run build:worker && wrangler deploy -c worker/wrangler.toml"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

@@ -21,6 +21,9 @@ const eslintConfig = defineConfig([
     "video/**",
     // Wrangler local dev state and generated shims.
     ".wrangler/**",
+    // The Worker bundle copies the built site into worker/site.
+    "worker/site/**",
+    "worker/files.generated.js",
   ]),
 ]);
 
