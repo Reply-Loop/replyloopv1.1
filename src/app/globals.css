@@ -131,6 +131,13 @@
     }
   }
 
+  /* Static film grain: an SVG noise tile, no animation and no motion cost. */
+  .film-grain {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.11 0 0 0 0 0.12 0 0 0 0 0.14 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+    mix-blend-mode: multiply;
+  }
+
   /* Optional slow loop line on the divider. */
   /* Ambient: only while motion is fully on (the Pause motion control stops it). */
   @media (prefers-reduced-motion: no-preference) {

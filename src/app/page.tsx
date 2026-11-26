@@ -19,6 +19,7 @@ import { bundlePillars, oneTimeProjects } from "@/content/services";
 import { pageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 import Link from "next/link";
+import { HeroVisual } from "@/components/hero/HeroVisual";
 
 // Primary keyword: Google review replies for local health businesses.
 export const metadata: Metadata = pageMetadata({
@@ -81,30 +82,32 @@ export default function HomePage() {
   return (
     <>
       {/* 1. Hero. The H1 is locked (D-027, 2026-11-20). Do not A/B, soften, or replace it. */}
-      <section aria-labelledby="hero-title" className="relative overflow-hidden pt-16 pb-20 sm:pt-24 sm:pb-28">
-        <Container>
-          <Eyebrow>{site.tagline}</Eyebrow>
-          <h1
-            id="hero-title"
-            className="mt-6 max-w-4xl font-serif text-[2.6rem] font-medium sm:text-6xl lg:text-[4.5rem]"
-          >
-            Your next customer is reading your unanswered Google reviews.
-          </h1>
-          <p className="mt-7 max-w-2xl text-lg leading-relaxed text-slate sm:text-xl">
-            Built for home care agencies and local health practices in Salt Lake County and across Utah.
-            We answer every Google review in your voice and keep your Google profile, Facebook, and
-            Instagram active.
-          </p>
-          <div className="mt-10 flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:gap-8">
-            <BookButton />
-            <TextLink href="#how-it-works">See how it works</TextLink>
+      <section aria-labelledby="hero-title" className="relative overflow-hidden pt-14 pb-16 sm:pt-20 sm:pb-24">
+        <Container className="grid items-center gap-y-10 lg:grid-cols-[minmax(0,1.18fr)_minmax(0,0.82fr)] lg:gap-x-10">
+          <div>
+            <Eyebrow>{site.tagline}</Eyebrow>
+            <h1
+              id="hero-title"
+              className="mt-6 max-w-4xl font-serif text-[2.6rem] font-medium sm:text-6xl lg:text-[4.1rem]"
+            >
+              Your next customer is reading your unanswered Google reviews.
+            </h1>
+            <p className="mt-7 max-w-2xl text-lg leading-relaxed text-slate sm:text-xl">
+              Built for home care agencies and local health practices in Salt Lake County and across Utah.
+              We answer every Google review in your voice and keep your Google profile, Facebook, and
+              Instagram active.
+            </p>
+            <div className="mt-10 flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:gap-8">
+              <BookButton />
+              <TextLink href="#how-it-works">See how it works</TextLink>
+            </div>
+            <p className="mt-8 flex items-center gap-2.5 text-[0.95rem] text-slate">
+              <Icon name="key" className="size-4 shrink-0 text-brass" />
+              {trustCue}
+            </p>
           </div>
-          <p className="mt-8 flex items-center gap-2.5 text-[0.95rem] text-slate">
-            <Icon name="key" className="size-4 shrink-0 text-brass" />
-            {trustCue}
-          </p>
+          <HeroVisual className="mx-auto w-full max-w-[34rem] lg:max-w-none" />
         </Container>
-        <HeroLoop />
       </section>
 
       <LoopDivider />
@@ -244,25 +247,5 @@ export default function HomePage() {
       </Section>
       {/* 10. The closing CTA band is rendered by the root layout on every page. */}
     </>
-  );
-}
-
-/** A quiet, decorative loop behind the hero on large screens. */
-function HeroLoop() {
-  return (
-    <svg
-      aria-hidden
-      focusable="false"
-      viewBox="0 0 40 24"
-      fill="none"
-      className="pointer-events-none absolute top-1/2 -right-40 hidden h-[26rem] w-auto -translate-y-1/2 text-brass/15 lg:block"
-    >
-      <path
-        d="M20 12C16.5 5.5 6 5.5 6 12s10.5 6.5 14 0 14-6.5 14 0-10.5 6.5-14 0Z"
-        stroke="currentColor"
-        strokeWidth={0.35}
-        className="loop-trace"
-      />
-    </svg>
   );
 }
