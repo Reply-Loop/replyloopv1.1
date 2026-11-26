@@ -1,44 +1,39 @@
 import Link from "next/link";
 import { cn } from "@/lib/cn";
+import {
+  LOOP_CROSSING_PATH,
+  LOOP_PATH,
+  LOOP_STROKE,
+  LOOP_VIEWBOX,
+} from "@/lib/loop/geometry.generated";
 
 /**
- * Placeholder mark until a vector logo is supplied in /public/brand:
- * an abstract infinity loop whose lower-left lobe carries a small speech tail.
+ * Logo option B (chosen 2026-11-26): the kit's flat double loop, redrawn as a
+ * true vector from the kit mark's own geometry (scripts/loop). Flat on purpose:
+ * the hyper-real treatment is for scene elements, never the mark.
+ *
+ * The crossing detail is ivory on dark grounds, as in the kit avatar. On light
+ * grounds an ivory crossing would disappear, so it turns charcoal there.
  */
-export function LoopMark({ className }: { className?: string }) {
+export function LoopMark({ className, tone = "auto" }: { className?: string; tone?: "auto" | "light" | "dark" }) {
+  const crossing =
+    tone === "dark"
+      ? "text-ivory"
+      : tone === "light"
+        ? "text-charcoal"
+        : "text-charcoal on-dark:text-ivory";
   return (
-    <svg
-      viewBox="0 0 40 24"
-      fill="none"
-      className={cn("h-6 w-10", className)}
-      aria-hidden
-      focusable="false"
-    >
-      <path
-        d="M20 11C16.5 4.5 6 4.5 6 11s10.5 6.5 14 0 14-6.5 14 0-10.5 6.5-14 0Z"
-        stroke="currentColor"
-        strokeWidth={2}
-        strokeLinejoin="round"
-      />
-      <path
-        d="M9.2 15.9 6.6 21l5.7-3.3"
-        stroke="currentColor"
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <svg viewBox={LOOP_VIEWBOX} fill="none" className={cn("h-[22px] w-auto", className)} aria-hidden focusable="false">
+      <path d={LOOP_PATH} className="text-brass" stroke="currentColor" strokeWidth={LOOP_STROKE} strokeLinejoin="round" />
+      <path d={LOOP_CROSSING_PATH} className={crossing} stroke="currentColor" strokeWidth={LOOP_STROKE + 0.4} />
     </svg>
   );
 }
 
 export function Logo({ className }: { className?: string }) {
   return (
-    <Link
-      href="/"
-      className={cn("inline-flex items-center gap-2.5 rounded-md", className)}
-      aria-label="ReplyLoop, home"
-    >
-      <LoopMark className="text-brass on-dark:text-brass-line" />
+    <Link href="/" className={cn("inline-flex items-center gap-2.5 rounded-md", className)} aria-label="ReplyLoop, home">
+      <LoopMark />
       <span className="font-serif text-[1.35rem] font-medium leading-none tracking-[-0.01em] text-charcoal on-dark:text-ivory">
         ReplyLoop
       </span>

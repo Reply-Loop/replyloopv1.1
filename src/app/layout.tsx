@@ -7,6 +7,7 @@ import { MobileBar } from "@/components/layout/MobileBar";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { CTABand } from "@/components/ui/CTABand";
 import { graph, organizationSchema, professionalServiceSchema, websiteSchema } from "@/lib/schema";
+import { MOTION_HEAD_SCRIPT } from "@/lib/motion/state";
 import { site } from "@/lib/site";
 import "./globals.css";
 
@@ -46,7 +47,16 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en-US" className={`${fraunces.variable} ${inter.variable} antialiased`}>
+    <html
+      lang="en-US"
+      data-motion="full"
+      suppressHydrationWarning
+      className={`${fraunces.variable} ${inter.variable} antialiased`}
+    >
+      <head>
+        {/* Sets html[data-motion] before first paint: see src/lib/motion/state.ts. */}
+        <script dangerouslySetInnerHTML={{ __html: MOTION_HEAD_SCRIPT }} />
+      </head>
       <body className="flex min-h-dvh flex-col">
         <a
           href="#main"

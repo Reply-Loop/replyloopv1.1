@@ -40,6 +40,19 @@
     --focus-ring: var(--color-charcoal);
   }
 
+  /*
+   * Motion system. html[data-motion] is "full", "paused", or "reduce", set before
+   * first paint by the head script (src/lib/motion/state.ts).
+   * - [data-motion-only]: decorative layers that exist only for motion.
+   * - [data-static-only]: their still stand-ins (posters, stacked layouts).
+   */
+  :root[data-motion="reduce"] [data-motion-only] {
+    display: none !important;
+  }
+  :root:not([data-motion="reduce"]) [data-static-only] {
+    display: none !important;
+  }
+
   html {
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
@@ -99,7 +112,7 @@
    */
   @supports (animation-timeline: view()) {
     @media (prefers-reduced-motion: no-preference) {
-      .reveal {
+      :root:not([data-motion="reduce"]) .reveal {
         animation: rl-reveal linear both;
         animation-timeline: view();
         animation-range: entry 0% entry 35%;
@@ -119,8 +132,9 @@
   }
 
   /* Optional slow loop line on the divider. */
+  /* Ambient: only while motion is fully on (the Pause motion control stops it). */
   @media (prefers-reduced-motion: no-preference) {
-    .loop-trace {
+    :root[data-motion="full"] .loop-trace {
       stroke-dasharray: 6 10;
       animation: rl-trace 24s linear infinite;
     }

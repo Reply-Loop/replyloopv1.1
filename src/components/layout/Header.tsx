@@ -3,6 +3,7 @@ import { primaryNav } from "@/lib/site";
 import { BookButton } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { Logo } from "@/components/ui/Logo";
+import { MotionToggle } from "@/components/motion/MotionToggle";
 import { MobileNav } from "./MobileNav";
 
 export function Header() {
@@ -25,6 +26,7 @@ export function Header() {
           </ul>
         </nav>
         <div className="flex items-center gap-3">
+          <MotionToggle />
           <div className="hidden md:block">
             <BookButton className="min-h-11 px-5 text-[0.9rem]" />
           </div>

@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
+import { LOOP_CROSSING_PATH, LOOP_PATH, LOOP_STROKE, LOOP_VIEWBOX } from "./loop/geometry.generated";
 
 /**
  * Open Graph card in brand colors: charcoal background, ivory Fraunces headline,
@@ -46,14 +47,9 @@ export async function renderOg({ eyebrow, title }: { eyebrow: string; title: str
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-          <svg width="60" height="36" viewBox="0 0 40 24" fill="none">
-            <path
-              d="M20 11C16.5 4.5 6 4.5 6 11s10.5 6.5 14 0 14-6.5 14 0-10.5 6.5-14 0Z"
-              stroke="#B8894A"
-              strokeWidth="2"
-              strokeLinejoin="round"
-            />
-            <path d="M9.2 15.9 6.6 21l5.7-3.3" stroke="#B8894A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <svg width="74" height="34" viewBox={LOOP_VIEWBOX} fill="none">
+            <path d={LOOP_PATH} stroke="#8A5F1C" strokeWidth={LOOP_STROKE} strokeLinejoin="round" />
+            <path d={LOOP_CROSSING_PATH} stroke="#F8F5EF" strokeWidth={LOOP_STROKE + 0.4} />
           </svg>
           <div style={{ fontFamily: "Fraunces", fontSize: 38 }}>ReplyLoop</div>
         </div>
