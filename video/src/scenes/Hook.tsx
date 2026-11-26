@@ -23,7 +23,7 @@ export const Hook: React.FC = () => {
       <AbsoluteFill style={{ overflow: "hidden" }}>
         <OffthreadVideo src={staticFile("src/photo09-review-follow.mp4")} startFrom={Math.round(0.3 * fps)} playbackRate={0.58} muted
           style={{ width: "100%", height: "100%", objectFit: "cover", transform: `scale(${bgScale})`, transformOrigin: "50% 92%", filter: "brightness(0.55) saturate(0.9) blur(1px)" }} />
-        <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(20,23,26,0.92) 0%, rgba(20,23,26,0.55) 38%, rgba(20,23,26,0.25) 58%, rgba(20,23,26,0.92) 76%, rgba(20,23,26,1) 100%)" }} />
+        <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(20,23,26,1) 0%, rgba(20,23,26,1) 16%, rgba(20,23,26,0.6) 36%, rgba(20,23,26,0.25) 58%, rgba(20,23,26,0.92) 76%, rgba(20,23,26,1) 100%)" }} />
       </AbsoluteFill>
       <AbsoluteFill style={{ padding: `0 ${theme.layout.gutter}px`, paddingTop: 360, ...exit }}>
         <WordReveal
