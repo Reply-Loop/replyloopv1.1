@@ -22,6 +22,15 @@ npm run build:verify      # build, then the compliance scan on every rendered pa
 npm start &               # serve the production build on :3000
 npm run qa                # axe, H1/title/canonical, schema, conversion paths, links
 npm run lighthouse        # Lighthouse mobile on QA_BASE (default http://localhost:3000)
+npm run perf              # Lighthouse mobile, median of RUNS (default 5) per page: npm run perf -- / /services
+```
+
+Asset pipelines (outputs are committed; re-run only after a source changes):
+
+```bash
+npm run loop:fit          # kit loop mark -> src/lib/loop/geometry.generated.ts and src/app/icon.svg
+npm run brand:derive      # kit backgrounds -> AVIF/WebP in public/brand
+cd video && npm install && npm run render   # brand film -> public/media (MP4, WebM, AVIF/WebP poster)
 ```
 
 `npm run qa` uses the machine's Playwright (it sets `NODE_PATH` to the global modules). On a machine without a global Playwright, install `playwright` first.
@@ -105,8 +114,8 @@ Every page ends with the same CTA band. The only conversion paths are the cal.co
 - Root layout: skip link, sticky header with the booking button (md and up), small-screen menu, sticky bottom bar with Call and Book on small screens, the CTA band on every page, footer with phone, email, and service area. No street address.
 - Components (`src/components/ui`): Button, BookButton, PhoneLink, EmailLink, TextLink, Card, Section, Container, Eyebrow, Rule, SectionHeading, LoopDivider, FAQ (native `<details>`), PillarCard, StepList, PromiseList, ProofSlot, CTABand, HealthHandling, Logo, Icon.
 - Content sources: `src/lib/site.ts` (business facts), `src/content/promises.ts` (seven red lines, customer-facing), `src/content/health.ts` (health review handling).
-- Motion: scroll-driven fade via CSS only (`.reveal`), and an optional slow trace on the loop divider. Both are off under `prefers-reduced-motion`.
-- Logo: no files were supplied in `/public/brand`, so the header uses an inline SVG loop mark with a speech tail, plus the wordmark set in Fraunces. Replace it when a vector logo arrives.
+- Motion: see "Cinematic layer" below. The scroll-driven fade (`.reveal`) is CSS only and off under `prefers-reduced-motion`.
+- Logo: option B (chosen 2026-11-26), the flat brass double loop traced from the kit's loop mark, with an ivory crossing on dark and a charcoal crossing on light, plus the Fraunces wordmark.
 - SEO: per-page metadata helper (`src/lib/seo.ts`), JSON-LD graph of Organization, WebSite, and ProfessionalService on every page (no street address, no geo, no rating), `sitemap.xml` from `src/lib/routes.ts`, `robots.txt`, `llms.txt`, www-to-apex redirect, trailing-slash redirect, Search Console meta from `NEXT_PUBLIC_GSC_VERIFICATION`.
 - Tracking hooks: conversion links carry `data-track` (`cta_click_book_call`, `phone_click`, `email_click`), sent to GA4 only after consent.
 
@@ -170,6 +179,34 @@ Read from the ReplyLoop Brain in Drive on 2026-11-23 and confirmed by Hunter the
 - **Approval wording:** never "the owner approves every reply". Only: a reply to a review of 3 stars or lower stays unpublished until the owner has seen it.
 - **Where the brief overrides older brain docs:** no $499 setup price (D-028 allowed it); no client name (D-030 allowed one pending written consent); Vercel, GA4 with consent, and a cookie banner (D-032 said Cloudflare Pages and Search Console only); FAQPage schema kept although design system v1 says not to use it; Next.js replaces the Astro staging site.
 
+## Cinematic layer
+
+Calm, warm motion built in code from the brand kit (`assets/social-kit`, provenance in `SOURCES.md`). Every scene is decorative and `aria-hidden`; the words are always HTML.
+
+**Motion system** (`src/lib/motion`, `src/components/motion`)
+
+- `html[data-motion]` is `static` (server default and no JS), `full`, `paused` or `reduce`. A head script sets it before first paint from `prefers-reduced-motion` and the visitor's saved choice.
+- The header "Pause motion" toggle (`aria-pressed`) stops all ambient motion and is remembered. Scroll-linked scenes still follow the visitor's scroll while paused.
+- Device tier: phones, Save-Data, low memory or few cores, and no WebGL get the light version (SVG stills, no 3D).
+- Everything pauses off screen and when a route is hidden by `<Activity>`.
+
+**Scenes**
+
+| Scene | Where | Built with |
+|---|---|---|
+| Brass loop (3D) | `/` hero | three.js + R3F `createRoot` (`src/components/hero`). The SVG still paints first; the 3D loads after the first interaction (or 7 s) on capable desktops and falls back to the still on a low frame rate. The H1 stays the LCP element. |
+| Waiting review, arriving reply | `/` problem section | Layered SVG, scrubbed by GSAP ScrollTrigger (`ProblemScene`) |
+| Journey along the loop | `/` how it works | CSS sticky stage (no JS pin, CLS 0) with scrubbed chapter fades and a camera along the loop (`HowItWorksJourney`); stacked on phones, short screens, large text and reduced motion |
+| Brass thread | Loop dividers | SVG stroke drawn with scroll (`Thread`) |
+| Brand film | `/` and `/services` | Remotion (`/video`), 16 s seamless loop, 1280×720. MP4 and WebM about 400 KB each, AVIF/WebP poster. Starts on screen with motion on; "Pause film" control; reduced motion and no JS get the poster only. Save-Data starts paused. |
+| Ribbon backdrop | `/home-care-agencies` hero | Kit `06-og-link-preview`, cropped and colour-matched; desktop only, phones never download it |
+| Service emblems | `/services/*`, `/about` heroes | SVG loop with a travelling brass stroke (CSS) |
+| Trust loop | `/services/review-replies` | SVG loop with a bead that lights each HTML step (Ask, Review, Reply, Learn) |
+
+**Remotion licence.** Remotion is free for individuals and companies of up to 3 people; companies of 4 or more need a Company License (see remotion.dev/license). ReplyLoop has 2 people, so the free licence applies today. Only pre-rendered video ships, so the site carries no Remotion runtime. Re-check when the team grows.
+
+**Photoreal assets.** `ASSET_BRIEF.md` has prompts for four stills the code cannot make (paper, window light, felt, brushed brass). Stand-ins are listed in `PLACEHOLDERS.md`.
+
 ## QA results (2026-11-23, local production build)
 
 | Check | Result |
@@ -210,3 +247,12 @@ See `PLACEHOLDERS.md` for every proof slot (testimonials, client logos, founder 
 4. MDX blog, three posts, OG images, breadcrumbs
 5. Analytics with Consent Mode v2, cookie banner, booking events, legal drafts
 6. QA: Lighthouse mobile, axe, link check, schema checks, compliance scan, `PLACEHOLDERS.md`
+
+Cinematic overhaul (2026-11-26):
+
+a. Motion foundation: motion modes, pause toggle, GSAP loader, kit loop geometry, logo B
+b. Hero 3D brass loop
+c. Scroll storytelling: problem scene, how-it-works journey, brass thread dividers
+d. Remotion brand film and its embed
+e. Inner pages: ribbon backdrop, service emblems, trust loop
+f. Polish, docs, final gates

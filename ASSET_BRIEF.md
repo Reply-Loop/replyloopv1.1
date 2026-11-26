@@ -2,7 +2,7 @@
 
 Each prompt uses the same structure and exclusions as the social kit's own prompts (`assets/templates/07-trust-loop-neutral.prompt.txt`, `assets/backgrounds/06-og-link-preview.prompt.txt`). Generated imagery shows only objects, light, textures and environments: **never people, faces, hands, clients, patients, care scenes, devices, screens, reviews, stars or ratings.**
 
-Until an asset exists, the site uses the code-built stand-in listed with it (also tracked in `PLACEHOLDERS.md`). To install an asset: export at the exact size, save the original under `assets/brief/`, run `npm run brand:derive` (writes AVIF/WebP to the target path), then remove the stand-in note.
+Until an asset exists, the site uses the code-built stand-in listed with it (also tracked in `PLACEHOLDERS.md`). To install an asset: export at the exact size, save the original under `assets/brief/`, add a step for it to `scripts/brand/derive.mjs` (the 06 ribbon step there is the pattern: crop, colour-match to ivory, AVIF and WebP), run `npm run brand:derive`, wire the derivative in, then remove the stand-in note.
 
 Palette for every prompt: charcoal `#1B1F23`, warm ivory `#F8F5EF`, deep brass `#8A5F1C`. Brass is warm, deep and brushed, never shiny yellow gold.
 
@@ -13,7 +13,7 @@ Palette for every prompt: charcoal `#1B1F23`, warm ivory `#F8F5EF`, deep brass `
 - **File:** `assets/brief/ivory-paper-2048.png` → `public/brand/textures/ivory-paper.avif` / `.webp`
 - **Size:** 2048 × 2048 px, seamlessly tileable on all four edges
 - **Use:** fine paper grain under ivory sections, the problem-card scene and the how-it-works vignettes (`mix-blend-mode: multiply`, about 6% opacity)
-- **Stand-in:** SVG `feTurbulence` grain (`src/components/scenes/PaperGrain.tsx`)
+- **Stand-in:** the static SVG-noise `.film-grain` layer (`src/app/globals.css`), used on the hero visual only. The problem scene and vignettes have no grain yet.
 
 ```
 Use case: texture-material
@@ -34,7 +34,7 @@ Avoid: visible tiling seams, strong grain, yellowing, blue or grey cast, vignett
 - **File:** `assets/brief/window-light-2400x1350.png` → `public/brand/plates/window-light.avif` / `.webp`
 - **Size:** 2400 × 1350 px (16:9)
 - **Use:** backdrop for chapter 04 "Go live, in the open" in the how-it-works sequence, and the warm light pass in the hero
-- **Stand-in:** layered CSS gradients with soft mullion bars (`src/components/scenes/WindowLight.tsx`)
+- **Stand-in:** the window pane and warm glow gradients drawn in `src/components/scenes/vignettes/VignetteGoLive.tsx`; the hero's light pass is the moving key light in `src/components/hero/LoopScene.tsx`.
 
 ```
 Use case: background-plate
@@ -55,7 +55,7 @@ Avoid: harsh hard-edged shadows, blown highlights, lens flare, blue light, dust 
 - **File:** `assets/brief/charcoal-felt-1024.png` → `public/brand/textures/charcoal-felt.avif` / `.webp`
 - **Size:** 1024 × 1024 px, seamlessly tileable
 - **Use:** a barely visible surface under charcoal bands (health section, film frame, CTA band) at about 5% opacity
-- **Stand-in:** SVG noise at low opacity (`src/components/scenes/PaperGrain.tsx`, dark variant)
+- **Stand-in:** none. Charcoal bands are flat `#1B1F23` until this exists.
 
 ```
 Use case: texture-material
@@ -100,5 +100,5 @@ Avoid: mirror polish, chrome, shiny yellow gold, rainbow sheen, visible reflecti
 |---|---|---|
 | 1 | Ivory paper texture | Not generated. Stand-in live. |
 | 2 | Golden-hour window light | Not generated. Stand-in live. |
-| 3 | Charcoal felt texture | Not generated. Stand-in live. |
+| 3 | Charcoal felt texture | Not generated. No stand-in (flat charcoal). |
 | 4 | Brushed brass swatch | Not generated. Procedural material live. |

@@ -28,8 +28,21 @@ Before anything goes in a slot, confirm written permission from the client, and 
 
 | Item | Where | Notes |
 |---|---|---|
-| Logo | `src/components/ui/Logo.tsx`, `src/app/icon.svg`, `src/lib/og.tsx` | Inline SVG loop mark with a speech tail plus a Fraunces wordmark, because `/public/brand` had no files. Replace when a vector logo is supplied. Social graphics in `/public/brand` are style references only. |
+| Logo | `src/components/ui/Logo.tsx`, `src/app/icon.svg`, `src/lib/og.tsx` | Option B chosen 2026-11-26: the flat brass double loop traced from the kit mark (`npm run loop:fit`), ivory crossing on dark and charcoal crossing on light, with a Fraunces wordmark. Swap in a supplied vector logo if one is made; the kit PNGs stay reference only. |
 | Founder titles | `src/app/about/page.tsx` | "Cofounder" and "Cofounder, operations", approved 2026-11-23. |
 | Legal entity, hosting provider, liability, governing law | `src/app/privacy/page.tsx`, `src/app/terms/page.tsx` | Bracketed `[...]` placeholders. Both pages are drafts, `noindex`, and need attorney review. |
 | GA4 measurement ID | `NEXT_PUBLIC_GA_ID` | Empty means no analytics and no banner. |
 | Search Console token | `NEXT_PUBLIC_GSC_VERIFICATION` | Or verify by DNS TXT record instead. |
+
+## Motion stand-ins (photoreal assets not yet made)
+
+The cinematic scenes use code-built stand-ins until the stills in `ASSET_BRIEF.md` exist. None of them use people, devices, reviews, stars or ratings.
+
+| Stand-in | Where | Replaced by (`ASSET_BRIEF.md`) |
+|---|---|---|
+| Static SVG-noise grain (`.film-grain`) | Hero visual, `src/app/globals.css` | 1. Ivory paper texture |
+| Window pane and warm glow gradients | `src/components/scenes/vignettes/VignetteGoLive.tsx` | 2. Golden-hour window light |
+| Flat charcoal (no texture) | Charcoal sections | 3. Charcoal felt texture |
+| Procedural brushed brass (anisotropic `MeshPhysicalMaterial`) | `src/components/hero/LoopScene.tsx` | 4. Brushed brass swatch |
+
+Brand film plates come from the kit (`07-video-thumbnail`), not from stand-ins. Re-render with `cd video && npm run render` after any change to `video/src`.
