@@ -2,10 +2,18 @@
   "bpm": 90,
   "fps": 30,
   "framesPerBeat": 20,
+  "musicVersion": "v2-clean",
+  "versions": [
+    "v1-original",
+    "v2-clean",
+    "alt-a-warm",
+    "alt-b-bright",
+    "alt-c-dusty"
+  ],
   "sections": [
     {
       "id": "01-hook",
-      "file": "music/section-01-hook.wav",
+      "file": "music/v2-clean/section-01-hook.wav",
       "startFrame": 0,
       "durationInFrames": 160,
       "audioFrames": 208,
@@ -25,7 +33,7 @@
     },
     {
       "id": "02-stat",
-      "file": "music/section-02-stat.wav",
+      "file": "music/v2-clean/section-02-stat.wav",
       "startFrame": 160,
       "durationInFrames": 120,
       "audioFrames": 168,
@@ -45,7 +53,7 @@
     },
     {
       "id": "03-what-we-do",
-      "file": "music/section-03-what-we-do.wav",
+      "file": "music/v2-clean/section-03-what-we-do.wav",
       "startFrame": 280,
       "durationInFrames": 160,
       "audioFrames": 208,
@@ -80,7 +88,7 @@
     },
     {
       "id": "04-setup-499",
-      "file": "music/section-04-setup-499.wav",
+      "file": "music/v2-clean/section-04-setup-499.wav",
       "startFrame": 440,
       "durationInFrames": 320,
       "audioFrames": 368,
@@ -120,7 +128,7 @@
     },
     {
       "id": "05-monthly-350",
-      "file": "music/section-05-monthly-350.wav",
+      "file": "music/v2-clean/section-05-monthly-350.wav",
       "startFrame": 760,
       "durationInFrames": 400,
       "audioFrames": 448,
@@ -170,7 +178,7 @@
     },
     {
       "id": "06-price-math",
-      "file": "music/section-06-price-math.wav",
+      "file": "music/v2-clean/section-06-price-math.wav",
       "startFrame": 1160,
       "durationInFrames": 200,
       "audioFrames": 249,
@@ -200,7 +208,7 @@
     },
     {
       "id": "07-owner-control",
-      "file": "music/section-07-owner-control.wav",
+      "file": "music/v2-clean/section-07-owner-control.wav",
       "startFrame": 1360,
       "durationInFrames": 200,
       "audioFrames": 249,
@@ -230,7 +238,7 @@
     },
     {
       "id": "08-cta",
-      "file": "music/section-08-cta.wav",
+      "file": "music/v2-clean/section-08-cta.wav",
       "startFrame": 1560,
       "durationInFrames": 160,
       "audioFrames": 208,

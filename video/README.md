@@ -28,7 +28,31 @@ Render: `npx remotion render src/index.ts Reels15 out/replyloop-reels-15s-9x16.m
 
 ## Music
 
-`scripts/make-lofi.mjs` synthesises one lo-fi jazz track per section. It uses Rhodes-style FM chords, upright-style bass, swung hats, boom-bap drums, vinyl crackle, tape wobble and a moving lowpass. Every track is at 90 BPM, which is exactly 20 frames per beat, so the tracks chain sample-accurately. Each section has heavy "thump" accents on the beats where its main point lands. The script also writes `src/audio/cues.json`, and every visual hit is timed from that file, so the animation lands on the thump. To move a beat or add one, edit `SECTIONS` in the script, re-run it, and the visuals follow.
+`scripts/make-lofi.mjs` synthesizes one lo-fi jazz track per section. Every track is at 90 BPM, which is exactly 20 frames per beat, so the tracks chain sample-accurately. Each section puts a "thump" accent on the beat where its main point lands. The script writes `src/audio/cues.json` and `src/audio/cues-15.json`, and every visual hit is timed from those files.
+
+### Versions (`public/music/<version>/`)
+
+All versions share the same beat grid and accent cues, so any of them drops into either edit, or a future one.
+
+| Version | What it is |
+|---------|------------|
+| `v2-clean` | **Default.** About half the notes of v1: 3-note chords, no extra chord re-hits, no melody, one held bass note per chord, no ghost hats. Sub-bass is cut (48 Hz 24 dB/oct high-pass, kick fundamental above 50 Hz, shorter thumps). Mastered to about -16 LUFS with true peak ≤ -1.5 dBTP through a look-ahead limiter. |
+| `alt-a-warm` | v2 down 2 semitones, darker and softer keys, more vinyl, a touch more swing. |
+| `alt-b-bright` | v2 up 2 semitones, voicings inverted upward, brighter tine. |
+| `alt-c-dusty` | v2 with the upper 3 chord voices, rimshot backbeat, heavier swing, and a 3-note melody in the monthly section. |
+| `v1-original` | The first delivery, kept for reference. It regenerates bit-for-bit. It is the bass-heavy mix at about -12 LUFS that peaks near 0 dBTP, so don't use it as is. |
+
+To pick a version in a render, pass it as a prop, for example:
+
+```bash
+npx remotion render src/index.ts MasterAd out.mp4 --props '{"musicVersion":"alt-a-warm"}'
+```
+
+To make a new variant, add a profile to `PROFILES` in the script (key, voicings, tone, swing, drums), then run:
+
+```bash
+VERSIONS=<name> npm run music
+```
 
 ## Rebuild
 

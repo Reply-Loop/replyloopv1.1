@@ -74,8 +74,15 @@ const EndCardSoftener: React.FC<{ set: CueSet; children: React.ReactNode }> = ({
 };
 
 // One timeline for any edit: scenes and per-section music both come from the cue set.
-const AdTimeline: React.FC<{ set: CueSet; scenes: Record<string, React.FC>; hold: number; withMusic: boolean }> = ({
-  set, scenes, hold, withMusic,
+// Music versions on disk (public/music/<version>/), all on the same beat grid and
+// accent cues: "v2-clean" (default), "alt-a-warm", "alt-b-bright", "alt-c-dusty",
+// and "v1-original" (first delivery, kept for reference).
+export const MUSIC_VERSIONS = ["v2-clean", "alt-a-warm", "alt-b-bright", "alt-c-dusty", "v1-original"] as const;
+export type MusicVersion = (typeof MUSIC_VERSIONS)[number];
+type AdProps = { withMusic?: boolean; musicVersion?: MusicVersion };
+
+const AdTimeline: React.FC<{ set: CueSet; scenes: Record<string, React.FC>; hold: number; withMusic: boolean; musicVersion: MusicVersion }> = ({
+  set, scenes, hold, withMusic, musicVersion,
 }) => (
   <AbsoluteFill style={{ background: theme.colors.bg }}>
     {/* 1. background */}
@@ -102,17 +109,17 @@ const AdTimeline: React.FC<{ set: CueSet; scenes: Record<string, React.FC>; hold
     {withMusic
       ? set.sections.map((s) => (
           <Sequence key={`a-${s.id}`} from={s.startFrame} durationInFrames={s.audioFrames} name={`music ${s.id}`}>
-            <Audio src={staticFile(s.file)} volume={0.92} />
+            <Audio src={staticFile(`music/${musicVersion}/section-${s.id}.wav`)} volume={musicVersion === "v1-original" ? 0.92 : 1} />
           </Sequence>
         ))
       : null}
   </AbsoluteFill>
 );
 
-export const MasterAd: React.FC<{ withMusic?: boolean }> = ({ withMusic = true }) => (
-  <AdTimeline set={cues} scenes={MASTER_SCENES} hold={END_HOLD} withMusic={withMusic} />
+export const MasterAd: React.FC<AdProps> = ({ withMusic = true, musicVersion = "v2-clean" }) => (
+  <AdTimeline set={cues} scenes={MASTER_SCENES} hold={END_HOLD} withMusic={withMusic} musicVersion={musicVersion} />
 );
 
-export const Reels15: React.FC<{ withMusic?: boolean }> = ({ withMusic = true }) => (
-  <AdTimeline set={cues15} scenes={REELS15_SCENES} hold={REELS15_HOLD} withMusic={withMusic} />
+export const Reels15: React.FC<AdProps> = ({ withMusic = true, musicVersion = "v2-clean" }) => (
+  <AdTimeline set={cues15} scenes={REELS15_SCENES} hold={REELS15_HOLD} withMusic={withMusic} musicVersion={musicVersion} />
 );

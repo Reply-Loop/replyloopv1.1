@@ -2,10 +2,18 @@
   "bpm": 90,
   "fps": 30,
   "framesPerBeat": 20,
+  "musicVersion": "v2-clean",
+  "versions": [
+    "v1-original",
+    "v2-clean",
+    "alt-a-warm",
+    "alt-b-bright",
+    "alt-c-dusty"
+  ],
   "sections": [
     {
       "id": "c15-01-hook",
-      "file": "music/section-c15-01-hook.wav",
+      "file": "music/v2-clean/section-c15-01-hook.wav",
       "startFrame": 0,
       "durationInFrames": 80,
       "audioFrames": 128,
@@ -25,7 +33,7 @@
     },
     {
       "id": "c15-02-what",
-      "file": "music/section-c15-02-what.wav",
+      "file": "music/v2-clean/section-c15-02-what.wav",
       "startFrame": 80,
       "durationInFrames": 80,
       "audioFrames": 128,
@@ -55,7 +63,7 @@
     },
     {
       "id": "c15-03-price",
-      "file": "music/section-c15-03-price.wav",
+      "file": "music/v2-clean/section-c15-03-price.wav",
       "startFrame": 160,
       "durationInFrames": 160,
       "audioFrames": 208,
@@ -80,7 +88,7 @@
     },
     {
       "id": "c15-04-cta",
-      "file": "music/section-c15-04-cta.wav",
+      "file": "music/v2-clean/section-c15-04-cta.wav",
       "startFrame": 320,
       "durationInFrames": 120,
       "audioFrames": 168,
