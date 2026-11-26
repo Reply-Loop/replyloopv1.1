@@ -38,7 +38,19 @@ function applyAttribute(mode: MotionMode) {
   document.documentElement.setAttribute("data-motion", mode);
 }
 
+let pauseEpoch = 0;
+
+/**
+ * Counts presses of the global pause in this page session. A local "play"
+ * (the brand film) records the epoch it was pressed in and lapses as soon as
+ * the visitor pauses all motion again, wherever they press it.
+ */
+export function getPauseEpoch() {
+  return pauseEpoch;
+}
+
 export function setMotionPaused(paused: boolean) {
+  if (paused) pauseEpoch += 1;
   memoryPaused = paused;
   try {
     if (paused) window.localStorage.setItem(MOTION_STORAGE_KEY, "paused");

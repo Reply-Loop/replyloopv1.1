@@ -1,59 +1,37 @@
-import { getMotionMode, subscribeMotion } from "@/lib/motion/state";
-
 /**
- * The visitor's own play/pause choice for the brand film, shared by every
- * film on the site and kept for the browser session.
- * true = paused by the visitor, false = play chosen, undefined = no choice
- * (follow the site motion setting and Save-Data).
- * Pausing all motion from the header clears the choice, so that pause always wins.
+ * A visitor's "Pause film" press, shared by every film and kept for the
+ * browser session. Only the pause is shared: a "play" press is local to the
+ * film it was pressed on (see BrandFilm), so it can never start another film
+ * or outlive a later press of the global pause.
  */
-const KEY = "rl-film-choice";
-type Choice = boolean | undefined;
+const KEY = "rl-film-paused";
 
-let choice: Choice;
-let loaded = false;
+let paused: boolean | undefined;
 const listeners = new Set<() => void>();
-let unwatch: (() => void) | null = null;
 
-function load() {
-  if (loaded) return;
-  loaded = true;
-  try {
-    const v = sessionStorage.getItem(KEY);
-    choice = v === "paused" ? true : v === "playing" ? false : undefined;
-  } catch {}
+export function getFilmPaused(): boolean {
+  if (paused === undefined) {
+    try {
+      paused = sessionStorage.getItem(KEY) === "1";
+    } catch {
+      paused = false;
+    }
+  }
+  return paused;
 }
 
-export function getFilmChoice(): Choice {
-  load();
-  return choice;
-}
-
-export function setFilmChoice(next: Choice) {
-  load();
-  choice = next;
+export function setFilmPaused(next: boolean) {
+  paused = next;
   try {
-    if (next === undefined) sessionStorage.removeItem(KEY);
-    else sessionStorage.setItem(KEY, next ? "paused" : "playing");
+    if (next) sessionStorage.setItem(KEY, "1");
+    else sessionStorage.removeItem(KEY);
   } catch {}
   listeners.forEach((l) => l());
 }
 
-export function subscribeFilmChoice(cb: () => void) {
+export function subscribeFilmPaused(cb: () => void) {
   listeners.add(cb);
-  if (!unwatch) {
-    let last = getMotionMode();
-    unwatch = subscribeMotion(() => {
-      const mode = getMotionMode();
-      if (mode === "paused" && last !== "paused" && getFilmChoice() === false) setFilmChoice(undefined);
-      last = mode;
-    });
-  }
   return () => {
     listeners.delete(cb);
-    if (!listeners.size && unwatch) {
-      unwatch();
-      unwatch = null;
-    }
   };
 }

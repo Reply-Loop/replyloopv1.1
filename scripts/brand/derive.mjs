@@ -6,9 +6,10 @@
  */
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
-const root = new URL("../..", import.meta.url).pathname;
+const root = fileURLToPath(new URL("../..", import.meta.url));
 const out = join(root, "public/brand");
 mkdirSync(out, { recursive: true });
 
@@ -19,7 +20,7 @@ const crop = { left: 960, top: 0, width: 774, height: 907 };
 // The kit paper is a touch pinker than the page ivory (#F8F5EF). Scale each
 // channel so the paper's median matches the page, so the fade has no seam.
 const IVORY = [0xf8, 0xf5, 0xef];
-const { data, info } = await sharp(src).extract({ left: 0, top: 0, width: 600, height: 907 }).raw().toBuffer({ resolveWithObject: true });
+const { data, info } = await sharp(src).extract({ left: crop.left, top: 0, width: 120, height: 907 }).raw().toBuffer({ resolveWithObject: true });
 const paper = [0, 1, 2].map((c) => {
   const v = [];
   for (let i = c; i < data.length; i += info.channels) v.push(data[i]);
@@ -29,9 +30,9 @@ const paper = [0, 1, 2].map((c) => {
 const gain = IVORY.map((t, c) => t / paper[c]);
 console.log("paper median", paper, "gain", gain.map((g) => g.toFixed(3)));
 
-for (const w of [560, 840]) {
+for (const w of [560, 774]) { // 774 = the crop's native width; never upscale
   const base = sharp(src).extract(crop).removeAlpha().linear(gain, [0, 0, 0]).resize({ width: w });
   await base.clone().avif({ quality: 50, effort: 6 }).toFile(join(out, `hca-ribbon-${w}.avif`));
   await base.clone().webp({ quality: 72 }).toFile(join(out, `hca-ribbon-${w}.webp`));
 }
-console.log("public/brand: hca-ribbon-{560,840}.{avif,webp}");
+console.log("public/brand: hca-ribbon-{560,774}.{avif,webp}");

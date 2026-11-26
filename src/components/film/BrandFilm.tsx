@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useInViewport } from "@/components/motion/useInViewport";
 import { useMotion } from "@/components/motion/useMotion";
 import { cn } from "@/lib/cn";
-import { getFilmChoice, setFilmChoice, subscribeFilmChoice } from "./filmChoice";
+import { getPauseEpoch, subscribeMotion } from "@/lib/motion/state";
+import { getFilmPaused, setFilmPaused, subscribeFilmPaused } from "./filmChoice";
 
 const SRC_WEBM = "/media/brand-film.webm";
 const SRC_MP4 = "/media/brand-film.mp4";
@@ -34,9 +35,11 @@ function prefersSaveData() {
  *   while the film is on screen and the tab is visible, and only if motion is
  *   fully on or the visitor pressed play. Reduced motion or no JS: the poster
  *   only, and the video is never downloaded.
- * - The global pause and Save-Data start it paused. "Pause film" is this
- *   film's own control (the loop runs longer than 5 s); pressing play here
- *   never changes the site-wide motion setting.
+ * - The global pause and Save-Data start it paused. "Pause film" is the
+ *   film's own control (the loop runs longer than 5 s). A pause press is
+ *   remembered for the session on every film; a play press applies to this
+ *   film only, never changes the site-wide setting, and lapses at the next
+ *   global pause. Reduced motion turned on mid-play hides the video (poster).
  */
 export function BrandFilm({ className }: { className?: string }) {
   const { mode, paused: globalPaused } = useMotion();
@@ -46,10 +49,17 @@ export function BrandFilm({ className }: { className?: string }) {
   const visible = useSyncExternalStore(subscribeVisibility, pageVisible, () => false);
   // Save-Data visitors start paused until they press play (true on the server).
   const saveData = useSyncExternalStore(noSubscribe, prefersSaveData, () => true);
-  const choice = useSyncExternalStore(subscribeFilmChoice, getFilmChoice, () => undefined);
+  // A "Pause film" press, shared by every film for the session.
+  const filmPaused = useSyncExternalStore(subscribeFilmPaused, getFilmPaused, () => false);
+  const epoch = useSyncExternalStore(subscribeMotion, getPauseEpoch, () => 0);
+  // A "play" press on this film only, in memory. It lapses at the next global pause.
+  const [playEpoch, setPlayEpoch] = useState<number | null>(null);
+  // The browser refused autoplay (iOS Low Power Mode): this film, this visit only.
+  const [refused, setRefused] = useState(false);
 
   const controllable = mode === "full" || mode === "paused";
-  const pressed = choice ?? (globalPaused || saveData);
+  const localPlay = playEpoch !== null && playEpoch === epoch;
+  const pressed = localPlay ? false : filmPaused || globalPaused || saveData || refused;
   const want = controllable && !pressed && onScreen && visible;
 
   useEffect(() => {
@@ -57,9 +67,8 @@ export function BrandFilm({ className }: { className?: string }) {
     if (!v || !want) return;
     let stopped = false;
     v.play().catch((err: unknown) => {
-      // Autoplay refused (iOS Low Power Mode, policy): show it as paused, so
-      // the button reads "play" and the next press plays inside the gesture.
-      if (!stopped && err instanceof DOMException && err.name === "NotAllowedError") setFilmChoice(true);
+      // Show it as paused, so the button reads "play" and the next press plays inside the gesture.
+      if (!stopped && err instanceof DOMException && err.name === "NotAllowedError") setRefused(true);
     });
     return () => {
       // Off screen, paused, tab hidden, unmounted, or the route hidden by <Activity>.
@@ -71,10 +80,13 @@ export function BrandFilm({ className }: { className?: string }) {
   const toggle = () => {
     const v = video.current;
     if (pressed) {
-      setFilmChoice(false);
+      setFilmPaused(false);
+      setRefused(false);
+      setPlayEpoch(getPauseEpoch());
       v?.play().catch(() => undefined); // in the click, so autoplay policy allows it
     } else {
-      setFilmChoice(true);
+      setFilmPaused(true);
+      setPlayEpoch(null);
       v?.pause();
     }
   };
@@ -103,7 +115,7 @@ export function BrandFilm({ className }: { className?: string }) {
         ref={video}
         aria-hidden
         tabIndex={-1}
-        className="film-video absolute inset-0 size-full object-cover"
+        className={cn("film-video absolute inset-0 size-full object-cover", !controllable && "invisible")}
         muted
         loop
         playsInline

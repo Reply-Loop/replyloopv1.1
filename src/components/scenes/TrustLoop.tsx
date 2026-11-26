@@ -32,8 +32,9 @@ const at = (s: number) => {
 /**
  * The trust loop on /services/review-replies: Ask, Review, Reply, Learn.
  * The words are an HTML list; the drawing is decorative (aria-hidden).
- * With motion fully on and the diagram on screen, a bead travels the loop and
- * the step it passes lights up. Otherwise it rests at Ask.
+ * With motion fully on and the diagram on screen, a bead with a short brass
+ * trail travels the loop and the step it passes lights up. Otherwise the bead
+ * and trail fade out where they are and the loop rests (resuming from there).
  */
 export function TrustLoop({ className }: { className?: string }) {
   const { ambient } = useMotion();
@@ -43,6 +44,8 @@ export function TrustLoop({ className }: { className?: string }) {
   const bead = useRef<SVGCircleElement>(null);
   const onScreen = useInViewport(box, "0px");
   const [active, setActive] = useState<number | null>(null);
+  // Where the bead is (0..1 along the path), kept across pauses.
+  const pos = useRef(STATIONS[0].s);
   const run = ambient && onScreen;
 
   useEffect(() => {
@@ -51,13 +54,16 @@ export function TrustLoop({ className }: { className?: string }) {
     const b = bead.current;
     if (!run || !p || !t || !b) return;
     const len = p.getTotalLength();
-    t.style.strokeDasharray = `${len * TRAIL} ${len}`;
+    // One dash per lap (period = path length), so the trail wraps across the
+    // path's start point instead of shrinking to nothing there.
+    t.style.strokeDasharray = `${len * TRAIL} ${len * (1 - TRAIL)}`;
     let raf = 0;
     let last = performance.now();
-    let s = STATIONS[0].s;
+    let s = pos.current;
     let current = -1;
     const frame = (now: number) => {
       s = (s + Math.min(now - last, 50) / 1000 / LAP_SECONDS) % 1;
+      pos.current = s;
       last = now;
       const pt = p.getPointAtLength(s * len);
       b.setAttribute("cx", pt.x.toFixed(2));
@@ -77,13 +83,10 @@ export function TrustLoop({ className }: { className?: string }) {
     };
     raf = requestAnimationFrame(frame);
     return () => {
+      // Freeze in place; the bead and trail fade out with their opacity
+      // transitions. The dash styles stay, so the whole loop never flashes brass.
       cancelAnimationFrame(raf);
       setActive(null);
-      const home = at(STATIONS[0].s);
-      b.setAttribute("cx", String(home.x));
-      b.setAttribute("cy", String(home.y));
-      t.style.strokeDasharray = "";
-      t.style.strokeDashoffset = "";
     };
   }, [run]);
 
@@ -98,6 +101,7 @@ export function TrustLoop({ className }: { className?: string }) {
           d={LOOP_PATH}
           fill="none"
           className={cn("stroke-brass transition-opacity duration-500", run ? "opacity-100" : "opacity-0")}
+          strokeDasharray="0 10000" /* hidden until the effect sizes the dash, never a solid loop */
           strokeWidth={3}
           strokeLinecap="round"
         />
@@ -128,7 +132,13 @@ export function TrustLoop({ className }: { className?: string }) {
             </g>
           );
         })}
-        <circle ref={bead} cx={home.x} cy={home.y} r={3.4} className={cn("fill-charcoal", run ? "opacity-100" : "opacity-0")} />
+        <circle
+          ref={bead}
+          cx={home.x}
+          cy={home.y}
+          r={3.4}
+          className={cn("fill-charcoal transition-opacity duration-500", run ? "opacity-100" : "opacity-0")}
+        />
       </svg>
       <ol className="mt-8 grid gap-4 sm:grid-flow-col sm:grid-cols-2 sm:grid-rows-2">
         {STATIONS.map((st, i) => (

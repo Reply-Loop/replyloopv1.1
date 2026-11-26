@@ -133,12 +133,15 @@
   }
 
   /* Service emblem: a short brass stroke parked on the loop, travelling it with motion fully on. */
+  /* Paused unless motion is fully on and the art is on screen (InView), and
+     frozen in place when it stops rather than snapping back. */
   .loop-comet {
     stroke-dasharray: 9 91;
-    stroke-dashoffset: -60;
+    animation: rl-comet 18s linear infinite paused;
+    animation-delay: -10.8s; /* parks the stroke at the same spot every time */
   }
-  :root[data-motion="full"] .loop-comet {
-    animation: rl-comet 18s linear infinite;
+  :root[data-motion="full"] [data-inview] .loop-comet {
+    animation-play-state: running;
   }
   @keyframes rl-comet {
     from {
@@ -150,9 +153,15 @@
   }
 
   /* /home-care-agencies ribbon: a slow drift, only with motion fully on (stops when paused). */
-  :root[data-motion="full"] .ribbon-backdrop img {
-    animation: rl-drift 28s ease-in-out infinite alternate;
+  .ribbon-backdrop img {
+    animation: rl-drift 28s ease-in-out infinite alternate paused;
     transform-origin: 70% 50%;
+  }
+  :root[data-motion="full"] .ribbon-backdrop[data-inview] img {
+    animation-play-state: running;
+  }
+  :root[data-motion="reduce"] :is(.loop-comet, .ribbon-backdrop img) {
+    animation: none;
   }
   @keyframes rl-drift {
     from {

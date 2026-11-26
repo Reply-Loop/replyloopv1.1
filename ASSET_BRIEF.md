@@ -102,3 +102,4 @@ Avoid: mirror polish, chrome, shiny yellow gold, rainbow sheen, visible reflecti
 | 2 | Golden-hour window light | Not generated. Stand-in live. |
 | 3 | Charcoal felt texture | Not generated. No stand-in (flat charcoal). |
 | 4 | Brushed brass swatch | Not generated. Procedural material live. |
+| 5 | Ribbon plate at 2x | The `/home-care-agencies` backdrop crops the kit's `06-og-link-preview` (1734 × 907), leaving 774 px for a slot up to 736 CSS px wide, so it is slightly soft on Retina screens. A 3468 × 1814 export of the same plate (same prompt as `06-og-link-preview.prompt.txt`) would fix it: point `scripts/brand/derive.mjs` at it, double the crop box, add 1472 to its widths, and add the 1472w file to the `srcSet` in `RibbonBackdrop.tsx`. |

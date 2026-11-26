@@ -22,7 +22,12 @@ export function ProblemScene({ className }: { className?: string }) {
       const q = (sel: string) => root.querySelector(sel);
       const dust = root.querySelectorAll('[data-p="dust"] [data-d]');
       const thread = q('[data-p="thread"]');
-      if (thread) gsap.set(thread, { attr: { pathLength: 1, "stroke-dasharray": 1 } });
+      // Plain attributes, not gsap.set: a context revert would write them back as
+      // empty strings (an invalid pathLength). Left in place they draw the full line.
+      if (thread) {
+        thread.setAttribute("pathLength", "1");
+        thread.setAttribute("stroke-dasharray", "1");
+      }
       root.dataset.animated = "true";
 
       const tl = gsap.timeline({

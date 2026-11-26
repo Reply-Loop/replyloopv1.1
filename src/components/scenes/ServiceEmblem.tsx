@@ -1,3 +1,4 @@
+import { InView } from "@/components/motion/InView";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { LOOP_PATH, LOOP_VIEWBOX } from "@/lib/loop/geometry.generated";
 
@@ -8,10 +9,7 @@ import { LOOP_PATH, LOOP_VIEWBOX } from "@/lib/loop/geometry.generated";
  */
 export function ServiceEmblem({ icon, pair = false }: { icon: IconName; pair?: boolean }) {
   return (
-    <div
-      aria-hidden
-      className="pointer-events-none absolute top-1/2 right-[max(1.5rem,calc((100vw-80rem)/2))] hidden w-[24rem] -translate-y-1/2 lg:block xl:w-[28rem]"
-    >
+    <InView className="pointer-events-none absolute top-1/2 right-[max(2rem,calc((100%-72rem)/2+2rem))] hidden w-[24rem] -translate-y-1/2 lg:block xl:w-[28rem]">
       <svg viewBox={LOOP_VIEWBOX} className="block h-auto w-full overflow-visible" focusable="false">
         <path d={LOOP_PATH} fill="none" className="stroke-rule" strokeWidth={1.2} />
         <path d={LOOP_PATH} fill="none" pathLength={100} className="loop-comet stroke-brass" strokeWidth={1.6} strokeLinecap="round" />
@@ -24,6 +22,6 @@ export function ServiceEmblem({ icon, pair = false }: { icon: IconName; pair?: b
           <Icon name={icon} className="size-9 xl:size-10" />
         </span>
       ))}
-    </div>
+    </InView>
   );
 }

@@ -88,7 +88,9 @@ export function HowItWorksJourney({ steps }: { steps: Step[] }) {
           const layers = item.querySelectorAll("[data-v-layer]");
           tl.fromTo(layers, { opacity: 0, y: 14, scale: 0.98 }, { opacity: 1, y: 0, scale: 1, duration: 0.3, stagger: 0.07 }, i + 0.08);
           item.querySelectorAll<SVGPathElement>("[data-v-draw]").forEach((d) => {
-            gsap.set(d, { attr: { pathLength: 1, "stroke-dasharray": 1 } });
+            // Plain attributes (see ProblemScene): a revert must not blank pathLength.
+            d.setAttribute("pathLength", "1");
+            d.setAttribute("stroke-dasharray", "1");
             tl.fromTo(
               d,
               { attr: { "stroke-dashoffset": 1 } },
