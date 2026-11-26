@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { Card } from "@/components/ui/Card";
 import { PageHero } from "@/components/ui/PageHero";
+import { ServiceEmblem } from "@/components/scenes/ServiceEmblem";
 import { ProofSlot } from "@/components/ui/ProofSlot";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -41,6 +42,7 @@ export default function AboutPage() {
         crumbs={crumbs}
         eyebrow="About"
         title="About ReplyLoop"
+        backdrop={<ServiceEmblem icon="reply" pair />}
         intro="ReplyLoop helps local service businesses keep the “thank you” alive, by capturing and answering every review so honest service becomes the rock their growth is built on."
       />
 

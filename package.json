@@ -15,7 +15,8 @@
     "qa": "NODE_PATH=$(npm root -g) node scripts/qa.cjs",
     "lighthouse": "CHROME_PATH=${CHROME_PATH:-/opt/pw-browsers/chromium} lighthouse ${QA_BASE:-http://localhost:3000} --form-factor=mobile --chrome-flags=\"--headless=new --no-sandbox\" --view=false",
     "perf": "node scripts/perf.mjs",
-    "loop:fit": "python3 -I scripts/loop/fit-loop.py && node scripts/loop/build-loop.mjs"
+    "loop:fit": "python3 -I scripts/loop/fit-loop.py && node scripts/loop/build-loop.mjs",
+    "brand:derive": "node scripts/brand/derive.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
@@ -43,6 +44,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
     "lighthouse": "^13.6.0",
+    "sharp": "^0.35.5",
     "tailwindcss": "4.3.3",
     "typescript": "^5"
   },

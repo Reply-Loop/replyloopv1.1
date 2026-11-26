@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/Card";
 import { FAQ } from "@/components/ui/FAQ";
 import { Icon } from "@/components/ui/Icon";
 import { PageHero } from "@/components/ui/PageHero";
+import { ServiceEmblem } from "@/components/scenes/ServiceEmblem";
+import { TrustLoop } from "@/components/scenes/TrustLoop";
 import { ProofSlot } from "@/components/ui/ProofSlot";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -33,7 +35,13 @@ export function ServicePageView({ page }: { page: ServicePage }) {
 
   return (
     <>
-      <PageHero crumbs={crumbs} eyebrow={page.eyebrow} title={page.h1} intro={page.intro} />
+      <PageHero
+        crumbs={crumbs}
+        eyebrow={page.eyebrow}
+        title={page.h1}
+        intro={page.intro}
+        backdrop={<ServiceEmblem icon={page.icon} />}
+      />
 
       <Section>
         <div className="grid gap-14 lg:grid-cols-[minmax(0,1fr)_20rem]">
@@ -61,6 +69,14 @@ export function ServicePageView({ page }: { page: ServicePage }) {
                 ) : null}
               </section>
             ))}
+            {page.slug === "review-replies" ? (
+              <section aria-labelledby="trust-loop-title">
+                <h2 id="trust-loop-title" className="font-serif text-[1.75rem] font-medium leading-tight sm:text-[2rem]">
+                  How the loop works
+                </h2>
+                <TrustLoop className="mt-6" />
+              </section>
+            ) : null}
             {page.proof ? <ProofSlot kind={page.proof.kind} label={page.proof.label} path={page.proof.path} /> : null}
           </div>
 
