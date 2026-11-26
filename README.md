@@ -79,6 +79,14 @@ Measured with `npm run check:contrast` (WCAG 2.2):
 
 Brass on charcoal fails as text, and darkening brass would only lower that ratio. Lightening text is not allowed. So the rule is: **brass is never used as text on charcoal.** On charcoal, text is ivory or mist, and brass shows up only as the button surface (its label is ivory on brass, 5.17:1) and as decorative hairlines in `brass-line` (5.30:1 against charcoal). The `on-dark:` variant in components applies this automatically. On charcoal the button also gets a 1px `brass-line` ring, so its edge clears 3:1 against the background.
 
+## Deploy to Cloudflare
+
+The site is fully static, so it also ships as plain files (`npm run build:static` writes `out/`). Next 16 cannot export with Cache Components on, so that build turns it off and swaps the one `"use cache"` helper (`src/lib/og-fonts.ts`) for an uncached twin. The normal build is unchanged.
+
+- **Worker (live):** `npm run deploy:worker` bundles `out/` into the `reply-loop-website` Worker (`worker/index.js` serves it like Pages: clean URLs, 404s, `_headers`, byte ranges) and deploys it to https://reply-loop-website.reply-loop-site.workers.dev. This path works from sandboxes whose proxy injects a Cloudflare credential.
+- **Pages:** `npm run deploy:pages` deploys `out/` to the `reply-loop-staging` Pages project. Run it from a normal machine after `npx wrangler login`; Pages uploads need their own upload token, which an injecting proxy overwrites.
+- **Domain:** when `reply-loop.com` points at either one, add the www-to-apex redirect as a Cloudflare Redirect Rule. Canonical and Open Graph URLs already use `https://reply-loop.com` (`NEXT_PUBLIC_SITE_URL`).
+
 ## Deploy to Vercel
 
 1. Import the GitHub repo in Vercel. The framework preset is Next.js; no build settings need to change.
