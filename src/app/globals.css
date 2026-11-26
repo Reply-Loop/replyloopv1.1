@@ -138,6 +138,103 @@
     mix-blend-mode: multiply;
   }
 
+  /*
+   * The unanswered card. Without the scroll timeline (no JS, reduced motion)
+   * the finished state shows: the reply has arrived.
+   */
+  .problem-scene:not([data-animated]) [data-p="reply"] {
+    opacity: 1;
+  }
+
+  /*
+   * How it works. Default (phones, reduced motion, no JS): steps stacked, each
+   * with its vignette; a 4-column row on wide screens. Pinned (desktop with
+   * motion, set by HowItWorksJourney): one chapter at a time over the loop.
+   */
+  .journey-loop,
+  .journey-dots {
+    display: none;
+  }
+  .journey-steps {
+    display: grid;
+    gap: 3rem 2rem;
+  }
+  @media (min-width: 640px) {
+    .journey-steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .journey-steps {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .journey-step {
+    border-top: 1px solid var(--color-rule);
+    padding-top: 1.5rem;
+  }
+  .journey-vignette {
+    margin-bottom: 1.25rem;
+  }
+
+  .journey[data-pinned] {
+    height: 100vh;
+    min-height: 560px;
+    margin-top: 0;
+  }
+  .journey[data-pinned] .journey-loop {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    color: color-mix(in srgb, var(--color-brass) 45%, transparent);
+  }
+  .journey[data-pinned] .journey-bead {
+    fill: var(--color-brass);
+    filter: drop-shadow(0 0 3px rgb(196 154 90 / 0.8));
+  }
+  .journey[data-pinned] .journey-steps {
+    display: block;
+    position: absolute;
+    inset: 0;
+  }
+  .journey[data-pinned] .journey-step {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 4rem;
+    border: 0;
+    padding: 0 0 4rem;
+  }
+  .journey[data-pinned] .journey-vignette {
+    margin: 0;
+    padding: 2rem;
+    border-radius: 2rem;
+    background: radial-gradient(closest-side, rgb(248 245 239 / 0.96), rgb(248 245 239 / 0.75) 70%, transparent);
+  }
+  .journey[data-pinned] .journey-text {
+    max-width: 26rem;
+  }
+  .journey[data-pinned] .journey-dots {
+    display: flex;
+    position: absolute;
+    left: 0;
+    bottom: 2.5rem;
+    gap: 0.6rem;
+  }
+  .journey-dots li {
+    width: 2.25rem;
+    height: 2px;
+    background: var(--color-rule);
+    transition: background-color 300ms;
+  }
+  .journey-dots li[data-active] {
+    background: var(--color-brass);
+  }
+
   /* Optional slow loop line on the divider. */
   /* Ambient: only while motion is fully on (the Pause motion control stops it). */
   @media (prefers-reduced-motion: no-preference) {

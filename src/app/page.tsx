@@ -12,7 +12,7 @@ import { PromiseList } from "@/components/ui/PromiseList";
 import { ProofSlot } from "@/components/ui/ProofSlot";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { StepList, type Step } from "@/components/ui/StepList";
+import { homeSteps as steps } from "@/content/steps";
 import { faqs } from "@/content/faq";
 import { trustCue } from "@/content/promises";
 import { bundlePillars, oneTimeProjects } from "@/content/services";
@@ -20,6 +20,8 @@ import { pageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 import Link from "next/link";
 import { HeroVisual } from "@/components/hero/HeroVisual";
+import { HowItWorksJourney } from "@/components/scenes/HowItWorksJourney";
+import { ProblemScene } from "@/components/scenes/ProblemScene";
 
 // Primary keyword: Google review replies for local health businesses.
 export const metadata: Metadata = pageMetadata({
@@ -45,24 +47,7 @@ const problems = [
   },
 ];
 
-const steps: Step[] = [
-  {
-    title: "Intro call",
-    body: "A short call to see what is actually missing. If you do not need something, we will not add it.",
-  },
-  {
-    title: "Voice interview",
-    body: "We learn how you talk about your work and how you say thank you. We also audit your online presence once.",
-  },
-  {
-    title: "Dry run",
-    body: "A practice round. We draft replies and posts, and you read them first. Nothing goes out in your name before this.",
-  },
-  {
-    title: "Go live, in the open",
-    body: "Replies and monthly posts begin, and you can see all of it. You approve each month's posts before they go out.",
-  },
-];
+
 
 const fit = [
   "You run a home care agency or a local health practice in Utah.",
@@ -120,6 +105,7 @@ export default function HomePage() {
           title="The thank you is already there. It just has no answer."
           intro="None of this means the service is poor. It means nobody has had the time to answer it."
         />
+        <ProblemScene className="mt-12" />
         <ul className="mt-12 grid gap-6 md:grid-cols-3">
           {problems.map((p) => (
             <Card as="li" key={p.title}>
@@ -163,14 +149,15 @@ export default function HomePage() {
       </Section>
 
       {/* 4. How it works */}
-      <Section labelledBy="how-title" id="how-it-works">
+      {/* No reveal transform here: a transformed ancestor would break the pinned journey. */}
+      <Section labelledBy="how-title" id="how-it-works" reveal={false}>
         <SectionHeading
           id="how-title"
           eyebrow="How it works"
           title="Four steps, and nothing goes out early"
           intro="Setup includes your voice interview, a one-time audit of your online presence, and replies to the Google reviews already waiting."
         />
-        <StepList steps={steps} className="mt-14" />
+        <HowItWorksJourney steps={steps} />
       </Section>
 
       <LoopDivider />
