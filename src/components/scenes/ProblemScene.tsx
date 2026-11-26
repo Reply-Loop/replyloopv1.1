@@ -27,11 +27,11 @@ export function ProblemScene({ className }: { className?: string }) {
 
       const tl = gsap.timeline({
         defaults: { ease: "none" },
-        scrollTrigger: { trigger: root, start: "top 78%", end: "bottom 30%", scrub: 0.9 },
+        scrollTrigger: { trigger: root, start: "top 85%", end: "bottom 68%", scrub: 0.9 },
       });
       tl.fromTo(dust, { y: 0 }, { y: (i: number) => 34 + ((i * 37) % 52), duration: 0.45, stagger: 0.004 }, 0)
         .fromTo(q('[data-p="warm-light"]'), { opacity: 1 }, { opacity: 0.32, duration: 0.45 }, 0)
-        .fromTo(q('[data-p="cool-light"]'), { opacity: 0 }, { opacity: 1, duration: 0.45 }, 0.05)
+        .fromTo(q('[data-p="cool-light"]'), { opacity: 0 }, { opacity: 0.85, duration: 0.45 }, 0.05)
         .fromTo(q('[data-p="dust-settled"]'), { opacity: 0 }, { opacity: 1, duration: 0.3 }, 0.2)
         .fromTo(
           q('[data-p="reply"]'),

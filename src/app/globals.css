@@ -216,7 +216,10 @@
     background: radial-gradient(closest-side, rgb(248 245 239 / 0.96), rgb(248 245 239 / 0.75) 70%, transparent);
   }
   .journey[data-pinned] .journey-text {
-    max-width: 26rem;
+    max-width: 28rem;
+    padding: 2.5rem;
+    border-radius: 2rem;
+    background: radial-gradient(closest-side, rgb(248 245 239 / 0.97), rgb(248 245 239 / 0.9) 75%, rgb(248 245 239 / 0));
   }
   .journey[data-pinned] .journey-dots {
     display: flex;

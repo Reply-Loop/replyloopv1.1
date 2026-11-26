@@ -16,8 +16,8 @@ export function VignetteIntroCall({ idPrefix = "vic", className }: Props) {
     <svg viewBox="0 0 480 360" aria-hidden="true" focusable="false" className={className}>
       <defs>
         <linearGradient id={id("cone")} x1="40" y1="0" x2="250" y2="260" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#FFE9C4" stopOpacity="0.85" />
-          <stop offset="0.7" stopColor="#FFE9C4" stopOpacity="0.25" />
+          <stop offset="0" stopColor="#FFE9C4" stopOpacity="0.3" />
+          <stop offset="0.7" stopColor="#FFE9C4" stopOpacity="0.1" />
           <stop offset="1" stopColor="#FFE9C4" stopOpacity="0" />
         </linearGradient>
         <radialGradient id={id("pool")} cx="170" cy="160" r="190" gradientUnits="userSpaceOnUse">
@@ -47,6 +47,9 @@ export function VignetteIntroCall({ idPrefix = "vic", className }: Props) {
         <filter id={id("soft")} x="-40%" y="-40%" width="180%" height="180%">
           <feGaussianBlur stdDeviation="14" />
         </filter>
+        <filter id={id("core")} x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="9" />
+        </filter>
         <filter id={id("cast")} x="-20%" y="-30%" width="140%" height="160%">
           <feGaussianBlur stdDeviation="7" />
         </filter>
@@ -57,6 +60,7 @@ export function VignetteIntroCall({ idPrefix = "vic", className }: Props) {
 
       <g data-v-layer="1" style={anim}>
         <path d="M6,-30L70,-30L330,250L120,320Z" fill={url("cone")} filter={url("soft")} />
+        <path d="M22,-30L50,-30L250,190L160,226Z" fill={url("cone")} opacity="0.55" filter={url("core")} />
         <ellipse cx="170" cy="160" rx="190" ry="150" fill={url("pool")} />
       </g>
 
@@ -65,7 +69,7 @@ export function VignetteIntroCall({ idPrefix = "vic", className }: Props) {
         <path d={LEFT} transform="translate(1.5 2.5)" fill="#1B1F23" opacity="0.12" filter={url("contact")} />
         <path d={LEFT} transform="translate(0 2)" fill="#E6DCCB" />
         <path d={LEFT} fill={url("paper")} stroke="#E6DCCB" strokeWidth="0.8" />
-        <g stroke="#1B1F23" strokeWidth="2.6" strokeLinecap="round" opacity="0.6">
+        <g stroke="#1B1F23" strokeWidth="2.6" strokeLinecap="round" opacity="0.66">
           <path d="M70,117H178" />
           <path d="M70,133H162" />
           <path d="M70,149H124" />
@@ -77,7 +81,7 @@ export function VignetteIntroCall({ idPrefix = "vic", className }: Props) {
         <path d={RIGHT} transform="translate(1.5 2.5)" fill="#1B1F23" opacity="0.12" filter={url("contact")} />
         <path d={RIGHT} transform="translate(0 2)" fill="#E6DCCB" />
         <path d={RIGHT} fill={url("paper2")} stroke="#E6DCCB" strokeWidth="0.8" />
-        <g stroke="#1B1F23" strokeWidth="2.6" strokeLinecap="round" opacity="0.52">
+        <g stroke="#1B1F23" strokeWidth="2.6" strokeLinecap="round" opacity="0.58">
           <path d="M324,243H408" />
           <path d="M324,259H372" />
         </g>
@@ -89,7 +93,8 @@ export function VignetteIntroCall({ idPrefix = "vic", className }: Props) {
       </g>
 
       <g data-v-layer="5" data-v-float="true" style={anim}>
-        <circle cx="262" cy="168" r="9" fill={url("glint")} />
+        <circle cx="262" cy="168" r="11" fill={url("glint")} />
+        <circle cx="261.5" cy="167.6" r="1.3" fill="#FFE9C4" />
       </g>
     </svg>
   );

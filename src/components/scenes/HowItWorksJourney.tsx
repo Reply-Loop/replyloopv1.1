@@ -21,6 +21,8 @@ const VIGNETTES: ComponentType<{ idPrefix?: string; className?: string }>[] = [
 const ZOOM = 2.6;
 const S_FROM = 0.03;
 const S_TO = 0.97;
+/** Where the camera holds the bead: centred behind the illustration column (viewBox units). */
+const FOCUS_X = -62;
 
 /**
  * "How it works" as a journey along the loop.
@@ -51,7 +53,7 @@ export function HowItWorksJourney({ steps }: { steps: Step[] }) {
 
         const moveCamera = (p: number) => {
           const pt = path.getPointAtLength(length * (S_FROM + (S_TO - S_FROM) * p));
-          cam.setAttribute("transform", `translate(${-pt.x * ZOOM} ${-pt.y * ZOOM}) scale(${ZOOM})`);
+          cam.setAttribute("transform", `translate(${FOCUS_X - pt.x * ZOOM} ${-pt.y * ZOOM}) scale(${ZOOM})`);
           bead.setAttribute("cx", String(pt.x));
           bead.setAttribute("cy", String(pt.y));
           const active = Math.min(items.length - 1, Math.floor(p * items.length * 0.999));

@@ -1,7 +1,7 @@
 type Props = { idPrefix?: string; className?: string };
 
 const anim = { transformBox: "fill-box", transformOrigin: "center" } as const;
-const NB = "translate(222 198) rotate(-6)";
+const NB = "translate(220 200) rotate(-6) scale(0.94)";
 const PEN = "translate(74 2) rotate(-38)";
 const rules = [-58, -44, -30, -16, -2, 12, 26, 40, 54, 68];
 
@@ -12,8 +12,8 @@ export function VignetteVoiceInterview({ idPrefix = "vvi", className }: Props) {
     <svg viewBox="0 0 480 360" aria-hidden="true" focusable="false" className={className}>
       <defs>
         <radialGradient id={id("glow")} cx="0.3" cy="0.24" r="0.62">
-          <stop offset="0" stopColor="#FFE9C4" stopOpacity="0.55" />
-          <stop offset="0.55" stopColor="#FFE9C4" stopOpacity="0.16" />
+          <stop offset="0" stopColor="#FFE9C4" stopOpacity="0.3" />
+          <stop offset="0.55" stopColor="#FFE9C4" stopOpacity="0.1" />
           <stop offset="1" stopColor="#FFE9C4" stopOpacity="0" />
         </radialGradient>
         <linearGradient id={id("pl")} x1="0" y1="0" x2="1" y2="0.3">
@@ -62,10 +62,10 @@ export function VignetteVoiceInterview({ idPrefix = "vvi", className }: Props) {
       <g data-v-layer="2" style={anim}>
         <g transform={NB}>
           <rect x="-150" y="-92" width="308" height="196" rx="6" transform="translate(6 8)" fill="#1B1F23" opacity="0.2" filter={u("sh")} />
-          <rect x="-154" y="-95" width="308" height="194" rx="4" fill="#2A2F34" />
-          <path d="M-152 -90L0 -87L152 -90L152 98L0 99L-152 98Z" fill="#D6C9B3" />
-          <path d="M-151 -91L0 -88L0 97L-151 96Z" fill="#E6DCCB" />
-          <path d="M151 -91L0 -88L0 97L151 96Z" fill="#E0D5C2" />
+          <path d="M-150 -95C-100 -98 -30 -98 0 -89C30 -98 100 -98 150 -95Q154 -95 154 -91L154 95Q154 99 150 99L-150 99Q-154 99 -154 95L-154 -91Q-154 -95 -150 -95Z" fill="#2A2F34" />
+          <path d="M-152 -91C-100 -94 -30 -95 0 -87C30 -95 100 -94 152 -91L152 98L-152 98Z" fill="#D6C9B3" />
+          <path d="M-151 -91C-100 -94 -30 -95 0 -87L0 97L-151 96Z" fill="#E6DCCB" />
+          <path d="M151 -91C100 -94 30 -95 0 -87L0 97L151 96Z" fill="#E0D5C2" />
           <path d="M-149 -92C-100 -95 -30 -96 0 -87L0 94C-30 92 -100 93 -149 94Z" fill={u("pl")} />
           <path d="M149 -92C100 -95 30 -96 0 -87L0 94C30 92 100 93 149 94Z" fill={u("pr")} />
           <g stroke="#4A4F55" strokeWidth="0.6" opacity="0.32" fill="none">
@@ -75,30 +75,34 @@ export function VignetteVoiceInterview({ idPrefix = "vvi", className }: Props) {
           </g>
           <rect x="-22" y="-92" width="44" height="188" fill={u("gut")} />
           <path d="M0 -86L0 93" stroke="#5C3E12" strokeWidth="0.5" opacity="0.25" />
+          <path d="M126 94L149 94L149 70C145 82 137 90 126 94Z" fill="#E0D5C2" />
+          <path d="M126 94C133 88 138 80 149 70C147 78 143 85 139 89C135 92 131 93.5 126 94Z" fill="#F8F5EF" />
+          <path d="M126 94C133 88 138 80 149 70" stroke="#1B1F23" strokeWidth="0.6" fill="none" opacity="0.18" />
           <path d="M-149 -92C-100 -95 -30 -96 -1 -88" stroke="#FFFFFF" strokeWidth="0.8" fill="none" opacity="0.6" />
         </g>
       </g>
 
       <g data-v-layer="3" style={anim}>
         <g transform={NB}>
-          <path d="M0 0L190 -7L190 7Z" transform="translate(74 2) rotate(-31) translate(2 3)" fill="#1B1F23" opacity="0.22" filter={u("ps")} />
+          <path d="M0 0L186 -6.5L186 6.5Z" transform="translate(74 2) rotate(-31) translate(2 3)" fill="#1B1F23" opacity="0.22" filter={u("ps")} />
           <g transform={PEN}>
-            <path d="M0 0C7 -1.6 18 -4.4 28 -5.4L28 5.4C18 4.4 7 1.6 0 0Z" fill={u("br")} />
-            <path d="M1.5 0L19 0" stroke="#5C3E12" strokeWidth="0.6" />
-            <circle cx="20.2" cy="0" r="1.1" fill="#1B1F23" />
-            <path d="M27 -5.8L50 -6.9L50 6.9L27 5.8Z" fill={u("ch")} />
-            <rect x="50" y="-7.5" width="3.6" height="15" fill={u("br")} />
-            <rect x="53.6" y="-8" width="74" height="16" rx="1.5" fill={u("ch")} />
-            <rect x="127.6" y="-8.7" width="5" height="17.4" fill={u("br")} />
-            <path d="M132.6 -8.7L178 -8.7C186 -8.7 189 -5 189 0C189 5 186 8.7 178 8.7L132.6 8.7Z" fill={u("ch")} />
-            <g fill="#F8F5EF" opacity="0.24">
-              <rect x="31" y="-4.6" width="18" height="1.1" rx="0.5" />
-              <rect x="56" y="-5.6" width="69" height="1.5" rx="0.7" />
-              <rect x="135" y="-6" width="46" height="1.5" rx="0.7" />
+            <path d="M0 0C6 -1.2 14 -3 20 -4.6C25 -6.2 30 -6.6 33 -5.6L33 5.6C30 6.6 25 6.2 20 4.6C14 3 6 1.2 0 0Z" fill={u("br")} />
+            <path d="M1.5 0L21 0" stroke="#5C3E12" strokeWidth="0.6" />
+            <circle cx="22.3" cy="0" r="1.2" fill="#1B1F23" />
+            <path d="M32 -5.4C38 -6.2 46 -6.3 52 -6.2L52 6.2C46 6.3 38 6.2 32 5.4Z" fill={u("ch")} />
+            <rect x="52" y="-6.6" width="3" height="13.2" fill={u("br")} />
+            <rect x="55" y="-7" width="70" height="14" rx="1.4" fill={u("ch")} />
+            <rect x="125" y="-7.6" width="4.4" height="15.2" fill={u("br")} />
+            <path d="M129.4 -7.6L176 -7.4C183 -7.2 186 -4 186 0C186 4 183 7.2 176 7.4L129.4 7.6Z" fill={u("ch")} />
+            <rect x="174" y="-7.4" width="1.8" height="14.8" fill={u("br")} opacity="0.85" />
+            <g fill="#F8F5EF" opacity="0.26">
+              <rect x="35" y="-4" width="16" height="1" rx="0.5" />
+              <rect x="57" y="-4.9" width="66" height="1.3" rx="0.6" />
+              <rect x="132" y="-5.2" width="41" height="1.3" rx="0.6" />
             </g>
-            <rect x="143" y="-10.4" width="40" height="3" rx="1" fill="#1B1F23" opacity="0.35" />
-            <rect x="142" y="-13" width="41" height="3" rx="1.4" fill={u("br")} />
-            <circle cx="143.6" cy="-11.4" r="2.3" fill={u("br")} />
+            <path d="M140 -8.6L178 -8.6" stroke="#1B1F23" strokeWidth="2.6" strokeLinecap="round" opacity="0.3" />
+            <path d="M141 -10.6L177 -10.2C179 -10.2 179.6 -9.4 179 -8.4" stroke={u("br")} strokeWidth="2.4" strokeLinecap="round" fill="none" />
+            <circle cx="141.4" cy="-10" r="2.1" fill={u("br")} />
           </g>
         </g>
       </g>
@@ -107,7 +111,7 @@ export function VignetteVoiceInterview({ idPrefix = "vvi", className }: Props) {
         <g transform={NB}>
           <path
             data-v-draw="true"
-            d="M74 2C70 16 64 30 68 40C73 52 94 54 104 44C112 36 108 24 98 25C86 26 86 46 104 52C120 57 134 50 142 44"
+            d="M74 2C78 22 98 34 116 30C134 26 137 5 122 3C105 1 101 27 118 41C127 49 136 52 143 51"
             fill="none"
             stroke="#8A5F1C"
             strokeWidth="2.4"
