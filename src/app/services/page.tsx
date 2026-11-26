@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BrandFilm } from "@/components/film/BrandFilm";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { TextLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -52,6 +53,7 @@ export default function ServicesPage() {
           title="What the bundle includes"
           intro="Setup includes your voice interview, a one-time audit of your online presence, and replies to the Google reviews already waiting."
         />
+        <BrandFilm className="mt-12" />
         <ul className="mt-12 grid gap-6 md:grid-cols-2">
           {bundlePillars.map((pillar) => (
             <PillarCard key={pillar.title} pillar={pillar} />

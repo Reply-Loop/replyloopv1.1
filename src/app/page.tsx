@@ -22,6 +22,7 @@ import Link from "next/link";
 import { HeroVisual } from "@/components/hero/HeroVisual";
 import { HowItWorksJourney } from "@/components/scenes/HowItWorksJourney";
 import { ProblemScene } from "@/components/scenes/ProblemScene";
+import { BrandFilm } from "@/components/film/BrandFilm";
 
 // Primary keyword: Google review replies for local health businesses.
 export const metadata: Metadata = pageMetadata({
@@ -115,6 +116,7 @@ export default function HomePage() {
           ))}
         </ul>
         <p className="mt-10 max-w-2xl text-lg">That is the part we take on.</p>
+        <BrandFilm className="mt-12" />
       </Section>
 
       {/* 3. The bundle */}

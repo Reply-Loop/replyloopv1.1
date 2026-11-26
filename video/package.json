@@ -1,0 +1,20 @@
+{
+  "name": "replyloop-film",
+  "private": true,
+  "description": "ReplyLoop brand film (Remotion). Rendered files are committed to ../public/media.",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "node render.mjs"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.547",
+    "@remotion/renderer": "4.0.547",
+    "remotion": "4.0.547",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "typescript": "^5"
+  }
+}
