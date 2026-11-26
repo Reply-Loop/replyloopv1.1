@@ -120,17 +120,22 @@ function walk(dir, filter, out = []) {
 const targets = [];
 
 // 1. Rendered pages. The dev-only gallery and Next internals are skipped.
-const appOut = join(root, ".next/server/app");
+// --out scans the static export (out/, from npm run build:static) instead of the server build.
+const staticOut = process.argv.includes("--out");
+const appOut = join(root, staticOut ? "out" : ".next/server/app");
 if (!existsSync(appOut)) {
-  console.error("No build output. Run `npm run build` before `npm run check:compliance`.");
+  console.error(staticOut ? "No out/ folder. Run `npm run build:static` first." : "No build output. Run `npm run build` before `npm run check:compliance`.");
   process.exit(1);
 }
 for (const file of walk(appOut, (p) => p.endsWith(".html"))) {
   const rel = relative(appOut, file);
-  if (/^(styleguide|_global-error|_not-found)/.test(rel)) continue;
+  if (/^(styleguide|_global-error|_not-found|_next\/)/.test(rel)) continue;
   targets.push({ file: `rendered:/${rel.replace(/(index)?\.html$/, "")}`, text: htmlToText(readFileSync(file, "utf8")) });
 }
-for (const file of walk(appOut, (p) => /\.(txt|xml)\.body$/.test(p) || p.endsWith("llms.txt.body"))) {
+const isRouteBody = staticOut
+  ? (p) => /^(robots\.txt|sitemap\.xml|llms\.txt)$/.test(relative(appOut, p))
+  : (p) => /\.(txt|xml)\.body$/.test(p) || p.endsWith("llms.txt.body");
+for (const file of walk(appOut, isRouteBody)) {
   targets.push({ file: `rendered:/${relative(appOut, file)}`, text: readFileSync(file, "utf8") });
 }
 

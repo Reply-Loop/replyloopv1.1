@@ -1,6 +1,5 @@
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
 import { ImageResponse } from "next/og";
+import { loadOgFonts } from "@/lib/og-fonts";
 import { LOOP_CROSSING_PATH, LOOP_PATH, LOOP_STROKE, LOOP_VIEWBOX } from "./loop/geometry.generated";
 
 /**
@@ -10,25 +9,13 @@ import { LOOP_CROSSING_PATH, LOOP_PATH, LOOP_STROKE, LOOP_VIEWBOX } from "./loop
 export const ogSize = { width: 1200, height: 630 };
 export const ogContentType = "image/png";
 
-const fontDir = join(process.cwd(), "assets/fonts");
-
-/** Font files never change, so the read is cached and the images prerender at build. */
-async function loadFonts() {
-  "use cache";
-  const [fraunces, inter] = await Promise.all([
-    readFile(join(fontDir, "fraunces-latin-500-normal.woff")),
-    readFile(join(fontDir, "inter-latin-500-normal.woff")),
-  ]);
-  return { fraunces: new Uint8Array(fraunces), inter: new Uint8Array(inter) };
-}
-
 /** Copy a view into its own ArrayBuffer (a cached view can sit inside a larger buffer). */
 function exact(view: Uint8Array): ArrayBuffer {
   return view.slice().buffer as ArrayBuffer;
 }
 
 export async function renderOg({ eyebrow, title }: { eyebrow: string; title: string }) {
-  const { fraunces, inter } = await loadFonts();
+  const { fraunces, inter } = await loadOgFonts();
   const titleSize = title.length > 70 ? 56 : title.length > 45 ? 66 : 78;
 
   return new ImageResponse(

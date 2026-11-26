@@ -2,6 +2,13 @@ import { promises } from "@/content/promises";
 import { bundlePillars } from "@/content/services";
 import { site } from "@/lib/site";
 
+// Marks this route as generated at build time, which the static export
+// (npm run build:static) requires. Cache Components rejects `dynamic =
+// "force-static"`, but accepts this. The route has no params, so one empty set.
+export function generateStaticParams() {
+  return [{}];
+}
+
 /**
  * llms.txt: a plain description of ReplyLoop for language-model crawlers.
  * Same voice and same bans as the site: no prices, no scripture, no legal claims.

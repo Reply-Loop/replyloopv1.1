@@ -16,7 +16,9 @@
     "lighthouse": "CHROME_PATH=${CHROME_PATH:-/opt/pw-browsers/chromium} lighthouse ${QA_BASE:-http://localhost:3000} --form-factor=mobile --chrome-flags=\"--headless=new --no-sandbox\" --view=false",
     "perf": "node scripts/perf.mjs",
     "loop:fit": "python3 -I scripts/loop/fit-loop.py && node scripts/loop/build-loop.mjs",
-    "brand:derive": "node scripts/brand/derive.mjs"
+    "brand:derive": "node scripts/brand/derive.mjs",
+    "build:static": "STATIC_EXPORT=1 next build && node scripts/static-finish.mjs && node scripts/compliance.mjs --out",
+    "deploy:pages": "npm run build:static && wrangler pages deploy out --project-name=reply-loop-staging --branch=main"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
@@ -46,7 +48,8 @@
     "lighthouse": "^13.6.0",
     "sharp": "^0.35.5",
     "tailwindcss": "4.3.3",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^4.163.0"
   },
   "engines": {
     "node": ">=20.9"
