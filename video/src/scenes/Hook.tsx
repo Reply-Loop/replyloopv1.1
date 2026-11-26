@@ -8,15 +8,15 @@ import { clamp, theme } from "../theme";
 
 // 0–5.3s. Thump #1 (frame 0): an unanswered 5-star review slams in over real
 // footage of an owner on his phone. Thump #2: the reply types itself.
-export const Hook: React.FC = () => {
+export const Hook: React.FC<{ sectionId?: string }> = ({ sectionId = "01-hook" }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const [h0, h1] = hits("01-hook");
+  const [h0, h1] = hits(sectionId);
   const card = useHit(h0, "snappy");
   const reply = interpolate(frame, [h1, h1 + 34], [0, 1], { easing: theme.ease.out, ...clamp });
   const punch = usePunch(h0, 0.05) * usePunch(h1, 0.03);
   const exit = useExit(10);
-  const bgScale = interpolate(frame, [0, 160], [1.55, 1.68], { easing: theme.ease.inOut, ...clamp });
+  const bgScale = interpolate(frame, [0, 160 * (sectionId === "01-hook" ? 1 : 0.5)], [1.55, 1.68], { easing: theme.ease.inOut, ...clamp });
   return (
     <AbsoluteFill>
       {/* Real footage: owner reading a review on his phone (burned-in copy cropped out). */}

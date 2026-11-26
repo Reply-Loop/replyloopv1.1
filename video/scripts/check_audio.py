@@ -1,5 +1,5 @@
 import json, wave, numpy as np, sys
-cues = json.load(open("src/audio/cues.json"))
+cues = json.load(open(sys.argv[1] if len(sys.argv) > 1 else "src/audio/cues.json"))
 def load(p):
     w = wave.open(p); n = w.getnframes(); sr = w.getframerate()
     a = np.frombuffer(w.readframes(n), dtype=np.int16).reshape(-1, 2).astype(np.float32) / 32768

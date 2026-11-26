@@ -15,6 +15,17 @@ A 58-second 9:16 (1080×1920, 30fps) ad for Facebook/Instagram Feed and Reels. I
 | 7 | Owner control + month-to-month terms | 1360–1560 | `section-07-owner-control.wav` |
 | 8 | CTA end card | 1560–1765 | `section-08-cta.wav` |
 
+## 15-second Reels cutdown (`Reels15`)
+
+| # | Beat | Frames | Music file |
+|---|------|--------|------------|
+| 1 | Hook: unanswered review → reply | 0–80 | `section-c15-01-hook.wav` |
+| 2 | What we do (3 chips on 3 beats) | 80–160 | `section-c15-02-what.wav` |
+| 3 | $499 setup → $350/mo per location + terms | 160–320 | `section-c15-03-price.wav` |
+| 4 | CTA end card | 320–450 | `section-c15-04-cta.wav` |
+
+Render: `npx remotion render src/index.ts Reels15 out/replyloop-reels-15s-9x16.mp4 --codec h264 --crf 16`
+
 ## Music
 
 `scripts/make-lofi.mjs` synthesises one lo-fi jazz track per section. It uses Rhodes-style FM chords, upright-style bass, swung hats, boom-bap drums, vinyl crackle, tape wobble and a moving lowpass. Every track is at 90 BPM, which is exactly 20 frames per beat, so the tracks chain sample-accurately. Each section has heavy "thump" accents on the beats where its main point lands. The script also writes `src/audio/cues.json`, and every visual hit is timed from that file, so the animation lands on the thump. To move a beat or add one, edit `SECTIONS` in the script, re-run it, and the visuals follow.

@@ -10,9 +10,9 @@ import { theme } from "../theme";
 export const BOOKING_URL = "cal.com/hunter-newbold-klaopa/intro-call";
 
 // Ivory end card. Thump 1: the call to action. Thump 2: the brand bookend.
-export const CTA: React.FC = () => {
+export const CTA: React.FC<{ sectionId?: string }> = ({ sectionId = "08-cta" }) => {
   const frame = useCurrentFrame();
-  const [h0, h1] = hits("08-cta");
+  const [h0, h1] = hits(sectionId);
   const btn = useHit(h0 + 4, "bouncy");
   const brand = useHit(h1, "bouncy");
   const wipe = interpolate(frame, [0, 12], [0, 100], { extrapolateRight: "clamp", easing: theme.ease.out });

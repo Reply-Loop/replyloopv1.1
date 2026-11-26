@@ -377,33 +377,61 @@ const renderSection = (sec) => {
   return [outL, outR];
 };
 
-// ---------- render all, normalize together, stitch ----------
-const rendered = SECTIONS.map((s) => ({ s, audio: renderSection(s) }));
-let peak = 0;
-for (const { audio } of rendered) for (const ch of audio) for (const v of ch) peak = Math.max(peak, Math.abs(v));
-const gain = 0.89 / peak; // ~-1 dBFS, same gain for every file so levels match
-
-let frame = 0;
-const cues = { bpm: BPM, fps: FPS, framesPerBeat: FPB, sections: [] };
-const totalFrames = SECTIONS.reduce((a, s) => a + s.beats * FPB, 0);
-const FL = new Float32Array(S(totalFrames / FPS + TAIL)), FR = new Float32Array(FL.length);
-for (const { s, audio } of rendered) {
-  const [aL, aR] = audio;
-  for (let i = 0; i < aL.length; i++) { aL[i] *= gain; aR[i] *= gain; }
-  const file = `section-${s.id}.wav`;
-  writeWav(path.join(OUT, file), aL, aR);
-  const off = S(frame / FPS);
-  for (let i = 0; i < aL.length && off + i < FL.length; i++) { FL[off + i] += aL[i]; FR[off + i] += aR[i]; }
-  cues.sections.push({
-    id: s.id, file: `music/${file}`, startFrame: frame, durationInFrames: s.beats * FPB,
-    audioFrames: Math.ceil((aL.length / SR) * FPS), beats: s.beats,
-    accents: s.accents.map(([b, type]) => ({ beat: b, frame: Math.round(swingPos(b) * FPB), type })),
+// ---------- render a set, normalize together, stitch ----------
+// Each set = one ad edit. Every section ("batch") gets its own file; a stitched
+// mix is written for listening; the cue sheet drives the visuals.
+const hashSeed = (str) => [...str].reduce((h, c) => (Math.imul(h, 31) + c.charCodeAt(0)) >>> 0, 7);
+const renderSet = ({ name, sections, cuesFile, mixFile, reseed = false }) => {
+  const rendered = sections.map((s) => {
+    if (reseed) seed = hashSeed(s.id);
+    return { s, audio: renderSection(s) };
   });
-  frame += s.beats * FPB;
-}
-for (let i = 0; i < FL.length; i++) { FL[i] = Math.max(-0.97, Math.min(0.97, FL[i])); FR[i] = Math.max(-0.97, Math.min(0.97, FR[i])); }
-writeWav(path.join(OUT, "full-mix.wav"), FL, FR);
-cues.totalFrames = totalFrames;
-fs.writeFileSync(path.resolve("src/audio/cues.json"), JSON.stringify(cues, null, 2));
-console.log(`gain ${gain.toFixed(3)} | ${SECTIONS.length} sections | ${totalFrames} frames (${(totalFrames / FPS).toFixed(2)}s) @ ${BPM} BPM`);
-for (const c of cues.sections) console.log(`${c.id.padEnd(18)} start ${String(c.startFrame).padStart(5)}f  len ${String(c.durationInFrames).padStart(4)}f  accents ${c.accents.map((a) => a.frame + (a.type === "big" ? "!" : "")).join(" ")}`);
+  let peak = 0;
+  for (const { audio } of rendered) for (const ch of audio) for (const v of ch) peak = Math.max(peak, Math.abs(v));
+  const gain = 0.89 / peak; // ~-1 dBFS, same gain for every file so levels match
+
+  let frame = 0;
+  const cues = { bpm: BPM, fps: FPS, framesPerBeat: FPB, sections: [] };
+  const totalFrames = sections.reduce((a, s) => a + s.beats * FPB, 0);
+  const FL = new Float32Array(S(totalFrames / FPS + TAIL)), FR = new Float32Array(FL.length);
+  for (const { s, audio } of rendered) {
+    const [aL, aR] = audio;
+    for (let i = 0; i < aL.length; i++) { aL[i] *= gain; aR[i] *= gain; }
+    const file = `section-${s.id}.wav`;
+    writeWav(path.join(OUT, file), aL, aR);
+    const off = S(frame / FPS);
+    for (let i = 0; i < aL.length && off + i < FL.length; i++) { FL[off + i] += aL[i]; FR[off + i] += aR[i]; }
+    cues.sections.push({
+      id: s.id, file: `music/${file}`, startFrame: frame, durationInFrames: s.beats * FPB,
+      audioFrames: Math.ceil((aL.length / SR) * FPS), beats: s.beats,
+      accents: s.accents.map(([b, type]) => ({ beat: b, frame: Math.round(swingPos(b) * FPB), type })),
+    });
+    frame += s.beats * FPB;
+  }
+  for (let i = 0; i < FL.length; i++) { FL[i] = Math.max(-0.97, Math.min(0.97, FL[i])); FR[i] = Math.max(-0.97, Math.min(0.97, FR[i])); }
+  writeWav(path.join(OUT, mixFile), FL, FR);
+  cues.totalFrames = totalFrames;
+  fs.writeFileSync(path.resolve(`src/audio/${cuesFile}`), JSON.stringify(cues, null, 2));
+  console.log(`[${name}] gain ${gain.toFixed(3)} | ${sections.length} sections | ${totalFrames} frames (${(totalFrames / FPS).toFixed(2)}s) @ ${BPM} BPM`);
+  for (const c of cues.sections) console.log(`  ${c.id.padEnd(18)} start ${String(c.startFrame).padStart(5)}f  len ${String(c.durationInFrames).padStart(4)}f  accents ${c.accents.map((a) => a.frame + (a.type === "big" ? "!" : "")).join(" ")}`);
+};
+
+// 15-second Reels cutdown: hook -> what we do -> price -> CTA (22 beats = 440f).
+const CUT15 = [
+  { id: "c15-01-hook", beats: 4, groove: "intro", lp: [2200, 7000], vinyl: 1.2,
+    chords: [[0, "Dm9", 2], [2, "Gm9", 2]],
+    accents: [[0, "big"], [2, "big"]] },
+  { id: "c15-02-what", beats: 4, groove: "groove", lp: [6500, 7500], vinyl: 0.9,
+    chords: [[0, "Bbmaj9", 4]],
+    accents: [[0, "big"], [1, "small"], [2, "small"], [3, "small"]] },
+  { id: "c15-03-price", beats: 8, groove: "walk", lp: [7000, 8000], vinyl: 0.8,
+    chords: [[0, "Gm9", 4], [4, "C13", 2], [6, "C7sus", 2]],
+    accents: [[0, "big"], [4, "big"], [6, "small"]] },
+  { id: "c15-04-cta", beats: 6, groove: "outro", lp: [7500, 3000], vinyl: 1.2,
+    chords: [[0, "Fmaj9", 3], [3, "Fadd13", 3]],
+    accents: [[0, "big"], [3, "big"]] },
+];
+
+const only = process.env.SET; // "master" | "c15" | undefined (both)
+if (!only || only === "master") renderSet({ name: "master", sections: SECTIONS, cuesFile: "cues.json", mixFile: "full-mix.wav" });
+if (!only || only === "c15") renderSet({ name: "reels-15s", sections: CUT15, cuesFile: "cues-15.json", mixFile: "full-mix-15s.wav", reseed: true });

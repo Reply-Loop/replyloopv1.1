@@ -1,4 +1,5 @@
 import cuesJson from "./cues.json";
+import cues15Json from "./cues-15.json";
 
 export type Accent = { beat: number; frame: number; type: "big" | "small" };
 export type SectionCue = {
@@ -11,7 +12,7 @@ export type SectionCue = {
   accents: Accent[];
 };
 
-export const cues = cuesJson as {
+export type CueSet = {
   bpm: number;
   fps: number;
   framesPerBeat: number;
@@ -19,8 +20,11 @@ export const cues = cuesJson as {
   sections: SectionCue[];
 };
 
+export const cues = cuesJson as CueSet; // 58s master
+export const cues15 = cues15Json as CueSet; // 15s Reels cutdown
+
 export const section = (id: string): SectionCue => {
-  const s = cues.sections.find((x) => x.id === id);
+  const s = [...cues.sections, ...cues15.sections].find((x) => x.id === id);
   if (!s) throw new Error(`No cue section ${id}`);
   return s;
 };
