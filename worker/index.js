@@ -71,7 +71,7 @@ function respond(request, path, status = 200) {
   return new Response(request.method === "HEAD" ? null : body, { status, headers });
 }
 
-export default {
+const worker = {
   async fetch(request) {
     if (request.method !== "GET" && request.method !== "HEAD") {
       return new Response("Method not allowed", { status: 405, headers: { Allow: "GET, HEAD" } });
@@ -97,3 +97,5 @@ export default {
     return respond(request, "/404.html", 404);
   },
 };
+
+export default worker;
