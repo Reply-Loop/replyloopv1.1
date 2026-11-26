@@ -14,79 +14,116 @@ type Props = {
   pointer: { current: Pointer };
   onReady: () => void;
   onLowPower: () => void;
+  /** The renderer or its assets failed: fall back to the still. */
+  onFail: () => void;
+  /** The renderer was torn down (unmount, or the route was hidden). */
+  onTeardown: () => void;
 };
 
-type Callbacks = { current: { onReady: () => void; onLowPower: () => void } };
+type Callbacks = { current: Omit<Props, "active" | "pointer"> };
 
-function renderScene(
-  r: ReconcilerRoot<HTMLCanvasElement>,
-  active: boolean,
-  pointer: { current: Pointer },
-  callbacks: Callbacks,
-) {
+/**
+ * One full configuration, passed on every configure() call. R3F fills in its
+ * defaults (dpr [1,2], frameloop "always") for any key left out, so a partial
+ * configure({ size }) would silently undo these.
+ */
+const BASE_CONFIG = {
+  dpr: [1, 1.5] as [number, number],
+  frameloop: "demand" as const,
+  gl: { antialias: true, alpha: true, powerPreference: "high-performance" as const, premultipliedAlpha: true },
+  camera: { fov: 30, near: 0.1, far: 50, position: [0, 0.05, 4.3] as [number, number, number] },
+};
+
+function renderScene(r: ReconcilerRoot<HTMLCanvasElement>, active: boolean, pointer: { current: Pointer }, cb: Callbacks) {
   r.render(
     <LoopScene
       active={active}
       pointer={pointer}
-      onReady={() => callbacks.current.onReady()}
-      onLowPower={() => callbacks.current.onLowPower()}
+      onReady={() => cb.current.onReady()}
+      onLowPower={() => cb.current.onLowPower()}
+      onFail={() => cb.current.onFail()}
     />,
   );
 }
 
 /**
- * Hosts the WebGL loop on a bare <canvas> via R3F createRoot. Loaded with
- * next/dynamic (ssr: false) after first paint, on capable desktops only.
- * Unmounting (or <Activity> hiding the route) unmounts the root, which disposes
- * the renderer and frees the GPU context.
+ * Hosts the WebGL loop via R3F createRoot. Loaded with next/dynamic (ssr:false)
+ * on capable desktops only.
+ *
+ * A fresh <canvas> is created on every mount and removed on cleanup. With Cache
+ * Components, <Activity> hides a route instead of unmounting it: the cleanup
+ * runs (R3F disposes the renderer and force-loses its WebGL context) but the
+ * DOM stays. Reusing that canvas on return would build a renderer on a lost
+ * context and throw, so the canvas never outlives its root.
  */
-export default function LoopCanvas({ active, pointer, onReady, onLowPower }: Props) {
-  const canvas = useRef<HTMLCanvasElement>(null);
-  const root = useRef<ReconcilerRoot<HTMLCanvasElement> | null>(null);
-  const callbacks = useRef({ onReady, onLowPower });
+export default function LoopCanvas({ active, pointer, onReady, onLowPower, onFail, onTeardown }: Props) {
+  const host = useRef<HTMLDivElement>(null);
+  const root = useRef<{ r: ReconcilerRoot<HTMLCanvasElement>; ready: boolean } | null>(null);
+  const callbacks = useRef({ onReady, onLowPower, onFail, onTeardown });
+  const latest = useRef({ active, pointer });
   useEffect(() => {
-    callbacks.current = { onReady, onLowPower };
+    callbacks.current = { onReady, onLowPower, onFail, onTeardown };
+    latest.current = { active, pointer };
   });
 
   useEffect(() => {
-    const el = canvas.current;
-    if (!el) return;
-    const r = createRoot(el);
-    root.current = r;
-    let cancelled = false;
+    const wrap = host.current;
+    if (!wrap) return;
+    const el = document.createElement("canvas");
+    el.className = "absolute inset-0 size-full";
+    el.setAttribute("aria-hidden", "true");
+    wrap.appendChild(el);
 
+    let cancelled = false;
     const size = () => {
-      const box = el.parentElement?.getBoundingClientRect();
-      return { width: box?.width ?? 1, height: box?.height ?? 1, top: 0, left: 0 };
+      const box = wrap.getBoundingClientRect();
+      return { width: Math.max(1, box.width), height: Math.max(1, box.height), top: 0, left: 0 };
     };
 
-    r.configure({
-      size: size(),
-      dpr: [1, 1.5],
-      frameloop: "demand",
-      gl: { antialias: true, alpha: true, powerPreference: "high-performance", premultipliedAlpha: true },
-      camera: { fov: 30, near: 0.1, far: 50, position: [0, 0.05, 4.3] },
-    }).then(() => {
-      if (cancelled) return;
-      renderScene(r, active, pointer, callbacks);
-    });
+    let r: ReconcilerRoot<HTMLCanvasElement>;
+    try {
+      r = createRoot(el);
+    } catch {
+      el.remove();
+      callbacks.current.onFail();
+      return;
+    }
+    const entry = { r, ready: false };
+    root.current = entry;
 
-    const ro = new ResizeObserver(() => r.configure({ size: size() }));
-    if (el.parentElement) ro.observe(el.parentElement);
+    r.configure({ ...BASE_CONFIG, size: size() })
+      .then(() => {
+        if (cancelled) return;
+        entry.ready = true;
+        renderScene(r, latest.current.active, latest.current.pointer, callbacks);
+      })
+      .catch(() => {
+        if (!cancelled) callbacks.current.onFail();
+      });
+
+    const ro = new ResizeObserver(() => {
+      if (entry.ready) r.configure({ ...BASE_CONFIG, size: size() }).catch(() => undefined);
+    });
+    ro.observe(wrap);
 
     return () => {
       cancelled = true;
       ro.disconnect();
-      r.unmount();
+      try {
+        r.unmount();
+      } catch {
+        // Already torn down.
+      }
+      el.remove();
       root.current = null;
+      callbacks.current.onTeardown();
     };
-    // The root is created once; prop changes re-render it in the effect below.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (root.current) renderScene(root.current, active, pointer, callbacks);
+    const entry = root.current;
+    if (entry?.ready) renderScene(entry.r, active, pointer, callbacks);
   }, [active, pointer]);
 
-  return <canvas ref={canvas} className="absolute inset-0 size-full" aria-hidden />;
+  return <div ref={host} className="absolute inset-0" aria-hidden />;
 }

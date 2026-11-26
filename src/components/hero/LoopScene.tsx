@@ -23,6 +23,7 @@ type SceneProps = {
   pointer: { current: Pointer };
   onReady: () => void;
   onLowPower: () => void;
+  onFail: () => void;
 };
 
 const BRASS = new Color("#775628"); // deep, slightly desaturated brass (#8A5F1C family) so it reads brown-brass, not orange
@@ -32,7 +33,7 @@ const IVORY = new Color("#E9DCC6");
  * The sculptural loop: deep brushed brass, warm key light, ivory enamel band
  * on the crossing. Built from the same curve as logo B.
  */
-export function LoopScene({ active, pointer, onReady, onLowPower }: SceneProps) {
+export function LoopScene({ active, pointer, onReady, onLowPower, onFail }: SceneProps) {
   // R3F state is read through get() so renderer and scene settings are changed
   // outside React's render values.
   const get = useThree((s) => s.get);
@@ -42,6 +43,11 @@ export function LoopScene({ active, pointer, onReady, onLowPower }: SceneProps) 
   const key = useRef<DirectionalLight>(null);
   const [envReady, setEnvReady] = useState(false);
   const [compiled, setCompiled] = useState(false);
+  // Latest failure callback, read from a ref so the light-map effect never re-runs for it.
+  const failRef = useRef(onFail);
+  useEffect(() => {
+    failRef.current = onFail;
+  });
   const clock = useRef({ t: 0, sweep: 0, frames: 0, probe: 0, probed: false, readySent: false });
 
   const { tube, band, brass, enamel } = useMemo(() => {
@@ -91,6 +97,9 @@ export function LoopScene({ active, pointer, onReady, onLowPower }: SceneProps) 
       get().scene.environment = env;
       setEnvReady(true);
       invalidate();
+    }, undefined, () => {
+      // Light map failed (offline, blocked): show the still, never a blank canvas.
+      if (!disposed) failRef.current();
     });
     return () => {
       disposed = true;

@@ -26,18 +26,20 @@ export function HeroVisual({ className }: { className?: string }) {
   const { mode, ambient, paused } = useMotion();
   const box = useRef<HTMLDivElement>(null);
   const onScreen = useInViewport(box, "0px");
+  const seen = useInViewport(box, "0px", { once: true });
   const pointer = useMemo(() => ({ current: { x: 0, y: 0 } as Pointer }), []);
   const [eligible, setEligible] = useState(false);
   const [shown, setShown] = useState(false);
   const [lowPower, setLowPower] = useState(false);
+  const [failed, setFailed] = useState(false);
 
-  // Decide after load + idle, so nothing competes with first paint or the H1.
+  // Decide only after load and a real user gesture (or 7 s), and only while
+  // motion is fully on. Paused visitors never download the 3D at all.
   useEffect(() => {
-    if (mode === "server" || mode === "reduce") return;
+    if (mode !== "full") return;
     let cancelled = false;
     let idle = 0;
     let fallback = 0;
-    const INTERACTIONS = ["pointermove", "pointerdown", "scroll", "keydown", "touchstart"] as const;
     const decide = () => {
       if (cancelled) return;
       let flagged = false;
@@ -46,19 +48,28 @@ export function HeroVisual({ className }: { className?: string }) {
       } catch {}
       setEligible(!flagged && getMotionTier() === "full");
     };
-    // Start on the first interaction (or after 7 s), never during page load,
-    // so three.js parsing and shader work stay out of the loading window.
     const start = () => {
-      stopListening();
+      disarm();
       const ric = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 200));
       idle = ric(decide, { timeout: 1500 }) as unknown as number;
     };
-    const stopListening = () => {
+    // Clear user intent only: not browser-driven scrolls (anchors, restoration)
+    // and not the synthetic pointermove Chrome sends when layout moves under a cursor.
+    const onIntent = (e: Event) => {
+      if (!e.isTrusted) return;
+      if (e.type === "pointermove") {
+        const m = e as PointerEvent;
+        if (Math.abs(m.movementX) + Math.abs(m.movementY) < 2) return;
+      }
+      start();
+    };
+    const EVENTS = ["pointermove", "pointerdown", "keydown", "wheel", "touchstart"] as const;
+    const disarm = () => {
       window.clearTimeout(fallback);
-      INTERACTIONS.forEach((t) => window.removeEventListener(t, start));
+      EVENTS.forEach((t) => window.removeEventListener(t, onIntent));
     };
     const arm = () => {
-      INTERACTIONS.forEach((t) => window.addEventListener(t, start, { once: true, passive: true }));
+      EVENTS.forEach((t) => window.addEventListener(t, onIntent, { passive: true }));
       fallback = window.setTimeout(start, 7000);
     };
     if (document.readyState === "complete") arm();
@@ -66,7 +77,7 @@ export function HeroVisual({ className }: { className?: string }) {
     return () => {
       cancelled = true;
       window.removeEventListener("load", arm);
-      stopListening();
+      disarm();
       (window.cancelIdleCallback ?? window.clearTimeout)(idle);
     };
   }, [mode]);
@@ -100,6 +111,9 @@ export function HeroVisual({ className }: { className?: string }) {
   }, [eligible, pointer]);
 
   const onReady = useCallback(() => setShown(true), []);
+  const onFail = useCallback(() => setFailed(true), []);
+  // The renderer is gone (unmounted or route hidden): show the still until a new one is ready.
+  const onTeardown = useCallback(() => setShown(false), []);
   const onLowPower = useCallback(() => {
     // QA override: ?hero=webgl keeps WebGL on software renderers (screenshots).
     if (new URLSearchParams(window.location.search).get("hero") === "webgl") return;
@@ -109,7 +123,8 @@ export function HeroVisual({ className }: { className?: string }) {
     setLowPower(true);
   }, []);
 
-  const webgl = eligible && !lowPower && mode !== "reduce";
+  // Mount the 3D only once the hero has been seen; a deep link far down the page never pays for it.
+  const webgl = eligible && seen && !lowPower && !failed && mode !== "reduce";
   const live = webgl && shown;
 
   return (
@@ -124,7 +139,14 @@ export function HeroVisual({ className }: { className?: string }) {
       </div>
       {webgl ? (
         <div aria-hidden className={cn("absolute inset-0 transition-opacity duration-[1400ms]", live ? "opacity-100" : "opacity-0")}>
-          <LoopCanvas active={ambient && onScreen} pointer={pointer} onReady={onReady} onLowPower={onLowPower} />
+          <LoopCanvas
+            active={ambient && onScreen}
+            pointer={pointer}
+            onReady={onReady}
+            onLowPower={onLowPower}
+            onFail={onFail}
+            onTeardown={onTeardown}
+          />
         </div>
       ) : null}
       {/* Film grain, static (no motion cost). */}
