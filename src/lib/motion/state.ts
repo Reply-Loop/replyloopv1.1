@@ -40,6 +40,15 @@ function applyAttribute(mode: MotionMode) {
 
 let pauseEpoch = 0;
 
+// A pause pressed in another tab arrives as a storage event. Count it here, in
+// one module-level listener registered before any React subscriber, so a local
+// film play lapses on it too.
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (e) => {
+    if (e.key === MOTION_STORAGE_KEY && e.newValue === "paused") pauseEpoch += 1;
+  });
+}
+
 /**
  * Counts presses of the global pause in this page session. A local "play"
  * (the brand film) records the epoch it was pressed in and lapses as soon as

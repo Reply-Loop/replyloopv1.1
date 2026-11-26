@@ -207,6 +207,22 @@ Calm, warm motion built in code from the brand kit (`assets/social-kit`, provena
 
 **Photoreal assets.** `ASSET_BRIEF.md` has prompts for four stills the code cannot make (paper, window light, felt, brushed brass). Stand-ins are listed in `PLACEHOLDERS.md`.
 
+## QA results, cinematic overhaul (2026-11-26, local production build)
+
+QA (`npm run qa`, 17 pages) and the compliance scan pass. Lighthouse mobile, median of 3 warm runs:
+
+| Page | Performance | Accessibility | Best Practices | SEO | LCP | CLS |
+|---|---|---|---|---|---|---|
+| `/` | 95 | 100 | 100 | 100 | 0.91 s | 0 |
+| `/services` | 99 | 96 | 100 | 100 | 0.91 s | 0 |
+| `/home-care-agencies` | 95 | 100 | 100 | 100 | 0.91 s | 0 |
+| `/services/review-replies` | 99 | 96 | 100 | 100 | 0.91 s | 0 |
+| `/about` | 100 | 100 | 100 | 100 | 0.75 s | 0 |
+
+Desktop Lighthouse scores 100 for performance on `/`, `/services/review-replies` and `/home-care-agencies`.
+
+The accessibility 96s are the CSS scroll fade (`.reveal`): a section that straddles the fold on load is partly transparent, and axe measures its text mid-fade. Visitors see the text fully opaque once it is in view.
+
 ## QA results (2026-11-23, local production build)
 
 | Check | Result |

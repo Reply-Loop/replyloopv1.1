@@ -80,7 +80,7 @@ export function BrandFilm({ className }: { className?: string }) {
   const toggle = () => {
     const v = video.current;
     if (pressed) {
-      setFilmPaused(false);
+      // Local only: the shared "Pause film" stays, so other films stay paused.
       setRefused(false);
       setPlayEpoch(getPauseEpoch());
       v?.play().catch(() => undefined); // in the click, so autoplay policy allows it

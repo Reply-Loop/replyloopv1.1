@@ -137,6 +137,7 @@
      frozen in place when it stops rather than snapping back. */
   .loop-comet {
     stroke-dasharray: 9 91;
+    stroke-dashoffset: -60; /* the parked spot when no animation applies (reduce, no JS) */
     animation: rl-comet 18s linear infinite paused;
     animation-delay: -10.8s; /* parks the stroke at the same spot every time */
   }
