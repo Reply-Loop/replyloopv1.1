@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   AbsoluteFill,
+  cancelRender,
   continueRender,
   delayRender,
   Img,
@@ -32,7 +33,9 @@ function useBrandFonts() {
     ];
     Promise.all(faces.map((f) => f.load()))
       .then((loaded) => loaded.forEach((f) => document.fonts.add(f)))
-      .finally(() => continueRender(handle));
+      .then(() => continueRender(handle))
+      // A missing font must fail the render, never fall back silently.
+      .catch((err) => cancelRender(err));
   }, [handle]);
 }
 

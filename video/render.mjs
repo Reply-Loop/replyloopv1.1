@@ -22,7 +22,20 @@ const serveUrl = await bundle({ entryPoint: path.join(here, "src/index.ts") });
 const composition = await selectComposition({ serveUrl, id, browserExecutable });
 
 const kb = (f) => `${Math.round(statSync(f).size / 1024)} KB`;
-const common = { composition, serveUrl, browserExecutable, muted: true, enforceAudioTrack: false };
+const common = { composition, serveUrl, browserExecutable, muted: true, enforceAudioTrack: false, colorSpace: "bt709" };
+
+// Poster first (cheap, and fails fast): frame 0, which is also the loop point,
+// so poster -> playback is seamless. AVIF with a WebP fallback (layered <picture>).
+const png = path.join(tmpDir, "poster.png");
+await renderStill({ composition, serveUrl, browserExecutable, frame: 0, output: png });
+const require = createRequire(path.join(here, "package.json"));
+const sharp = require("sharp");
+const avif = path.join(outDir, "brand-film-poster.avif");
+await sharp(png).avif({ quality: 55, effort: 6 }).toFile(avif);
+const webp = path.join(outDir, "brand-film-poster.webp");
+await sharp(png).webp({ quality: 76 }).toFile(webp);
+rmSync(png);
+console.log("poster", kb(avif), "webp", kb(webp));
 
 // The film is silent and decorative; small files matter more than pixel-peeping.
 const mp4 = path.join(outDir, "brand-film.mp4");
@@ -33,12 +46,4 @@ const webm = path.join(outDir, "brand-film.webm");
 await renderMedia({ ...common, codec: "vp9", crf: 36, pixelFormat: "yuv420p", outputLocation: webm });
 console.log("webm", kb(webm));
 
-// Poster: frame 0, which is also the loop point, so poster -> playback is seamless.
-const png = path.join(tmpDir, "poster.png");
-await renderStill({ composition, serveUrl, browserExecutable, frame: 0, output: png });
-const require = createRequire(path.resolve(here, "../package.json"));
-const sharp = require("sharp");
-const avif = path.join(outDir, "brand-film-poster.avif");
-await sharp(png).avif({ quality: 55, effort: 6 }).toFile(avif);
-rmSync(png);
-console.log("poster", kb(avif));
+
