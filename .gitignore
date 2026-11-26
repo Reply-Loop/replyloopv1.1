@@ -46,3 +46,6 @@ next-env.d.ts
 # Remotion film project (renders are committed to public/media)
 /video/node_modules
 /video/out
+
+# Cloudflare wrangler local state
+/.wrangler

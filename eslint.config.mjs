@@ -19,6 +19,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // The brand film is its own Remotion project with its own lint setup.
     "video/**",
+    // Wrangler local dev state and generated shims.
+    ".wrangler/**",
   ]),
 ]);
 
