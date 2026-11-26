@@ -22,7 +22,7 @@ export function ProblemScene({ className }: { className?: string }) {
       const q = (sel: string) => root.querySelector(sel);
       const dust = root.querySelectorAll('[data-p="dust"] [data-d]');
       const thread = q('[data-p="thread"]');
-      if (thread) gsap.set(thread, { attr: { pathLength: 1 }, strokeDasharray: 1 });
+      if (thread) gsap.set(thread, { attr: { pathLength: 1, "stroke-dasharray": 1 } });
       root.dataset.animated = "true";
 
       const tl = gsap.timeline({
@@ -39,7 +39,7 @@ export function ProblemScene({ className }: { className?: string }) {
           { opacity: 1, y: 0, scale: 1, duration: 0.2, ease: "power2.out" },
           0.55,
         )
-        .fromTo(thread, { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.28 }, 0.62)
+        .fromTo(thread, { attr: { "stroke-dashoffset": 1 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.28 }, 0.62)
         .to(q('[data-p="cool-light"]'), { opacity: 0.2, duration: 0.2 }, 0.72)
         .to(q('[data-p="warm-light"]'), { opacity: 0.9, duration: 0.25 }, 0.72);
 

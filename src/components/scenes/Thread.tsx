@@ -22,11 +22,13 @@ export function Thread({ dark = false }: { dark?: boolean }) {
     ({ gsap }) => {
       const path = ref.current?.querySelector("path[data-thread]");
       if (!path) return;
+      // Tween the attribute: CSS stroke-dashoffset is rounded to whole px by GSAP,
+      // which on a pathLength of 1 would pop instead of draw.
       gsap.fromTo(
         path,
-        { strokeDashoffset: 1 },
+        { attr: { "stroke-dashoffset": 1 } },
         {
-          strokeDashoffset: 0,
+          attr: { "stroke-dashoffset": 0 },
           ease: "none",
           scrollTrigger: { trigger: ref.current, start: "top 92%", end: "top 38%", scrub: 0.8 },
         },

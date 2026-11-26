@@ -49,7 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en-US"
-      data-motion="full"
+      data-motion="static"
       suppressHydrationWarning
       className={`${fraunces.variable} ${inter.variable} antialiased`}
     >

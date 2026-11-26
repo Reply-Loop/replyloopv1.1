@@ -42,14 +42,15 @@
 
   /*
    * Motion system. html[data-motion] is "full", "paused", or "reduce", set before
-   * first paint by the head script (src/lib/motion/state.ts).
+   * first paint by the head script (src/lib/motion/state.ts). The server renders
+   * "static", which is what visitors without JavaScript keep.
    * - [data-motion-only]: decorative layers that exist only for motion.
    * - [data-static-only]: their still stand-ins (posters, stacked layouts).
    */
-  :root[data-motion="reduce"] [data-motion-only] {
+  :root:is([data-motion="reduce"], [data-motion="static"]) [data-motion-only] {
     display: none !important;
   }
-  :root:not([data-motion="reduce"]) [data-static-only] {
+  :root:is([data-motion="full"], [data-motion="paused"]) [data-static-only] {
     display: none !important;
   }
 
@@ -147,9 +148,11 @@
   }
 
   /*
-   * How it works. Default (phones, reduced motion, no JS): steps stacked, each
-   * with its vignette; a 4-column row on wide screens. Pinned (desktop with
-   * motion, set by HowItWorksJourney): one chapter at a time over the loop.
+   * How it works. Default (phones, reduced motion, no JS, large text): steps
+   * stacked, each with its vignette; a 4-column row on wide screens.
+   * Journey mode is pure CSS, final before first paint: wide and tall-enough
+   * screens (em-based, so it follows the visitor's text size) with motion on.
+   * The wrapper is tall and the stage sticks below the header; GSAP only scrubs.
    */
   .journey-loop,
   .journey-dots {
@@ -177,56 +180,69 @@
     margin-bottom: 1.25rem;
   }
 
-  .journey[data-pinned] {
-    height: 100vh;
-    min-height: 560px;
-    margin-top: 0;
-  }
-  .journey[data-pinned] .journey-loop {
-    display: block;
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    color: color-mix(in srgb, var(--color-brass) 45%, transparent);
-  }
-  .journey[data-pinned] .journey-bead {
-    fill: var(--color-brass);
-    filter: drop-shadow(0 0 3px rgb(196 154 90 / 0.8));
-  }
-  .journey[data-pinned] .journey-steps {
-    display: block;
-    position: absolute;
-    inset: 0;
-  }
-  .journey[data-pinned] .journey-step {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-    align-items: center;
-    gap: 4rem;
-    border: 0;
-    padding: 0 0 4rem;
-  }
-  .journey[data-pinned] .journey-vignette {
-    margin: 0;
-    padding: 2rem;
-    border-radius: 2rem;
-    background: radial-gradient(closest-side, rgb(248 245 239 / 0.96), rgb(248 245 239 / 0.75) 70%, transparent);
-  }
-  .journey[data-pinned] .journey-text {
-    max-width: 28rem;
-    padding: 2.5rem;
-    border-radius: 2rem;
-    background: radial-gradient(closest-side, rgb(248 245 239 / 0.97), rgb(248 245 239 / 0.9) 75%, rgb(248 245 239 / 0));
-  }
-  .journey[data-pinned] .journey-dots {
-    display: flex;
-    position: absolute;
-    left: 0;
-    bottom: 2.5rem;
-    gap: 0.6rem;
+  @media (min-width: 1024px) and (min-height: 40em) {
+    :root:is([data-motion="full"], [data-motion="paused"]) .journey {
+      --journey-header: 4.5rem;
+      height: calc((100vh - var(--journey-header)) * 4.6);
+    }
+    :root:is([data-motion="full"], [data-motion="paused"]) .journey-stage {
+      position: sticky;
+      top: var(--journey-header);
+      height: calc(100vh - var(--journey-header));
+      overflow: hidden;
+    }
+    :root:is([data-motion="full"], [data-motion="paused"]) .journey-loop {
+      display: block;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      color: color-mix(in srgb, var(--color-brass) 45%, transparent);
+    }
+    :root:is([data-motion="full"], [data-motion="paused"]) .journey-bead {
+      fill: var(--color-brass);
+      filter: drop-shadow(0 0 3px rgb(196 154 90 / 0.8));
+    }
+    :root:is([data-motion="full"], [data-motion="paused"]) .journey-steps {
+      display: block;
+      position: absolute;
+      inset: 0;
+    }
+    :root:is([data-motion="full"], [data-motion="paused"]) .journey-step {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+      align-items: center;
+      gap: 4rem;
+      border: 0;
+      padding: 0 0 4rem;
+    }
+    /* Before GSAP takes over, only the first chapter shows (opacity only: all stay in the a11y tree). */
+    :root:is([data-motion="full"], [data-motion="paused"]) .journey-step:not(:first-child) {
+      opacity: 0;
+    }
+    :root:is([data-motion="full"], [data-motion="paused"]) .journey-vignette {
+      margin: 0;
+      padding: 2rem;
+      border-radius: 2rem;
+      background: radial-gradient(closest-side, rgb(248 245 239 / 0.96), rgb(248 245 239 / 0.75) 70%, transparent);
+    }
+    /* A solid ivory backing over the whole text box, feathered at the edge, so slate text keeps 7:1 over the loop. */
+    :root:is([data-motion="full"], [data-motion="paused"]) .journey-text {
+      max-width: 28rem;
+      padding: 2rem;
+      border-radius: 1.5rem;
+      background: rgb(248 245 239 / 0.97);
+      box-shadow: 0 0 2.5rem 1.75rem rgb(248 245 239 / 0.97);
+    }
+    :root:is([data-motion="full"], [data-motion="paused"]) .journey-dots {
+      display: flex;
+      position: absolute;
+      left: 0;
+      bottom: 2.5rem;
+      gap: 0.6rem;
+    }
   }
   .journey-dots li {
     width: 2.25rem;
