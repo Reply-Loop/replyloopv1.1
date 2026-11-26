@@ -1,0 +1,8 @@
+node_modules/
+out/
+review/
+.renderenv
+# Large media lives in Google Drive; regenerate locally (see README)
+public/src/
+public/tiles/
+public/music/

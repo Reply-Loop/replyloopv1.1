@@ -1,0 +1,31 @@
+import cuesJson from "./cues.json";
+
+export type Accent = { beat: number; frame: number; type: "big" | "small" };
+export type SectionCue = {
+  id: string;
+  file: string;
+  startFrame: number;
+  durationInFrames: number;
+  audioFrames: number;
+  beats: number;
+  accents: Accent[];
+};
+
+export const cues = cuesJson as {
+  bpm: number;
+  fps: number;
+  framesPerBeat: number;
+  totalFrames: number;
+  sections: SectionCue[];
+};
+
+export const section = (id: string): SectionCue => {
+  const s = cues.sections.find((x) => x.id === id);
+  if (!s) throw new Error(`No cue section ${id}`);
+  return s;
+};
+
+// Accent frames (relative to the section start), in order. Visual "hits" land
+// ON these frames so the thump in the music points at the main idea.
+export const hits = (id: string) => section(id).accents.map((a) => a.frame);
+export const FPB = cues.framesPerBeat;
