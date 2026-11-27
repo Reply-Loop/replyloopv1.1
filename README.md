@@ -144,7 +144,11 @@ Every page ends with the same CTA band. The only conversion paths are the cal.co
 
 ## Foundations
 
-- Root layout: skip link, sticky header with the booking button (md and up), small-screen menu, sticky bottom bar with Call and Book on small screens, the CTA band on every page, footer with phone, email, and service area. No street address.
+- Root layout: skip link, a solid ivory sticky header (centred nav; a hairline and soft shadow fade in once the page scrolls, set by an IntersectionObserver on a 1px sentinel) with the booking button (md and up), the small-screen menu, the small-screen bottom bar, the CTA band on every page, and the footer with phone, email, and service area. No street address.
+- Small-screen bar (Call and Book): it slides in only after the hero's booking button has scrolled out of view, steps aside while the CTA band or the footer is on screen and while the menu is open, and never shows on `/contact`. Visitors without JavaScript get no bar, on purpose: the hero button and the CTA band remain.
+- Small-screen menu: the panel stays in the page, inert while closed. Without JavaScript it cannot open; those visitors use the footer links, which list every page.
+- Surfaces: ivory bands carry a faint paper grain (`.paper`), charcoal bands a felt grain (`.felt`); both are AVIF tiles under 4 KB painted beneath the content (`scripts/brand/textures.mjs`). Cards are raised paper on light bands and ink-2 on charcoal (`<Card tone>`). At most two dark bands per page, plus the footer.
+- Repeated decorative art (the CTA card's loop drawing, the footer's wordmark sign-off) comes from one cached sprite, `public/brand/sprite.svg`, built by `scripts/brand/build-sprite.py` (needs `pip install fonttools uharfbuzz brotli`).
 - Components (`src/components/ui`): Button, BookButton, PhoneLink, EmailLink, TextLink, Card, Section, Container, Eyebrow, Rule, SectionHeading, LoopDivider, FAQ (native `<details>`), PillarCard, StepList, PromiseList, ProofSlot, CTABand, HealthHandling, Logo, Icon.
 - Content sources: `src/lib/site.ts` (business facts), `src/content/promises.ts` (seven red lines, customer-facing), `src/content/health.ts` (health review handling).
 - Motion: see "Cinematic layer" below. The scroll-driven rise (`.reveal`) is CSS only, moves text by transform only (text never fades), and runs only with motion on: not without JavaScript, not under `prefers-reduced-motion`.
@@ -239,6 +243,25 @@ Calm, warm motion built in code from the brand kit (`assets/social-kit`, provena
 **Remotion licence.** Remotion is free for individuals and companies of up to 3 people; companies of 4 or more need a Company License (see remotion.dev/license). ReplyLoop has 2 people, so the free licence applies today. Only pre-rendered video ships, so the site carries no Remotion runtime. Re-check when the team grows.
 
 **Photoreal assets.** `ASSET_BRIEF.md` has prompts for four stills the code cannot make (paper, window light, felt, brushed brass). Stand-ins are listed in `PLACEHOLDERS.md`.
+
+## QA results, premium redesign Phase 2: surfaces and chrome (2026-11-27)
+
+`npm run check`, `npm run build:verify` (compliance: 0 problems) and `npm run qa` (17 pages, axe at 390 and 1280) pass. Lighthouse, median of 3 warm runs on `npm start` (`/` mobile: median of 5):
+
+| Page | Mobile perf | A11y | LCP | CLS | Desktop perf / a11y |
+|---|---|---|---|---|---|
+| `/` | 95 | 100 | 0.90 s | 0 | 100 / 100 |
+| `/services` | 99 | 100 | 0.90 s | 0 | |
+| `/services/review-replies` | 99 | 100 | 0.90 s | 0 | 100 / 100 |
+| `/home-care-agencies` | 99 | 100 | 0.91 s | 0 | 100 / 100 |
+| `/about` | 99 | 100 | 0.91 s | 0 | |
+| `/blog/respond-to-google-reviews-without-sharing-private-details` | 99 | 100 | 0.90 s | 0 | |
+
+The LCP element on `/` is still `h1#hero-title` (mobile and desktop). Scripted checks: the header pixel over a charcoal band is `#F8F5EF`; the nav is centred within 0.1px at 1280, 1440 and 1920; at 390×844 the first screen shows one booking button, the bar appears only after the hero button scrolls away, hides over the CTA band, the footer and the open menu, and is absent on `/contact`; the menu is inert while closed, takes focus on open, locks scroll, closes on Escape and returns focus. The grain tiles are seamless (rendered edge step equals the interior step).
+
+Static export: Worker bundle 2,675,580 B (gate 2,900,000 B; +85 KB, mostly the chrome markup that ships in every page's HTML and RSC payload). JS fetched on `/` grew 2.9 KB gzip.
+
+Open item: the footer is 816px tall at 390px wide against a 700px target. Its content is locked (ten links, the area sentence, the not-affiliated line, the legal row), and the rows keep at least 24px targets with spacing (WCAG 2.5.8).
 
 ## QA results, premium redesign Phase 1: tokens and type (2026-11-27)
 

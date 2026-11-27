@@ -3,16 +3,22 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
-import { Card } from "@/components/ui/Card";
+import { Card, cardLinkOverlay } from "@/components/ui/Card";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Prose } from "@/components/ui/Prose";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { allPostMeta, getPost, relatedPosts } from "@/content/posts";
+import { cn } from "@/lib/cn";
 import { blogPostingSchema, breadcrumbSchema, graph, type Crumb } from "@/lib/schema";
 import { pageMetadata } from "@/lib/seo";
 import { formatDate } from "@/lib/date";
+
+/**
+ * Whole-card link (Card interactive): the link's ::after covers the card, and
+ * the focus ring moves from the link text to that overlay so it rings the card.
+ */
 
 export function generateStaticParams() {
   return allPostMeta.map((p) => ({ slug: p.slug }));
@@ -71,11 +77,11 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
         <SectionHeading id="related-title" variant="compact" eyebrow="Keep reading" title="Related guides" />
         <ul className="mt-12 grid gap-6 md:grid-cols-2">
           {relatedPosts(post.slug).map((p) => (
-            <Card as="li" key={p.slug}>
+            <Card as="li" key={p.slug} interactive>
               <h3 className="font-serif text-h3 font-medium">
                 <Link
                   href={`/blog/${p.slug}`}
-                  className="underline decoration-brass decoration-1 underline-offset-4 hover:decoration-2"
+                  className={cn(cardLinkOverlay, "underline decoration-brass decoration-1 underline-offset-4 hover:decoration-2")}
                 >
                   {p.title}
                 </Link>

@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Container } from "@/components/ui/Container";
 import { DraftNotice } from "@/components/ui/DraftNotice";
 import { PageHero } from "@/components/ui/PageHero";
 import { Prose } from "@/components/ui/Prose";
+import { Section } from "@/components/ui/Section";
 import { pageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 
@@ -29,7 +29,8 @@ export default function TermsPage() {
         intro="The terms for using this website."
         showButton={false}
       />
-      <Container size="prose" className="py-16 sm:py-20 lg:py-24">
+      {/* Same ivory paper band as every content page; padding unchanged (tight rhythm). */}
+      <Section rhythm="tight" containerSize="prose" reveal={false}>
         <DraftNotice />
         <Prose>
           <p>
@@ -82,7 +83,7 @@ export default function TermsPage() {
             <a href={site.phone.href}>{site.phone.display}</a>. See also our <Link href="/privacy">privacy policy</Link>.
           </p>
         </Prose>
-      </Container>
+      </Section>
     </>
   );
 }

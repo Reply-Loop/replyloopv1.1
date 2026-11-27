@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { Analytics } from "@/components/analytics/Analytics";
 import { Footer } from "@/components/layout/Footer";
-import { Header } from "@/components/layout/Header";
+import { Header, SCROLL_SENTINEL_ID } from "@/components/layout/Header";
 import { MobileBar } from "@/components/layout/MobileBar";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { CTABand } from "@/components/ui/CTABand";
@@ -66,6 +66,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: MOTION_HEAD_SCRIPT }} />
       </head>
       <body className="flex min-h-dvh flex-col">
+        {/* Scrolled-state sentinel for the header (HeaderScroll): out of flow, takes no space. */}
+        <div id={SCROLL_SENTINEL_ID} aria-hidden className="pointer-events-none absolute top-0 left-0 h-px w-px" />
         <a
           href="#main"
           className="sr-only z-50 rounded-full bg-charcoal px-5 py-3 font-semibold text-ivory focus:not-sr-only focus:fixed focus:top-3 focus:left-3"

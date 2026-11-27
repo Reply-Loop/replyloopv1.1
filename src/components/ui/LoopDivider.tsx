@@ -16,7 +16,7 @@ export function LoopDivider({
 }) {
   const dark = tone === "charcoal";
   return (
-    <div aria-hidden className={cn("overflow-hidden", dark ? "bg-charcoal" : "bg-ivory", className)}>
+    <div aria-hidden className={cn("overflow-hidden", dark ? "tone-dark felt" : "paper", className)}>
       <Thread dark={dark} />
     </div>
   );

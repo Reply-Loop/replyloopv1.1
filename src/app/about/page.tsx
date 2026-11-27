@@ -75,17 +75,18 @@ export default function AboutPage() {
         />
         <ul className="mt-12 grid gap-6 md:grid-cols-2">
           {founders.map((f) => (
-            <Card as="li" key={f.name}>
+            <Card as="li" key={f.name} tone="dark">
               <div className="flex items-center gap-5">
+                {/* Initials avatar: charcoal circle, ivory serif initials, decorative 1px brass-line ring. */}
                 <span
                   aria-hidden
-                  className="tone-dark inline-flex size-16 shrink-0 items-center justify-center rounded-full bg-charcoal font-serif text-xl text-ivory"
+                  className="inline-flex size-16 shrink-0 items-center justify-center rounded-full border border-brass-line bg-charcoal font-serif text-xl text-ivory"
                 >
                   {f.initials}
                 </span>
                 <div>
-                  <h3 className="font-serif text-h3-lg font-medium">{f.name}</h3>
-                  <p className="text-slate">{f.title}</p>
+                  <h3 className="font-serif text-h3-lg font-medium text-ivory">{f.name}</h3>
+                  <p className="text-mist">{f.title}</p>
                 </div>
               </div>
               <ProofSlot
@@ -101,9 +102,9 @@ export default function AboutPage() {
 
       <Section labelledBy="values-title">
         <SectionHeading id="values-title" eyebrow="How we work" title="What you can expect from us" />
-        <ul className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
           {values.map((v) => (
-            <Card as="li" key={v.title}>
+            <Card as="li" key={v.title} size="md">
               <h3 className="font-serif text-h3 font-medium">{v.title}</h3>
               <p className="mt-3 text-slate">{v.body}</p>
             </Card>

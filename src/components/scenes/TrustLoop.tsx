@@ -3,8 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useInViewport } from "@/components/motion/useInViewport";
 import { useMotion } from "@/components/motion/useMotion";
+import { PauseControl } from "@/components/motion/PauseControl";
 import { LOOP_PATH, LOOP_POINTS, LOOP_VIEWBOX } from "@/lib/loop/geometry.generated";
 import { cn } from "@/lib/cn";
+import { setMotionPaused } from "@/lib/motion/state";
 
 type Station = { name: string; body: string; s: number };
 
@@ -35,9 +37,11 @@ const at = (s: number) => {
  * With motion fully on and the diagram on screen, a bead with a short brass
  * trail travels the loop and the step it passes lights up. Otherwise the bead
  * and trail fade out where they are and the loop rests (resuming from there).
+ * The lap runs longer than 5 s, so the drawing carries the shared pause control
+ * whenever motion can run here (full or paused); never under reduce or static.
  */
 export function TrustLoop({ className }: { className?: string }) {
-  const { ambient } = useMotion();
+  const { mode, ambient, paused } = useMotion();
   const box = useRef<HTMLDivElement>(null);
   const path = useRef<SVGPathElement>(null);
   const trail = useRef<SVGPathElement>(null);
@@ -47,6 +51,7 @@ export function TrustLoop({ className }: { className?: string }) {
   // Where the bead is (0..1 along the path), kept across pauses.
   const pos = useRef(STATIONS[0].s);
   const run = ambient && onScreen;
+  const controllable = mode === "full" || mode === "paused";
 
   useEffect(() => {
     const p = path.current;
@@ -93,53 +98,69 @@ export function TrustLoop({ className }: { className?: string }) {
   const home = at(STATIONS[0].s);
 
   return (
-    <div ref={box} className={cn("rounded-2xl border border-rule bg-ivory p-6 sm:p-8", className)}>
-      <svg aria-hidden focusable="false" viewBox={LOOP_VIEWBOX} className="mx-auto block h-auto w-full max-w-xl overflow-visible">
-        <path ref={path} d={LOOP_PATH} fill="none" className="stroke-rule" strokeWidth={2.2} />
-        <path
-          ref={trail}
-          d={LOOP_PATH}
-          fill="none"
-          className={cn("stroke-brass transition-opacity duration-500", run ? "opacity-100" : "opacity-0")}
-          strokeDasharray="0 10000" /* hidden until the effect sizes the dash, never a solid loop */
-          strokeWidth={3}
-          strokeLinecap="round"
-        />
-        {STATIONS.map((st, i) => {
-          const { x, y } = at(st.s);
-          const on = active === i;
-          return (
-            <g key={st.name}>
-              <circle
-                cx={x}
-                cy={y}
-                r={on ? 11 : 9.5}
-                className={cn(
-                  "transition-[r,fill,stroke] duration-500",
-                  on ? "fill-brass stroke-brass" : "fill-ivory stroke-brass",
-                )}
-                strokeWidth={1.4}
-              />
-              <text
-                x={x}
-                y={y}
-                dy="0.35em"
-                textAnchor="middle"
-                className={cn("font-serif text-[10px] transition-[fill] duration-500", on ? "fill-ivory" : "fill-charcoal")}
-              >
-                {i + 1}
-              </text>
-            </g>
-          );
-        })}
-        <circle
-          ref={bead}
-          cx={home.x}
-          cy={home.y}
-          r={3.4}
-          className={cn("fill-charcoal transition-opacity duration-500", run ? "opacity-100" : "opacity-0")}
-        />
-      </svg>
+    <div ref={box} className={cn("relative rounded-2xl border border-rule bg-ivory p-6 sm:p-8", className)}>
+      {/* The scene box for the pause control: the drawing's row, so the chip never covers the step list. */}
+      <div className="relative">
+        <svg aria-hidden focusable="false" viewBox={LOOP_VIEWBOX} className="mx-auto block h-auto w-full max-w-xl overflow-visible">
+          <path ref={path} d={LOOP_PATH} fill="none" className="stroke-rule" strokeWidth={2.2} />
+          <path
+            ref={trail}
+            d={LOOP_PATH}
+            fill="none"
+            className={cn("stroke-brass transition-opacity duration-500", run ? "opacity-100" : "opacity-0")}
+            strokeDasharray="0 10000" /* hidden until the effect sizes the dash, never a solid loop */
+            strokeWidth={3}
+            strokeLinecap="round"
+          />
+          {STATIONS.map((st, i) => {
+            const { x, y } = at(st.s);
+            const on = active === i;
+            return (
+              <g key={st.name}>
+                <circle
+                  cx={x}
+                  cy={y}
+                  r={on ? 11 : 9.5}
+                  className={cn(
+                    "transition-[r,fill,stroke] duration-500",
+                    on ? "fill-brass stroke-brass" : "fill-ivory stroke-brass",
+                  )}
+                  strokeWidth={1.4}
+                />
+                <text
+                  x={x}
+                  y={y}
+                  dy="0.35em"
+                  textAnchor="middle"
+                  className={cn("font-serif text-[10px] transition-[fill] duration-500", on ? "fill-ivory" : "fill-charcoal")}
+                >
+                  {i + 1}
+                </text>
+              </g>
+            );
+          })}
+          <circle
+            ref={bead}
+            cx={home.x}
+            cy={home.y}
+            r={3.4}
+            className={cn("fill-charcoal transition-opacity duration-500", run ? "opacity-100" : "opacity-0")}
+          />
+        </svg>
+        {/* A reserved strip under the drawing (always rendered, so no layout shift):
+            the pause chip never sits on the loop. */}
+        <div className="relative h-11">
+          {controllable ? (
+            <PauseControl
+              label="Pause motion"
+              pressed={paused}
+              onToggle={() => setMotionPaused(!paused)}
+              tone="light"
+              className="right-0 bottom-0"
+            />
+          ) : null}
+        </div>
+      </div>
       <ol className="mt-8 grid gap-4 sm:grid-flow-col sm:grid-cols-2 sm:grid-rows-2">
         {STATIONS.map((st, i) => (
           <li

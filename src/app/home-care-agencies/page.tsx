@@ -106,7 +106,8 @@ export default function HomeCarePage() {
         />
       </Section>
 
-      <Section tone="charcoal" labelledBy="health-handling">
+      {/* ivory-2 band with the dark example card (brief §8.6, §8.3.7). Dark bands here: steps and the CTA band, plus the footer. */}
+      <Section tone="ivory-2" labelledBy="health-handling">
         <HealthHandling eyebrow="Review sensitivity" />
       </Section>
 
@@ -118,6 +119,7 @@ export default function HomeCarePage() {
           title="What we do for your agency each month"
           intro="Local SEO for home care agencies starts with your Google Business Profile, your listing on Google Search and Maps."
         />
+        {/* Light cards: this band is ivory. PillarCard goes tone="dark" only on charcoal. */}
         <ul className="mt-12 grid gap-6 md:grid-cols-2">
           {bundlePillars.map((pillar) => (
             <PillarCard key={pillar.title} pillar={pillar} />

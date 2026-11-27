@@ -12,8 +12,8 @@ Palette for every prompt: charcoal `#1B1F23`, warm ivory `#F8F5EF`, deep brass `
 
 - **File:** `assets/brief/ivory-paper-2048.png` → `public/brand/textures/ivory-paper.avif` / `.webp`
 - **Size:** 2048 × 2048 px, seamlessly tileable on all four edges
-- **Use:** fine paper grain under ivory sections, the problem-card scene and the how-it-works vignettes (`mix-blend-mode: multiply`, about 6% opacity)
-- **Stand-in:** the static SVG-noise `.film-grain` layer (`src/app/globals.css`), used on the hero visual only. The problem scene and vignettes have no grain yet.
+- **Use:** fine paper grain under ivory sections, the problem-card scene and the how-it-works vignettes (derived into a 256px tile with the grain baked in at about 6% strength, painted as the band's own background beneath the content; no blend mode, no overlay above text)
+- **Stand-in:** a seeded noise tile, `public/brand/textures/paper-256.avif` (`scripts/brand/textures.mjs`), on ivory bands; the static SVG-noise `.film-grain` layer on the hero visual. The problem scene and vignettes get the grain with their redraw.
 
 ```
 Use case: texture-material
@@ -55,7 +55,7 @@ Avoid: harsh hard-edged shadows, blown highlights, lens flare, blue light, dust 
 - **File:** `assets/brief/charcoal-felt-1024.png` → `public/brand/textures/charcoal-felt.avif` / `.webp`
 - **Size:** 1024 × 1024 px, seamlessly tileable
 - **Use:** a barely visible surface under charcoal bands (health section, film frame, CTA band) at about 5% opacity
-- **Stand-in:** none. Charcoal bands are flat `#1B1F23` until this exists.
+- **Stand-in:** a seeded noise tile, `public/brand/textures/felt-256.avif` (`scripts/brand/textures.mjs`), on charcoal bands and the CTA band.
 
 ```
 Use case: texture-material
@@ -100,6 +100,6 @@ Avoid: mirror polish, chrome, shiny yellow gold, rainbow sheen, visible reflecti
 |---|---|---|
 | 1 | Ivory paper texture | Not generated. Stand-in live. |
 | 2 | Golden-hour window light | Not generated. Stand-in live. |
-| 3 | Charcoal felt texture | Not generated. No stand-in (flat charcoal). |
+| 3 | Charcoal felt texture | Not generated. Stand-in live (seeded noise tile). |
 | 4 | Brushed brass swatch | Not generated. Procedural material live. |
 | 5 | Ribbon plate at 2x | The `/home-care-agencies` backdrop crops the kit's `06-og-link-preview` (1734 × 907), leaving 774 px for a slot up to 736 CSS px wide, so it is slightly soft on Retina screens. A 3468 × 1814 export of the same plate (same prompt as `06-og-link-preview.prompt.txt`) would fix it: point `scripts/brand/derive.mjs` at it, double the crop box, add 1472 to its widths, and add the 1472w file to the `srcSet` in `RibbonBackdrop.tsx`. |

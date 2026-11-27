@@ -4,7 +4,12 @@ import { Container } from "./Container";
 
 type SectionProps = {
   children: ReactNode;
-  tone?: "ivory" | "charcoal";
+  /**
+   * Surface (brief §6.1). Ivory bands carry the .paper grain and charcoal bands
+   * the .felt grain; ivory-2 is the flat alternate light band. Charcoal is
+   * punctuation: at most two dark bands per page, plus the footer.
+   */
+  tone?: "ivory" | "ivory-2" | "charcoal";
   id?: string;
   labelledBy?: string;
   className?: string;
@@ -16,6 +21,8 @@ type SectionProps = {
    * - tight: reading and list bands (FAQ, blog, contact), 64 / 80 / 96
    */
   rhythm?: "loose" | "default" | "tight";
+  /** Paper/felt grain on ivory and charcoal bands (default on). */
+  grain?: boolean;
   reveal?: boolean;
 };
 
@@ -23,6 +30,12 @@ const RHYTHM = {
   loose: "py-24 sm:py-32 lg:py-40",
   default: "py-20 sm:py-24 lg:py-32",
   tight: "py-16 sm:py-20 lg:py-24",
+} as const;
+
+const TONE = {
+  ivory: { grain: "paper text-charcoal", flat: "bg-ivory text-charcoal" },
+  "ivory-2": { grain: "bg-ivory-2 text-charcoal", flat: "bg-ivory-2 text-charcoal" },
+  charcoal: { grain: "tone-dark felt text-ivory", flat: "tone-dark bg-charcoal text-ivory" },
 } as const;
 
 /**
@@ -37,18 +50,14 @@ export function Section({
   className,
   containerSize,
   rhythm = "default",
+  grain = true,
   reveal = true,
 }: SectionProps) {
   return (
     <section
       id={id}
       aria-labelledby={labelledBy}
-      className={cn(
-        "scroll-mt-[calc(var(--header-h)+1.5rem)]",
-        RHYTHM[rhythm],
-        tone === "charcoal" ? "tone-dark bg-charcoal text-ivory" : "bg-ivory text-charcoal",
-        className,
-      )}
+      className={cn("scroll-mt-[calc(var(--header-h)+1.5rem)]", RHYTHM[rhythm], TONE[tone][grain ? "grain" : "flat"], className)}
     >
       <Container size={containerSize} className={reveal ? "reveal" : undefined}>
         {children}

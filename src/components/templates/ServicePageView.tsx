@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { TextLink } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { Card, cardLinkOverlay } from "@/components/ui/Card";
 import { FAQ } from "@/components/ui/FAQ";
 import { Icon } from "@/components/ui/Icon";
+import { InsetRule } from "@/components/ui/InsetRule";
 import { PageHero } from "@/components/ui/PageHero";
 import { ServiceEmblem } from "@/components/scenes/ServiceEmblem";
 import { TrustLoop } from "@/components/scenes/TrustLoop";
@@ -13,7 +14,13 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import type { ServicePage } from "@/content/servicePages";
 import { servicePages } from "@/content/servicePages";
 import { breadcrumbSchema, graph, serviceSchema, type Crumb } from "@/lib/schema";
+import { cn } from "@/lib/cn";
 import { pageMetadata } from "@/lib/seo";
+
+/**
+ * Whole-card link (Card interactive): the link's ::after covers the card, and
+ * the focus ring moves from the link text to that overlay so it rings the card.
+ */
 
 export function servicePageMetadata(page: ServicePage) {
   return pageMetadata({
@@ -91,18 +98,20 @@ export function ServicePageView({ page }: { page: ServicePage }) {
                   : "Separate from the monthly work. One-time work is priced one time."}
               </p>
             </Card>
-            <Card>
+            <Card interactive>
               <p className="font-serif text-h3 font-medium">Running a home care agency?</p>
               <p className="mt-2 text-slate">See how we handle reviews and local search for Utah home care.</p>
               <div className="mt-4">
-                <TextLink href="/home-care-agencies">Home care agencies</TextLink>
+                <TextLink href="/home-care-agencies" className={cardLinkOverlay}>
+                  Home care agencies
+                </TextLink>
               </div>
             </Card>
-            <Card>
+            <Card interactive>
               <p className="text-eyebrow font-semibold uppercase tracking-[0.08em] text-brass sm:tracking-[0.14em]">Related reading</p>
               <Link
                 href={`/blog/${page.relatedPost.slug}`}
-                className="mt-3 block font-serif text-h3 font-medium underline decoration-brass decoration-1 underline-offset-4 hover:decoration-2"
+                className={cn(cardLinkOverlay, "mt-3 block font-serif text-h3 font-medium underline decoration-brass decoration-1 underline-offset-4 hover:decoration-2")}
               >
                 {page.relatedPost.title}
               </Link>
@@ -116,22 +125,21 @@ export function ServicePageView({ page }: { page: ServicePage }) {
         <FAQ items={page.faqs} className="mt-12" />
       </Section>
 
-      <Section tone="charcoal" labelledBy="other-services-title">
+      {/* Ivory, not charcoal (brief §8.5): the dark CTA band follows, and dark bands never stack. */}
+      <InsetRule />
+      <Section labelledBy="other-services-title">
         <SectionHeading variant="compact" id="other-services-title" eyebrow="Services" title="Other services" />
-        <ul className="mt-12 grid gap-4 sm:grid-cols-2">
+        <ul className="mt-12 grid gap-6 sm:grid-cols-2">
           {others.map((p) => (
-            <li key={p.slug}>
-              <Link
-                href={`/services/${p.slug}`}
-                className="tone-light flex items-center justify-between gap-4 rounded-2xl bg-ivory px-6 py-5 text-charcoal transition-colors hover:bg-rule"
-              >
+            <Card as="li" key={p.slug} interactive>
+              <Link href={`/services/${p.slug}`} className={cn("flex items-center justify-between gap-4", cardLinkOverlay)}>
                 <span className="flex items-center gap-3 font-serif text-h3 font-medium">
-                  <Icon name={p.icon} className="size-5 text-brass" />
+                  <Icon name={p.icon} className="size-5 shrink-0 text-brass" />
                   {p.name}
                 </span>
                 <Icon name="arrow" className="size-4 shrink-0" />
               </Link>
-            </li>
+            </Card>
           ))}
         </ul>
       </Section>

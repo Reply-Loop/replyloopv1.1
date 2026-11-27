@@ -14,6 +14,8 @@ import {
  *
  * The crossing detail is ivory on dark grounds, as in the kit avatar. On light
  * grounds an ivory crossing would disappear, so it turns charcoal there.
+ * On charcoal the loop is brass-line #B8894A (owner-approved 2026-11-27, tone
+ * only, geometry unchanged): brass #8A5F1C reads dull there (2.95:1).
  */
 export function LoopMark({ className, tone = "auto" }: { className?: string; tone?: "auto" | "light" | "dark" }) {
   const crossing =
@@ -24,7 +26,7 @@ export function LoopMark({ className, tone = "auto" }: { className?: string; ton
         : "text-charcoal on-dark:text-ivory";
   return (
     <svg viewBox={LOOP_VIEWBOX} fill="none" className={cn("h-[22px] w-auto", className)} aria-hidden focusable="false">
-      <path d={LOOP_PATH} className="text-brass" stroke="currentColor" strokeWidth={LOOP_STROKE} strokeLinejoin="round" />
+      <path d={LOOP_PATH} className="text-brass on-dark:text-brass-line" stroke="currentColor" strokeWidth={LOOP_STROKE} strokeLinejoin="round" />
       <path d={LOOP_CROSSING_PATH} className={crossing} stroke="currentColor" strokeWidth={LOOP_STROKE + 0.4} />
     </svg>
   );

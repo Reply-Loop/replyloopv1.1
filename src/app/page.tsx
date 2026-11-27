@@ -83,7 +83,8 @@ export default function HomePage() {
               We answer every Google review in your voice and keep your Google profile, Facebook, and
               Instagram active.
             </p>
-            <div className="mt-12 flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:gap-8">
+            {/* data-hero-cta: the MobileBar appears only once this has scrolled out of view. */}
+            <div data-hero-cta className="mt-12 flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:gap-8">
               <BookButton />
               <TextLink href="#how-it-works">See how it works</TextLink>
             </div>
@@ -120,7 +121,7 @@ export default function HomePage() {
         <BrandFilm className="mt-12" />
       </Section>
 
-      {/* 3. The bundle */}
+      {/* 3. The bundle. Charcoal, with dark pillar cards: no ivory slab on charcoal (brief §8.3.4). */}
       <Section tone="charcoal" labelledBy="bundle-title" id="bundle" rhythm="loose">
         <SectionHeading
           id="bundle-title"
@@ -131,7 +132,7 @@ export default function HomePage() {
         />
         <ul className="mt-12 grid gap-6 md:grid-cols-2">
           {bundlePillars.map((pillar) => (
-            <PillarCard key={pillar.title} pillar={pillar} />
+            <PillarCard key={pillar.title} pillar={pillar} tone="dark" />
           ))}
         </ul>
         <p className="mt-8 max-w-3xl text-mist">
@@ -179,8 +180,8 @@ export default function HomePage() {
         <PromiseList className="mt-12" />
       </Section>
 
-      {/* 6. Health handling */}
-      <Section tone="charcoal" labelledBy="health-handling" rhythm="loose">
+      {/* 6. Health handling. ivory-2 band with one dark example card, so the page keeps two dark bands plus the footer (brief §6.1, §8.3.7). */}
+      <Section tone="ivory-2" labelledBy="health-handling" rhythm="loose">
         <HealthHandling />
       </Section>
 

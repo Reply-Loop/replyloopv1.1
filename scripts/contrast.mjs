@@ -19,6 +19,11 @@ const tokens = {
   paper: "#FBFAF6",
   paperShade: "#EFE6D6",
   ink3: "#2F353B",
+  // Texture stand-ins (scripts/brand/textures.mjs prints these): the darkest 1% of
+  // the .paper tile and the lightest 1% of the .felt tile, i.e. the worst case
+  // behind text on a textured band (brief §6.7).
+  paperDark: "#F5F2EC",
+  feltLight: "#1D2125",
 };
 
 function luminance(hex) {
@@ -54,6 +59,11 @@ const pairs = [
   ["mist", "charcoal", "secondary text on charcoal", 4.5],
   ["mist", "ink2", "secondary text on raised surfaces on charcoal", 4.5],
   ["mist", "ink3", "secondary text on hover surfaces on charcoal", 4.5],
+  ["charcoal", "paperDark", "body text on .paper, darkest grain", 4.5],
+  ["slate", "paperDark", "secondary text on .paper, darkest grain", 4.5],
+  ["brass", "paperDark", "brass text on .paper, darkest grain", 4.5],
+  ["ivory", "feltLight", "body text on .felt, lightest grain", 4.5],
+  ["mist", "feltLight", "secondary text on .felt, lightest grain", 4.5],
   ["charcoal", "ivory", "pause-control icon on its light chip", 3],
   ["ivory", "ink2", "pause-control icon on its dark chip", 3],
   ["brassLine", "charcoal", "decorative hairlines and loop on charcoal (never text)", 0],

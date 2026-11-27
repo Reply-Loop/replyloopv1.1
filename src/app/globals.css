@@ -323,6 +323,66 @@
     appearance: none;
   }
 
+  /*
+   * Surface texture (brief §6.7). The tile IS the surface: the band's colour with
+   * a little baked grain, painted as its own background beneath all content. No
+   * blend mode, no overlay above text, no motion. Lossless 128px tiles, seamless
+   * by construction. Stand-ins from scripts/brand/textures.mjs until ASSET_BRIEF
+   * #1 (paper) and #3 (felt) exist; text contrast on the darkest/lightest grain is
+   * checked in scripts/contrast.mjs.
+   */
+  .paper {
+    background-color: var(--color-ivory);
+    background-image: url("/brand/textures/paper-128.png");
+    background-size: 128px 128px;
+  }
+  .felt {
+    background-color: var(--color-charcoal);
+    background-image: url("/brand/textures/felt-128.png");
+    background-size: 128px 128px;
+  }
+
+  /*
+   * Interactive card lift (brief §6.6): compositor-only. The hover shadow lives on
+   * a ::after at opacity 0 and fades in while the card rises 2px; box-shadow itself
+   * never transitions. Only where a real pointer can hover; focus-visible gets the
+   * same lift, and the focus ring itself stays instant.
+   */
+  .card-lift {
+    position: relative;
+    isolation: isolate;
+    transition: transform 280ms var(--ease-soft);
+  }
+  .card-lift::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    box-shadow: var(--shadow-3);
+    opacity: 0;
+    transition: opacity 280ms var(--ease-soft);
+    pointer-events: none;
+  }
+  @media (hover: hover) {
+    .card-lift:hover {
+      transform: translateY(-2px);
+    }
+    .card-lift:hover::after {
+      opacity: 1;
+    }
+  }
+  .card-lift:has(:focus-visible) {
+    transform: translateY(-2px);
+  }
+  .card-lift:has(:focus-visible)::after {
+    opacity: 1;
+  }
+  :root[data-motion="reduce"] .card-lift,
+  :root[data-motion="reduce"] .card-lift::after {
+    transition: none;
+  }
+
   /* Static film grain: an SVG noise tile, no animation and no motion cost. */
   .film-grain {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.11 0 0 0 0 0.12 0 0 0 0 0.14 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -389,6 +449,9 @@
       width: 100%;
       height: 100%;
       color: color-mix(in srgb, var(--color-brass) 45%, transparent);
+      /* The loop fades out behind the text column (brief §8.3.5), so slate text
+         sits on plain paper (7.4:1) with no backing box. */
+      mask-image: radial-gradient(ellipse 34% 46% at 78% 50%, transparent 70%, #000 100%);
     }
     :root:is([data-motion="full"], [data-motion="paused"]) .journey-bead {
       fill: var(--color-brass);
@@ -413,19 +476,26 @@
     :root:is([data-motion="full"], [data-motion="paused"]) .journey-step:not(:first-child) {
       opacity: 0;
     }
+    /* The art sits on a feathered patch of the same paper grain, so it lifts off
+       the loop without showing as a flat rectangle on the grained band. */
     :root:is([data-motion="full"], [data-motion="paused"]) .journey-vignette {
+      position: relative;
+      isolation: isolate;
       margin: 0;
       padding: 2rem;
-      border-radius: 2rem;
-      background: radial-gradient(closest-side, rgb(248 245 239 / 0.96), rgb(248 245 239 / 0.75) 70%, transparent);
     }
-    /* A solid ivory backing over the whole text box, feathered at the edge, so slate text keeps 7:1 over the loop. */
+    :root:is([data-motion="full"], [data-motion="paused"]) .journey-vignette::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: var(--color-ivory) url("/brand/textures/paper-128.png") 0 0 / 128px 128px;
+      mask-image: radial-gradient(closest-side, #000 70%, transparent);
+      pointer-events: none;
+    }
     :root:is([data-motion="full"], [data-motion="paused"]) .journey-text {
       max-width: 28rem;
       padding: 2rem;
-      border-radius: 1.5rem;
-      background: rgb(248 245 239 / 0.97);
-      box-shadow: 0 0 2.5rem 1.75rem rgb(248 245 239 / 0.97);
     }
     :root:is([data-motion="full"], [data-motion="paused"]) .journey-dots {
       display: flex;

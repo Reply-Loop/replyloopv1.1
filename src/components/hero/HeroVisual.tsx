@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { setMotionPaused, getMotionTier } from "@/lib/motion/state";
 import { useMotion } from "@/components/motion/useMotion";
 import { useInViewport } from "@/components/motion/useInViewport";
+import { PauseControl } from "@/components/motion/PauseControl";
 import { cn } from "@/lib/cn";
 import { LoopStill } from "./LoopStill";
 import type { Pointer } from "./LoopScene";
@@ -155,17 +156,7 @@ export function HeroVisual({ className }: { className?: string }) {
         className="film-grain pointer-events-none absolute inset-0 opacity-[0.14] [mask-image:radial-gradient(closest-side,black,transparent)]"
       />
       {live ? (
-        <button
-          type="button"
-          aria-pressed={paused}
-          onClick={() => setMotionPaused(!paused)}
-          className="absolute right-2 bottom-2 inline-flex size-11 items-center justify-center rounded-full border border-rule bg-ivory/80 text-charcoal backdrop-blur hover:border-brass"
-        >
-          <svg viewBox="0 0 24 24" className="size-4" aria-hidden focusable="false" fill="currentColor">
-            {paused ? <path d="M8 5.5v13l10.5-6.5z" /> : <path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" />}
-          </svg>
-          <span className="sr-only">Pause motion</span>
-        </button>
+        <PauseControl label="Pause motion" pressed={paused} onToggle={() => setMotionPaused(!paused)} tone="light" />
       ) : null}
     </div>
   );

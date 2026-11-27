@@ -54,7 +54,7 @@ export function PageHero({
             {typeof intro === "string" ? <p>{intro}</p> : intro}
           </div>
           {showButton ? (
-            <div className="mt-8">
+            <div data-hero-cta className="mt-8">
               <BookButton />
             </div>
           ) : null}
