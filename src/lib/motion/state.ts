@@ -101,7 +101,7 @@ export function subscribeMotion(callback: () => void) {
  * Device tier. Decides how heavy the motion may be, independent of the mode.
  * - "full": WebGL hero and pinned scroll scenes allowed.
  * - "lite": no WebGL; pre-rendered video or stills instead. Phones, Save-Data,
- *   low memory or few cores, or no WebGL.
+ *   low memory or few cores, no WebGL, or WebGL only in software.
  */
 export type MotionTier = "lite" | "full";
 
@@ -110,21 +110,57 @@ type NavigatorHints = Navigator & {
   deviceMemory?: number;
 };
 
+/**
+ * Hardware WebGL only. failIfMajorPerformanceCaveat makes the browser refuse a context
+ * it would run in software (SwiftShader, a blocklisted GPU), so those visitors keep the
+ * still (brief §8.2). Known software renderers are refused by name as well. The probe
+ * context is released at once.
+ */
+const WEBGL_PROBE_ATTRIBUTES: WebGLContextAttributes = { failIfMajorPerformanceCaveat: true };
+
+const SOFTWARE_RENDERER = /swiftshader|llvmpipe|softpipe|software|basic render driver/i;
+
 let cachedWebGL: boolean | undefined;
 function hasWebGL(): boolean {
   if (cachedWebGL !== undefined) return cachedWebGL;
   try {
     const c = document.createElement("canvas");
-    cachedWebGL = Boolean(c.getContext("webgl2") || c.getContext("webgl"));
+    const gl =
+      (c.getContext("webgl2", WEBGL_PROBE_ATTRIBUTES) as WebGL2RenderingContext | null) ??
+      (c.getContext("webgl", WEBGL_PROBE_ATTRIBUTES) as WebGLRenderingContext | null);
+    let hardware = Boolean(gl);
+    if (gl) {
+      // Some browsers (headless Chrome among them) grant a software context despite the
+      // caveat flag, so the renderer's name is checked too.
+      const info = gl.getExtension("WEBGL_debug_renderer_info");
+      const name = String(gl.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : gl.RENDERER) ?? "");
+      if (SOFTWARE_RENDERER.test(name)) hardware = false;
+    }
+    cachedWebGL = hardware;
+    gl?.getExtension("WEBGL_lose_context")?.loseContext();
   } catch {
     cachedWebGL = false;
   }
   return cachedWebGL;
 }
 
+/**
+ * QA-only override for the home hero: `?hero=webgl` bypasses the tier tests, the
+ * software-renderer caveat (here and in the renderer's context request) and the
+ * low-power probe, so the swap can be checked on SwiftShader. Never linked.
+ */
+export function heroWebGLForced(): boolean {
+  try {
+    return new URLSearchParams(window.location.search).get("hero") === "webgl";
+  } catch {
+    return false;
+  }
+}
+
 export const FULL_TIER_MIN_WIDTH = 1024;
 
-export function getMotionTier(): MotionTier {
+export function getMotionTier({ forceWebGL = false }: { forceWebGL?: boolean } = {}): MotionTier {
+  if (forceWebGL) return "full";
   const nav = navigator as NavigatorHints;
   if (nav.connection?.saveData) return "lite";
   if (typeof nav.deviceMemory === "number" && nav.deviceMemory < 4) return "lite";

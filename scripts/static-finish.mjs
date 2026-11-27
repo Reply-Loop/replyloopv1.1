@@ -34,7 +34,6 @@ const rules = [
   ["/_next/static/*", ["Cache-Control: public, max-age=31536000, immutable"]],
   ["/media/*", ["Cache-Control: public, max-age=604800"]],
   ["/brand/*", ["Cache-Control: public, max-age=604800"]],
-  ["/hdri/*", ["Cache-Control: public, max-age=2592000"]],
   ...ogImages.map((p) => [p, ["Content-Type: image/png", "Cache-Control: public, max-age=86400"]]),
 ];
 writeFileSync(join(out, "_headers"), rules.map(([path, hs]) => [path, ...hs.map((h) => `  ${h}`)].join("\n")).join("\n\n") + "\n");

@@ -15,6 +15,7 @@ export type IconName =
   | "check"
   | "minus"
   | "key"
+  | "loop"
   | "book"
   | "plus";
 
@@ -83,6 +84,8 @@ const paths: Record<IconName, React.ReactNode> = {
       <path d="m10.8 12.2 8.7-8.7M16.5 6.5l2.5 2.5M14 9l2 2" />
     </>
   ),
+  // The double loop, as a line icon: two lobes crossing at the centre.
+  loop: <path d="M12 12c-1.9-2.7-3.9-4.5-6.2-4.5a4.5 4.5 0 0 0 0 9c2.3 0 4.3-1.8 6.2-4.5s3.9-4.5 6.2-4.5a4.5 4.5 0 0 1 0 9c-2.3 0-4.3-1.8-6.2-4.5z" />,
 };
 
 type IconProps = SVGProps<SVGSVGElement> & { name: IconName; title?: string };

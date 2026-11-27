@@ -66,13 +66,17 @@ const notFit = [
   "You want a service you do not need.",
 ];
 
+/** "You keep the keys." and "We ask every customer the same way.", from the one trustCue string. */
+const trustFacts = trustCue.split(/(?<=\.)\s+/);
+
 export default function HomePage() {
   return (
     <>
       {/* 1. Hero. The H1 is locked (D-027, 2026-11-20). Do not A/B, soften, or replace it. */}
       <section aria-labelledby="hero-title" className="relative overflow-hidden pt-12 pb-16 sm:pt-20 sm:pb-24">
-        <Container className="grid items-center gap-y-12 lg:grid-cols-[minmax(0,1.18fr)_minmax(0,0.82fr)] lg:gap-x-8">
-          <div>
+        {/* 7/5 grid (brief §8.2): text in 7 columns, the loop in 5, centred on each other. */}
+        <Container className="grid items-center gap-y-12 lg:grid-cols-12 lg:gap-x-8">
+          <div className="lg:col-span-7">
             <Eyebrow>{site.tagline}</Eyebrow>
             <h1
               id="hero-title"
@@ -80,7 +84,7 @@ export default function HomePage() {
             >
               Your next customer is reading your unanswered Google reviews.
             </h1>
-            <p className="mt-7 max-w-lede text-lede text-slate">
+            <p className="mt-7 max-w-[34rem] text-lede text-slate">
               Built for home care agencies and local health practices in Salt Lake County and across Utah.
               We answer every Google review in your voice and keep your Google profile, Facebook, and
               Instagram active.
@@ -90,12 +94,20 @@ export default function HomePage() {
               <BookButton />
               <TextLink href="#how-it-works">See how it works</TextLink>
             </div>
-            <p className="mt-8 flex items-center gap-2 text-small text-slate">
-              <Icon name="key" className="size-4 shrink-0 text-brass" />
-              {trustCue}
-            </p>
+            {/* The trust cue as two facts, split at its first period (verbatim), stacked on phones. */}
+            <ul className="mt-8 flex flex-col gap-3 text-small text-charcoal sm:flex-row sm:items-center sm:gap-0">
+              {trustFacts.map((fact, i) => (
+                <li
+                  key={fact}
+                  className={i > 0 ? "flex items-center gap-2 sm:ml-5 sm:border-l sm:border-rule sm:pl-5" : "flex items-center gap-2"}
+                >
+                  <Icon name={i === 0 ? "key" : "loop"} className="size-4 shrink-0 text-brass" />
+                  {fact}
+                </li>
+              ))}
+            </ul>
           </div>
-          <HeroVisual className="mx-auto w-full max-w-[34rem] lg:max-w-none" />
+          <HeroVisual className="w-full lg:col-span-5" />
         </Container>
       </section>
 
