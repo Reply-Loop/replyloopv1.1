@@ -211,6 +211,7 @@ export function HeroVisual({ className }: { className?: string }) {
             <LoopCanvas
               active={ambient && onScreen && !retiring}
               forced={forced}
+              alive={covered && !retiring}
               pointer={pointer}
               onReady={onReady}
               onLowPower={onLowPower}

@@ -13,6 +13,8 @@ type Props = {
   active: boolean;
   /** QA override (?hero=webgl): accept a software renderer and skip the low-power probe. */
   forced: boolean;
+  /** The swap has finished: the loop may start to move and the light sweep may run. */
+  alive: boolean;
   pointer: { current: Pointer };
   onReady: () => void;
   onLowPower: () => void;
@@ -22,7 +24,7 @@ type Props = {
   onTeardown: () => void;
 };
 
-type Callbacks = { current: Omit<Props, "active" | "pointer" | "forced"> };
+type Callbacks = { current: Omit<Props, "active" | "pointer" | "forced" | "alive"> };
 
 /**
  * Camera framing (brief §8.2): the canvas fills the same box as the SVG still, whose
@@ -60,6 +62,7 @@ function renderScene(
   r: ReconcilerRoot<HTMLCanvasElement>,
   active: boolean,
   forced: boolean,
+  alive: boolean,
   pointer: { current: Pointer },
   cb: Callbacks,
 ) {
@@ -67,6 +70,7 @@ function renderScene(
     <LoopScene
       active={active}
       forced={forced}
+      alive={alive}
       pointer={pointer}
       onReady={() => cb.current.onReady()}
       onLowPower={() => cb.current.onLowPower()}
@@ -85,14 +89,14 @@ function renderScene(
  * DOM stays. Reusing that canvas on return would build a renderer on a lost
  * context and throw, so the canvas never outlives its root.
  */
-export default function LoopCanvas({ active, forced, pointer, onReady, onLowPower, onFail, onTeardown }: Props) {
+export default function LoopCanvas({ active, forced, alive, pointer, onReady, onLowPower, onFail, onTeardown }: Props) {
   const host = useRef<HTMLDivElement>(null);
   const root = useRef<{ r: ReconcilerRoot<HTMLCanvasElement>; ready: boolean } | null>(null);
   const callbacks = useRef({ onReady, onLowPower, onFail, onTeardown });
-  const latest = useRef({ active, forced, pointer });
+  const latest = useRef({ active, forced, alive, pointer });
   useEffect(() => {
     callbacks.current = { onReady, onLowPower, onFail, onTeardown };
-    latest.current = { active, forced, pointer };
+    latest.current = { active, forced, alive, pointer };
   });
 
   useEffect(() => {
@@ -104,6 +108,13 @@ export default function LoopCanvas({ active, forced, pointer, onReady, onLowPowe
     wrap.appendChild(el);
 
     let cancelled = false;
+    // A lost context (GPU reset, the browser reclaiming contexts) never draws again and
+    // its light map is gone: fall back to the still. Cleanup sets cancelled before
+    // unmount, whose own forced context loss fires this event too.
+    const onLost = () => {
+      if (!cancelled) callbacks.current.onFail();
+    };
+    el.addEventListener("webglcontextlost", onLost);
     const size = () => {
       const box = wrap.getBoundingClientRect();
       return { width: Math.max(1, box.width), height: Math.max(1, box.height), top: 0, left: 0 };
@@ -124,7 +135,7 @@ export default function LoopCanvas({ active, forced, pointer, onReady, onLowPowe
       .then(() => {
         if (cancelled) return;
         entry.ready = true;
-        renderScene(r, latest.current.active, latest.current.forced, latest.current.pointer, callbacks);
+        renderScene(r, latest.current.active, latest.current.forced, latest.current.alive, latest.current.pointer, callbacks);
       })
       .catch(() => {
         if (!cancelled) callbacks.current.onFail();
@@ -138,6 +149,7 @@ export default function LoopCanvas({ active, forced, pointer, onReady, onLowPowe
     return () => {
       cancelled = true;
       ro.disconnect();
+      el.removeEventListener("webglcontextlost", onLost);
       try {
         r.unmount();
       } catch {
@@ -151,8 +163,8 @@ export default function LoopCanvas({ active, forced, pointer, onReady, onLowPowe
 
   useEffect(() => {
     const entry = root.current;
-    if (entry?.ready) renderScene(entry.r, active, forced, pointer, callbacks);
-  }, [active, forced, pointer]);
+    if (entry?.ready) renderScene(entry.r, active, forced, alive, pointer, callbacks);
+  }, [active, forced, alive, pointer]);
 
   return <div ref={host} className="absolute inset-0" aria-hidden />;
 }

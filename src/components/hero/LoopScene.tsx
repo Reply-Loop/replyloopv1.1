@@ -26,6 +26,13 @@ type SceneProps = {
   active: boolean;
   /** QA override (?hero=webgl): skip the low-power probe. */
   forced: boolean;
+  /**
+   * The swap has finished (the canvas is fully shown). Until then the loop holds its
+   * t = 0 pose, square on to the camera like the still, with no turn, no cursor lean and
+   * the key light at the start of its sweep; the one-time sweep is the "comes alive"
+   * moment after the swap (brief §8.2).
+   */
+  alive: boolean;
   pointer: { current: Pointer };
   onReady: () => void;
   onLowPower: () => void;
@@ -117,7 +124,7 @@ function whenIdle(cb: () => void): IdleHandle {
  * 3. compileAsync (KHR_parallel_shader_compile where supported).
  * Only then is the first frame drawn and onReady sent.
  */
-export function LoopScene({ active, forced, pointer, onReady, onLowPower, onFail }: SceneProps) {
+export function LoopScene({ active, forced, alive, pointer, onReady, onLowPower, onFail }: SceneProps) {
   // R3F state is read through get() so renderer and scene settings are changed outside
   // React's render values.
   const get = useThree((s) => s.get);
@@ -231,7 +238,7 @@ export function LoopScene({ active, forced, pointer, onReady, onLowPower, onFail
   useEffect(() => {
     setFrameloop(active && compiled ? "always" : "demand");
     invalidate();
-  }, [active, compiled, setFrameloop, invalidate]);
+  }, [active, compiled, alive, setFrameloop, invalidate]);
 
   useFrame((_, delta) => {
     const c = clock.current;
@@ -246,27 +253,34 @@ export function LoopScene({ active, forced, pointer, onReady, onLowPower, onFail
     }
 
     // Frame-rate probe over the first frames of real motion (skipped by the QA override).
+    // A frame after a hidden tab or a long stall carries the whole gap: it restarts the count
+    // rather than deciding it.
     if (active && !c.probed && !forced) {
-      c.frames += 1;
-      c.probe += delta;
+      if (delta > 0.25) {
+        c.frames = 0;
+        c.probe = 0;
+      } else {
+        c.frames += 1;
+        c.probe += delta;
+      }
       if (c.frames >= PROBE_FRAMES) {
         c.probed = true;
         if (c.frames / c.probe < FPS_FLOOR) onLowPower();
       }
     }
 
-    if (active) c.t += dt;
-    // Light catches the edge once as the scene appears (about 2.4 s), then rests.
-    c.sweep = Math.min(1, c.sweep + dt / 2.4);
+    if (active && alive) c.t += dt;
+    // Light catches the edge once the swap is done (about 2.4 s), then rests.
+    if (alive) c.sweep = Math.min(1, c.sweep + dt / 2.4);
     const e = 1 - Math.pow(1 - c.sweep, 3);
     if (key.current) key.current.position.set(-4.5 + 8 * e, 3.2 - 0.8 * e, 2.6 + 0.6 * e);
 
     // At t = 0 the loop faces the camera square on, matching the still's silhouette; the
-    // slow turn and the cursor lean grow from there.
+    // slow turn and the cursor lean grow from there, only once the swap is done.
     const p = pointer.current;
     const ramp = Math.min(1, c.t / 2.5);
-    const targetY = ramp * 0.42 * Math.sin(c.t * 0.16) + p.x * 0.1;
-    const targetX = ramp * (-0.16 + 0.05 * Math.sin(c.t * 0.21)) - p.y * 0.08;
+    const targetY = ramp * (0.42 * Math.sin(c.t * 0.16) + p.x * 0.1);
+    const targetX = ramp * (-0.16 + 0.05 * Math.sin(c.t * 0.21) - p.y * 0.08);
     g.rotation.y += (targetY - g.rotation.y) * Math.min(1, dt * 2.2);
     g.rotation.x += (targetX - g.rotation.x) * Math.min(1, dt * 2.2);
     g.position.y = ramp * 0.035 * Math.sin(c.t * 0.5);
@@ -277,7 +291,10 @@ export function LoopScene({ active, forced, pointer, onReady, onLowPower, onFail
       <hemisphereLight args={["#f6f1e8", "#2b2a28", 0.5]} />
       <directionalLight ref={key} color="#ffe1b8" intensity={1.5} position={[-4.5, 3.2, 2.6]} />
       <directionalLight color="#eef0f2" intensity={0.6} position={[3.5, -1.5, -3]} />
-      <group ref={group}>
+      {/* Hidden until compiled: R3F draws on every invalidate, and a draw before compileAsync
+          would link the shaders synchronously on the main thread. compile() walks hidden
+          objects too, so compileAsync still prepares both programs. */}
+      <group ref={group} visible={compiled}>
         {built ? (
           <>
             <mesh geometry={built.tube} material={built.brass} />
