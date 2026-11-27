@@ -22,8 +22,8 @@ export function FAQ({
     <div className={cn("divide-y divide-rule border-y border-rule on-dark:divide-mist/30 on-dark:border-mist/30", className)}>
       {items.map((item) => (
         <details key={item.question} className="group py-1">
-          <summary className="flex cursor-pointer list-none items-start justify-between gap-6 rounded-md py-5 [&::-webkit-details-marker]:hidden">
-            <H className="font-serif text-xl font-medium leading-snug">{item.question}</H>
+          <summary className="flex cursor-pointer list-none items-start justify-between gap-6 rounded-sm py-5 [&::-webkit-details-marker]:hidden">
+            <H className="font-serif text-h3 font-medium">{item.question}</H>
             <span className="mt-1 inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-rule text-brass on-dark:border-mist/40 on-dark:text-ivory">
               <Icon name="plus" className="size-4 group-open:hidden" />
               <Icon name="minus" className="hidden size-4 group-open:block" />

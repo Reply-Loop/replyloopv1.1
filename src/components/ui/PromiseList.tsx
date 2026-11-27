@@ -23,7 +23,7 @@ export function PromiseList({
             {i + 1}
           </span>
           <div>
-            <h3 className="font-serif text-xl font-medium">{p.title}</h3>
+            <h3 className="font-serif text-h3 font-medium">{p.title}</h3>
             <p className="mt-2 text-slate on-dark:text-mist">{p.body}</p>
           </div>
         </li>

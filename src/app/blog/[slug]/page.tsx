@@ -47,32 +47,32 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
   return (
     <>
       <article aria-labelledby="page-title">
-        <header className="border-b border-rule pt-10 pb-14 sm:pt-12 sm:pb-16">
+        <header className="border-b border-rule pt-8 pb-12 sm:pt-12 sm:pb-16">
           <Container size="prose">
             <Breadcrumbs crumbs={crumbs} />
             <Eyebrow className="mt-12">Guide</Eyebrow>
-            <h1 id="page-title" className="mt-5 font-serif text-[2.2rem] font-medium sm:text-[2.75rem]">
+            <h1 id="page-title" className="mt-6 font-serif text-h2 font-medium lg:mt-5">
               {post.title}
             </h1>
-            <p className="mt-5 text-lg text-slate">{post.description}</p>
-            <p className="mt-6 text-sm text-slate">
+            <p className="mt-5 text-lede text-slate">{post.description}</p>
+            <p className="mt-6 text-small text-slate">
               ReplyLoop · <time dateTime={post.date}>{formatDate(post.date)}</time>
             </p>
           </Container>
         </header>
-        <Container size="prose" className="py-14 sm:py-16">
-          <Prose className="[&_blockquote]:mt-4 [&_blockquote]:rounded-xl [&_blockquote]:border-l-2 [&_blockquote]:border-brass [&_blockquote]:bg-[#F1ECE3] [&_blockquote]:px-5 [&_blockquote]:py-4 [&_blockquote]:font-serif [&_blockquote]:text-lg [&_em]:text-slate">
+        <Container size="prose" className="py-12 sm:py-16">
+          <Prose className="[&_blockquote]:mt-4 [&_blockquote]:rounded-md [&_blockquote]:border-l-2 [&_blockquote]:border-brass [&_blockquote]:bg-[#F1ECE3] [&_blockquote]:px-5 [&_blockquote]:py-4 [&_blockquote]:font-serif [&_blockquote]:text-lg [&_em]:text-slate">
             <Content />
           </Prose>
         </Container>
       </article>
 
-      <Section labelledBy="related-title" className="border-t border-rule">
-        <SectionHeading id="related-title" eyebrow="Keep reading" title="Related guides" />
-        <ul className="mt-10 grid gap-6 md:grid-cols-2">
+      <Section labelledBy="related-title" rhythm="tight" className="border-t border-rule">
+        <SectionHeading id="related-title" variant="compact" eyebrow="Keep reading" title="Related guides" />
+        <ul className="mt-12 grid gap-6 md:grid-cols-2">
           {relatedPosts(post.slug).map((p) => (
             <Card as="li" key={p.slug}>
-              <h3 className="font-serif text-xl font-medium leading-snug">
+              <h3 className="font-serif text-h3 font-medium">
                 <Link
                   href={`/blog/${p.slug}`}
                   className="underline decoration-brass decoration-1 underline-offset-4 hover:decoration-2"

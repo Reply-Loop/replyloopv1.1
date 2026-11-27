@@ -32,7 +32,7 @@ export function LoopMark({ className, tone = "auto" }: { className?: string; ton
 
 export function Logo({ className }: { className?: string }) {
   return (
-    <Link href="/" className={cn("inline-flex items-center gap-2.5 rounded-md", className)} aria-label="ReplyLoop, home">
+    <Link href="/" className={cn("inline-flex items-center gap-2 rounded-sm", className)} aria-label="ReplyLoop, home">
       <LoopMark />
       <span className="font-serif text-[1.35rem] font-medium leading-none tracking-[-0.01em] text-charcoal on-dark:text-ivory">
         ReplyLoop

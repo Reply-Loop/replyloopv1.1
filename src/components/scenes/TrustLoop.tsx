@@ -145,7 +145,7 @@ export function TrustLoop({ className }: { className?: string }) {
           <li
             key={st.name}
             className={cn(
-              "rounded-xl border px-5 py-4 transition-colors duration-500",
+              "rounded-md border px-5 py-4 transition-colors duration-500",
               active === i ? "border-brass bg-[#f3ede2]" : "border-rule",
             )}
           >
@@ -153,9 +153,9 @@ export function TrustLoop({ className }: { className?: string }) {
               <span aria-hidden className="font-serif text-lg text-brass">
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <span className="font-serif text-xl font-medium">{st.name}</span>
+              <span className="font-serif text-h3 font-medium">{st.name}</span>
             </p>
-            <p className="mt-1.5 text-slate">{st.body}</p>
+            <p className="mt-2 text-slate">{st.body}</p>
           </li>
         ))}
       </ol>

@@ -70,7 +70,7 @@ export function BookButton({ className }: { className?: string }) {
 }
 
 const textLinkClass =
-  "inline-flex items-center gap-2 font-medium underline decoration-1 underline-offset-4 transition-colors hover:decoration-2";
+  "inline-flex items-center gap-2 font-semibold underline decoration-1 underline-offset-4 transition-colors hover:decoration-2";
 
 export function PhoneLink({ className, withIcon = true }: { className?: string; withIcon?: boolean }) {
   return (
@@ -110,7 +110,7 @@ export function TextLink({
     <Link
       href={href}
       className={cn(
-        "group inline-flex items-center gap-1.5 font-medium text-charcoal underline decoration-brass decoration-1 underline-offset-[6px] hover:decoration-2 on-dark:text-ivory on-dark:decoration-brass-line",
+        "group inline-flex items-center gap-2 font-semibold text-charcoal underline decoration-brass decoration-1 underline-offset-[6px] hover:decoration-2 on-dark:text-ivory on-dark:decoration-brass-line",
         className,
       )}
     >

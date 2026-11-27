@@ -29,7 +29,7 @@ export default function TermsPage() {
         intro="The terms for using this website."
         showButton={false}
       />
-      <Container size="prose" className="py-14 sm:py-16">
+      <Container size="prose" className="py-16 sm:py-20 lg:py-24">
         <DraftNotice />
         <Prose>
           <p>

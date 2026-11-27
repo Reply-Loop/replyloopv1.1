@@ -29,7 +29,7 @@ export default function PrivacyPage() {
         intro="How this website handles information."
         showButton={false}
       />
-      <Container size="prose" className="py-14 sm:py-16">
+      <Container size="prose" className="py-16 sm:py-20 lg:py-24">
         <DraftNotice />
         <Prose>
           <p>

@@ -34,7 +34,7 @@ export default function StyleguidePage() {
           title="Component gallery"
           intro="Every reusable piece, on ivory and on charcoal."
         />
-        <div className="mt-10 flex flex-wrap items-center gap-6">
+        <div className="mt-12 flex flex-wrap items-center gap-6">
           <BookButton />
           <TextLink href="#steps">Text link</TextLink>
           <PhoneLink />
@@ -43,7 +43,7 @@ export default function StyleguidePage() {
       </Section>
       <LoopDivider animate />
       <Section labelledBy="sg-cards">
-        <SectionHeading id="sg-cards" eyebrow="PillarCard" title="Cards" />
+        <SectionHeading id="sg-cards" variant="split" eyebrow="PillarCard" title="Cards" />
         <ul className="mt-12 grid gap-6 md:grid-cols-2">
           <PillarCard
             pillar={{
@@ -65,7 +65,7 @@ export default function StyleguidePage() {
         </ul>
       </Section>
       <Section tone="charcoal" labelledBy="sg-steps" id="steps">
-        <SectionHeading id="sg-steps" eyebrow="StepList on charcoal" title="Steps" />
+        <SectionHeading id="sg-steps" variant="default" eyebrow="StepList on charcoal" title="Steps" />
         <StepList
           className="mt-12"
           steps={[
@@ -82,12 +82,12 @@ export default function StyleguidePage() {
           </div>
         </Card>
       </Section>
-      <Section labelledBy="sg-promises">
-        <SectionHeading id="sg-promises" eyebrow="PromiseList" title="Promises" />
+      <Section rhythm="loose" labelledBy="sg-promises">
+        <SectionHeading id="sg-promises" variant="statement" eyebrow="PromiseList" title="Promises" />
         <PromiseList className="mt-12" />
       </Section>
       <Section tone="charcoal" labelledBy="sg-promises-dark">
-        <SectionHeading id="sg-promises-dark" eyebrow="PromiseList on charcoal" title="Promises" />
+        <SectionHeading id="sg-promises-dark" variant="default" eyebrow="PromiseList on charcoal" title="Promises" />
         <PromiseList className="mt-12" />
       </Section>
       <Section labelledBy="health-handling">
@@ -95,15 +95,15 @@ export default function StyleguidePage() {
       </Section>
       <Section labelledBy="sg-proof">
         <SectionHeading id="sg-proof" eyebrow="ProofSlot" title="Proof slots" />
-        <div className="mt-10 grid gap-6 md:grid-cols-2">
+        <div className="mt-12 grid gap-6 md:grid-cols-2">
           <ProofSlot kind="testimonial" label="Testimonial" path="src/content/proof/testimonials.ts" />
           <ProofSlot kind="founder-photo" label="Founder photo" path="public/people/founders.jpg" />
         </div>
       </Section>
-      <Section labelledBy="sg-faq">
-        <SectionHeading id="sg-faq" eyebrow="FAQ" title="Accordion" />
+      <Section rhythm="tight" labelledBy="sg-faq">
+        <SectionHeading id="sg-faq" variant="compact" eyebrow="FAQ" title="Accordion" />
         <FAQ
-          className="mt-10"
+          className="mt-12"
           items={[
             { question: "Sample question one?", answer: "Sample answer.\n\nSecond paragraph." },
             { question: "Sample question two?", answer: "Sample answer." },

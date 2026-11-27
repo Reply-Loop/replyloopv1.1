@@ -63,7 +63,31 @@ Locked values live in `src/app/globals.css` under `@theme`:
 | `mist` | `#C9C4BA` | Secondary text on charcoal (derived) |
 | `rule` | `#E2DBCF` | Decorative borders on ivory (derived) |
 
-Fonts: Fraunces (headlines, `opsz` axis) and Inter (body/UI), both via `next/font/google`, self-hosted at build time.
+Tints of the locked palette (no new hues), added in the premium redesign:
+
+| Token | Hex | Use |
+|---|---|---|
+| `ivory-2` | `#F2EDE4` | Alternate light band, blockquote and inset surfaces |
+| `paper` | `#FBFAF6` | Raised card surface on ivory |
+| `paper-shade` | `#EFE6D6` | Illustration paper shade, tone-on-tone deboss (brass on it: large text and UI only) |
+| `ink-3` | `#2F353B` | Hover surface on charcoal (rare) |
+| `brass-shadow` | `#5C3E12` | Illustration only: shaded side of brass objects |
+| `brass-light` | `#C49A5A` | Illustration only: one highlight on brass objects, never text |
+| `hairline-dark` | `rgb(201 196 186 / .12)` | Full-bleed rules on charcoal |
+
+The same `@theme` block holds the rest of the design system (source of truth: `docs/REDESIGN_PROMPT.md` §6–7):
+
+- **Type scale** (fluid, rem intercepts): `text-display`, `text-h1`, `text-h2`, `text-h2-compact`, `text-h3-lg`, `text-h3`, `text-numeral`, `text-lede`, `text-body`, `text-prose`, `text-small`, `text-eyebrow`. No token renders larger than `text-h1` at any width. Fraunces 500 for headings, 400 for statement display from 3.5rem; Inter 400 and 600 only. Nothing visible under 14px.
+- **Measures:** `max-w-measure` (65ch), `max-w-lede` (34rem), `max-w-reading` (66ch).
+- **Spacing scale** (px): 4, 8, 12, 16, 20, 24, 28, 32, 48, 64, 72, 80, 96, 128, 160 for gaps, margins and padding. `npm run check:tokens` (part of `npm run check`) fails on off-scale spacing and on text under 14px.
+- **Section rhythm:** `<Section rhythm="loose | default | tight">`, 96/128/160, 80/96/128 and 64/80/96 px (mobile/sm/lg).
+- **Heading variants:** `<SectionHeading variant="statement | split | default | compact">`.
+- **Radii:** `rounded-xs` 2, `rounded-sm` 8, `rounded-md` 12, `rounded-card` 20, `rounded-xl` 28, `rounded-pill`.
+- **Shadows** (one light at 315°, warm): `shadow-1`, `shadow-2` (resting card), `shadow-3` (hover, film frame), `shadow-object`, `shadow-header`.
+- **Easing** (matches the brand film, `video/src/theme.ts`): `ease-out`, `ease-in`, `ease-inout`, `ease-draw`, plus the site-only `ease-soft` (the default transition curve, 240ms) and `ease-standard`. Durations are CSS variables `--dur-*`.
+- **Header height:** `--header-h` (4rem, 4.5rem from lg), reused by scroll margins and the journey stage.
+
+Fonts: Fraunces (headlines, `opsz` and `wght` axes) and Inter (body and UI, `wght`), self-hosted with `next/font/local` from `src/app/fonts/`. Only the Latin subsets ship; the site renders no other script, and the other subsets were 249,744 B of files no page requested. The files are the ones `next/font/google` produced before the switch. Licences: `assets/fonts/*-OFL.txt`. Fraunces' `SOFT` axis was measured and not shipped: the Latin file grows from 67,304 B to 120,788 B, against a 20 KB budget.
 
 ## Contrast decision
 
@@ -123,7 +147,7 @@ Every page ends with the same CTA band. The only conversion paths are the cal.co
 - Root layout: skip link, sticky header with the booking button (md and up), small-screen menu, sticky bottom bar with Call and Book on small screens, the CTA band on every page, footer with phone, email, and service area. No street address.
 - Components (`src/components/ui`): Button, BookButton, PhoneLink, EmailLink, TextLink, Card, Section, Container, Eyebrow, Rule, SectionHeading, LoopDivider, FAQ (native `<details>`), PillarCard, StepList, PromiseList, ProofSlot, CTABand, HealthHandling, Logo, Icon.
 - Content sources: `src/lib/site.ts` (business facts), `src/content/promises.ts` (seven red lines, customer-facing), `src/content/health.ts` (health review handling).
-- Motion: see "Cinematic layer" below. The scroll-driven fade (`.reveal`) is CSS only and off under `prefers-reduced-motion`.
+- Motion: see "Cinematic layer" below. The scroll-driven rise (`.reveal`) is CSS only, moves text by transform only (text never fades), and runs only with motion on: not without JavaScript, not under `prefers-reduced-motion`.
 - Logo: option B (chosen 2026-11-26), the flat brass double loop traced from the kit's loop mark, with an ivory crossing on dark and a charcoal crossing on light, plus the Fraunces wordmark.
 - SEO: per-page metadata helper (`src/lib/seo.ts`), JSON-LD graph of Organization, WebSite, and ProfessionalService on every page (no street address, no geo, no rating), `sitemap.xml` from `src/lib/routes.ts`, `robots.txt`, `llms.txt`, www-to-apex redirect, trailing-slash redirect, Search Console meta from `NEXT_PUBLIC_GSC_VERIFICATION`.
 - Tracking hooks: conversion links carry `data-track` (`cta_click_book_call`, `phone_click`, `email_click`), sent to GA4 only after consent.
@@ -216,6 +240,23 @@ Calm, warm motion built in code from the brand kit (`assets/social-kit`, provena
 
 **Photoreal assets.** `ASSET_BRIEF.md` has prompts for four stills the code cannot make (paper, window light, felt, brushed brass). Stand-ins are listed in `PLACEHOLDERS.md`.
 
+## QA results, premium redesign Phase 1: tokens and type (2026-11-27)
+
+`npm run check` (typecheck, lint, contrast, tokens), `npm run build:verify` (compliance: 0 problems) and `npm run qa` (17 pages, axe at 390 and 1280) pass. Lighthouse, median of 3 warm runs on the production server (`npm start`):
+
+| Page | Mobile perf | A11y | LCP | CLS | LCP element (mobile) | Desktop perf / a11y |
+|---|---|---|---|---|---|---|
+| `/` | 96 | 100 | 0.91 s | 0 | `h1#hero-title` (also on desktop) | 100 / 100 |
+| `/services` | 99 | 100 | 0.90 s | 0 | page H1 | |
+| `/services/review-replies` | 99 | 100 | 0.91 s | 0 | page H1 | 100 / 100 |
+| `/home-care-agencies` | 99 | 100 | 0.91 s | 0 | page H1 | 100 / 100 |
+| `/about` | 99 | 100 | 0.76 s | 0 | intro paragraph (as before) | |
+| `/blog/respond-to-google-reviews-without-sharing-private-details` | 99 | 100 | 0.90 s | 0 | page H1 | |
+
+Accessibility is now 100 on every page tested (it was 96 on `/services` and `/services/review-replies`): the scroll reveal no longer fades text. Open item, unchanged from before: on `/home-care-agencies` at desktop the ribbon image, not the H1, is the LCP element; the hero rework in Phase 7 fixes it.
+
+Static export (`npm run build:static`): Worker bundle `tar czf - -C out . | wc -c` went from 2,831,842 B to 2,590,136 B (gate: 2,900,000 B). Fonts went from 10 files (365,564 B) to 2 (115,820 B). HTML and RSC payloads grew by under 4 KB gzip in total. JS is unchanged: no new script in this phase. OG images and the film are unchanged. No visible text is under 14px on any page, with or without JavaScript, or under reduced motion.
+
 ## QA results, cinematic overhaul (2026-11-26, local production build)
 
 QA (`npm run qa`, 17 pages) and the compliance scan pass. Lighthouse mobile, median of 3 warm runs:
@@ -230,7 +271,7 @@ QA (`npm run qa`, 17 pages) and the compliance scan pass. Lighthouse mobile, med
 
 Desktop Lighthouse scores 100 for performance on `/`, `/services/review-replies` and `/home-care-agencies`.
 
-The accessibility 96s are the CSS scroll fade (`.reveal`): a section that straddles the fold on load is partly transparent, and axe measures its text mid-fade. Visitors see the text fully opaque once it is in view.
+The accessibility 96s were the CSS scroll fade (`.reveal`): a section that straddled the fold on load was partly transparent, and axe measured its text mid-fade. Fixed in the premium redesign, Phase 1: the reveal now slides text without fading it (see the Phase 1 QA table).
 
 ## QA results (2026-11-23, local production build)
 

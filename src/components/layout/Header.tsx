@@ -12,7 +12,7 @@ export function Header() {
       <Container className="flex h-16 items-center justify-between gap-6 lg:h-[4.5rem]">
         <Logo />
         <nav aria-label="Main" className="hidden lg:block">
-          <ul className="flex items-center gap-7 text-[0.95rem]">
+          <ul className="flex items-center gap-7 text-small">
             {primaryNav.map((item) => (
               <li key={item.href}>
                 <Link

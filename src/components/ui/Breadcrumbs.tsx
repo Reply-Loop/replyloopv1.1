@@ -4,7 +4,7 @@ import type { Crumb } from "@/lib/schema";
 /** Visible breadcrumb trail. Pair with breadcrumbSchema() for JSON-LD. */
 export function Breadcrumbs({ crumbs }: { crumbs: Crumb[] }) {
   return (
-    <nav aria-label="Breadcrumb" className="text-sm text-slate">
+    <nav aria-label="Breadcrumb" className="text-small text-slate">
       <ol className="flex flex-wrap items-center gap-x-2 gap-y-1">
         {crumbs.map((c, i) => {
           const last = i === crumbs.length - 1;

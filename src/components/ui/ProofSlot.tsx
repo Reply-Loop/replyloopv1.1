@@ -42,13 +42,13 @@ export function ProofSlot({
     <div
       data-proof-slot={kind}
       className={cn(
-        "tone-light rounded-2xl border-2 border-dashed border-brass/60 bg-ivory p-6 text-sm text-charcoal",
+        "tone-light rounded-2xl border-2 border-dashed border-brass/60 bg-ivory p-6 text-small text-charcoal",
         className,
       )}
     >
       <p className="font-semibold">Placeholder: add a real testimonial, result, or photo here.</p>
       <p className="mt-2 text-slate">
-        Slot: {label}. File: <code className="font-mono text-[0.85em]">{path}</code>
+        Slot: {label}. File: <code className="font-mono text-[0.95em]">{path}</code>
       </p>
     </div>
   );

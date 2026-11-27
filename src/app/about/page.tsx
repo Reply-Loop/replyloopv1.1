@@ -84,7 +84,7 @@ export default function AboutPage() {
                   {f.initials}
                 </span>
                 <div>
-                  <h3 className="font-serif text-2xl font-medium">{f.name}</h3>
+                  <h3 className="font-serif text-h3-lg font-medium">{f.name}</h3>
                   <p className="text-slate">{f.title}</p>
                 </div>
               </div>
@@ -104,7 +104,7 @@ export default function AboutPage() {
         <ul className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {values.map((v) => (
             <Card as="li" key={v.title}>
-              <h3 className="font-serif text-xl font-medium">{v.title}</h3>
+              <h3 className="font-serif text-h3 font-medium">{v.title}</h3>
               <p className="mt-3 text-slate">{v.body}</p>
             </Card>
           ))}

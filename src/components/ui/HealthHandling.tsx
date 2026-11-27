@@ -23,7 +23,7 @@ export function HealthHandling({
           title={healthHandling.title}
           intro={healthHandling.intro}
         />
-        <ul className="mt-10 space-y-4">
+        <ul className="mt-12 space-y-4">
           {healthHandling.points.map((point) => (
             <li key={point} className="flex gap-4">
               <Icon name="check" className="mt-1 size-5 shrink-0 text-brass on-dark:text-ivory" />
@@ -33,10 +33,10 @@ export function HealthHandling({
         </ul>
       </div>
       <Card as="article" className="lg:mt-24">
-        <p className="text-[0.8rem] font-semibold uppercase tracking-[0.16em] text-brass">
+        <p className="text-eyebrow font-semibold uppercase tracking-[0.08em] text-brass sm:tracking-[0.14em]">
           {healthHandling.example.label}
         </p>
-        <p className="mt-2 text-sm text-slate">A public reply to a kind review.</p>
+        <p className="mt-2 text-small text-slate">A public reply to a kind review.</p>
         <blockquote className="mt-6 border-l-2 border-brass pl-5 font-serif text-xl leading-relaxed">
           <p>{healthHandling.example.text}</p>
         </blockquote>

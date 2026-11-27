@@ -30,7 +30,7 @@ export default function FaqPage() {
         intro="Plain answers. If yours is not here, ask it on the intro call."
         showButton={false}
       />
-      <Section reveal={false}>
+      <Section rhythm="tight" reveal={false}>
         <FAQ items={faqs} headingLevel="h2" />
       </Section>
       <JsonLd data={graph(breadcrumbSchema(crumbs), faqPageSchema(faqs, "/faq"))} />

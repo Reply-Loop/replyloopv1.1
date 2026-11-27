@@ -13,6 +13,12 @@ const tokens = {
   brassLine: "#B8894A",
   slate: "#4A4F55",
   mist: "#C9C4BA",
+  rule: "#E2DBCF",
+  ink2: "#262B30",
+  ivory2: "#F2EDE4",
+  paper: "#FBFAF6",
+  paperShade: "#EFE6D6",
+  ink3: "#2F353B",
 };
 
 function luminance(hex) {
@@ -27,16 +33,34 @@ function ratio(a, b) {
 }
 
 // [foreground, background, use, minimum]
+// 4.5 = text, 3 = large text and UI only, 0 = reported, never fails (decorative, or never used as text).
 const pairs = [
   ["charcoal", "ivory", "body text on ivory", 4.5],
+  ["charcoal", "paper", "body text on raised cards", 4.5],
+  ["charcoal", "ivory2", "body text on the alternate light band", 4.5],
   ["ivory", "charcoal", "body text on charcoal", 4.5],
+  ["ivory", "ink2", "text on raised surfaces on charcoal", 4.5],
+  ["ivory", "ink3", "text on hover surfaces on charcoal", 4.5],
   ["brass", "ivory", "brass text (eyebrows, numerals, links) on ivory", 4.5],
+  ["brass", "paper", "brass text on raised cards", 4.5],
+  ["brass", "ivory2", "brass text on the alternate light band", 4.5],
+  ["brass", "paperShade", "brass on paper shade: large text and UI only, avoid body text", 3],
   ["ivory", "brass", "button label on brass", 4.5],
   ["ivory", "brassPress", "button label on hover", 4.5],
   ["slate", "ivory", "secondary text on ivory", 4.5],
+  ["slate", "paper", "secondary text on raised cards", 4.5],
+  ["slate", "ivory2", "secondary text on the alternate light band", 4.5],
+  ["slate", "paperShade", "secondary text on paper shade", 4.5],
   ["mist", "charcoal", "secondary text on charcoal", 4.5],
-  ["brass", "charcoal", "button surface against charcoal (label is ivory on brass)", 0],
-  ["brassLine", "charcoal", "decorative hairlines and loop on charcoal", 0],
+  ["mist", "ink2", "secondary text on raised surfaces on charcoal", 4.5],
+  ["mist", "ink3", "secondary text on hover surfaces on charcoal", 4.5],
+  ["charcoal", "ivory", "pause-control icon on its light chip", 3],
+  ["ivory", "ink2", "pause-control icon on its dark chip", 3],
+  ["brassLine", "charcoal", "decorative hairlines and loop on charcoal (never text)", 0],
+  ["brassLine", "ink2", "decorative hairlines on raised dark surfaces (never text)", 0],
+  ["brass", "charcoal", "NEVER text: button surface against charcoal only (label is ivory on brass)", 0],
+  ["brass", "ink2", "NEVER text on raised dark surfaces", 0],
+  ["brassLine", "ivory", "NEVER: brass-line is decorative and charcoal-only", 0],
 ];
 
 let failed = false;

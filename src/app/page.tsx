@@ -68,26 +68,26 @@ export default function HomePage() {
   return (
     <>
       {/* 1. Hero. The H1 is locked (D-027, 2026-11-20). Do not A/B, soften, or replace it. */}
-      <section aria-labelledby="hero-title" className="relative overflow-hidden pt-14 pb-16 sm:pt-20 sm:pb-24">
-        <Container className="grid items-center gap-y-10 lg:grid-cols-[minmax(0,1.18fr)_minmax(0,0.82fr)] lg:gap-x-10">
+      <section aria-labelledby="hero-title" className="relative overflow-hidden pt-12 pb-16 sm:pt-20 sm:pb-24">
+        <Container className="grid items-center gap-y-12 lg:grid-cols-[minmax(0,1.18fr)_minmax(0,0.82fr)] lg:gap-x-8">
           <div>
             <Eyebrow>{site.tagline}</Eyebrow>
             <h1
               id="hero-title"
-              className="mt-6 max-w-4xl font-serif text-[2.6rem] font-medium sm:text-6xl lg:text-[4.1rem]"
+              className="mt-6 max-w-4xl font-serif text-h1 font-medium"
             >
               Your next customer is reading your unanswered Google reviews.
             </h1>
-            <p className="mt-7 max-w-2xl text-lg leading-relaxed text-slate sm:text-xl">
+            <p className="mt-7 max-w-lede text-lede text-slate">
               Built for home care agencies and local health practices in Salt Lake County and across Utah.
               We answer every Google review in your voice and keep your Google profile, Facebook, and
               Instagram active.
             </p>
-            <div className="mt-10 flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:gap-8">
+            <div className="mt-12 flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:gap-8">
               <BookButton />
               <TextLink href="#how-it-works">See how it works</TextLink>
             </div>
-            <p className="mt-8 flex items-center gap-2.5 text-[0.95rem] text-slate">
+            <p className="mt-8 flex items-center gap-2 text-small text-slate">
               <Icon name="key" className="size-4 shrink-0 text-brass" />
               {trustCue}
             </p>
@@ -99,9 +99,10 @@ export default function HomePage() {
       <LoopDivider />
 
       {/* 2. Problem */}
-      <Section labelledBy="problem-title">
+      <Section labelledBy="problem-title" rhythm="loose">
         <SectionHeading
           id="problem-title"
+          variant="statement"
           eyebrow="What we see"
           title="The thank you is already there. It just has no answer."
           intro="None of this means the service is poor. It means nobody has had the time to answer it."
@@ -110,19 +111,20 @@ export default function HomePage() {
         <ul className="mt-12 grid gap-6 md:grid-cols-3">
           {problems.map((p) => (
             <Card as="li" key={p.title}>
-              <h3 className="font-serif text-xl font-medium">{p.title}</h3>
+              <h3 className="font-serif text-h3 font-medium">{p.title}</h3>
               <p className="mt-3 text-slate">{p.body}</p>
             </Card>
           ))}
         </ul>
-        <p className="mt-10 max-w-2xl text-lg">That is the part we take on.</p>
+        <p className="mt-8 max-w-lede text-lede">That is the part we take on.</p>
         <BrandFilm className="mt-12" />
       </Section>
 
       {/* 3. The bundle */}
-      <Section tone="charcoal" labelledBy="bundle-title" id="bundle">
+      <Section tone="charcoal" labelledBy="bundle-title" id="bundle" rhythm="loose">
         <SectionHeading
           id="bundle-title"
+          variant="split"
           eyebrow="The monthly work"
           title="One bundle, built around your reviews"
           intro="Answered well, every honest review becomes part of the foundation the next customer stands on."
@@ -132,7 +134,7 @@ export default function HomePage() {
             <PillarCard key={pillar.title} pillar={pillar} />
           ))}
         </ul>
-        <p className="mt-10 max-w-3xl text-mist">
+        <p className="mt-8 max-w-3xl text-mist">
           Also available as one-time projects:{" "}
           {oneTimeProjects.map((p, i) => (
             <span key={p.href}>
@@ -152,9 +154,10 @@ export default function HomePage() {
 
       {/* 4. How it works */}
       {/* No reveal transform here: a transformed ancestor would break the pinned journey. */}
-      <Section labelledBy="how-title" id="how-it-works" reveal={false}>
+      <Section labelledBy="how-title" id="how-it-works" rhythm="loose" reveal={false}>
         <SectionHeading
           id="how-title"
+          variant="default"
           eyebrow="How it works"
           title="Four steps, and nothing goes out early"
           intro="Setup includes your voice interview, a one-time audit of your online presence, and replies to the Google reviews already waiting."
@@ -165,9 +168,10 @@ export default function HomePage() {
       <LoopDivider />
 
       {/* 5. Promises */}
-      <Section labelledBy="promises-title" id="promises">
+      <Section labelledBy="promises-title" id="promises" rhythm="loose">
         <SectionHeading
           id="promises-title"
+          variant="statement"
           eyebrow="What we will not bend"
           title="Seven promises we keep"
           intro="These hold even when bending them would win a sale."
@@ -176,7 +180,7 @@ export default function HomePage() {
       </Section>
 
       {/* 6. Health handling */}
-      <Section tone="charcoal" labelledBy="health-handling">
+      <Section tone="charcoal" labelledBy="health-handling" rhythm="loose">
         <HealthHandling />
       </Section>
 
@@ -184,11 +188,12 @@ export default function HomePage() {
       <Section labelledBy="proof-title">
         <SectionHeading
           id="proof-title"
+          variant="default"
           eyebrow="Proof"
           title="We would rather show you a real profile than invent a number."
           intro="On the intro call, we can look at your Google profile as it is today and agree on how you will check the work."
         />
-        <div className="mt-10 grid gap-6 md:grid-cols-2">
+        <div className="mt-12 grid gap-6 md:grid-cols-2">
           <ProofSlot kind="testimonial" label="Client testimonial (written permission first)" path="src/content/proof.ts" />
           <ProofSlot kind="profile-before-after" label="Before and after profile screenshots" path="public/proof/" />
           <ProofSlot kind="client-logos" label="Client logos (written permission first)" path="public/proof/logos/" />
@@ -199,10 +204,10 @@ export default function HomePage() {
 
       {/* 8. Fit */}
       <Section labelledBy="fit-title">
-        <SectionHeading id="fit-title" eyebrow="Fit" title="Is this a fit?" />
+        <SectionHeading id="fit-title" variant="split" eyebrow="Fit" title="Is this a fit?" />
         <div className="mt-12 grid gap-6 md:grid-cols-2">
           <Card>
-            <h3 className="font-serif text-2xl font-medium">This is a fit if…</h3>
+            <h3 className="font-serif text-h3-lg font-medium">This is a fit if…</h3>
             <ul className="mt-6 space-y-4">
               {fit.map((line) => (
                 <li key={line} className="flex gap-3">
@@ -213,7 +218,7 @@ export default function HomePage() {
             </ul>
           </Card>
           <Card>
-            <h3 className="font-serif text-2xl font-medium">This is not a fit if…</h3>
+            <h3 className="font-serif text-h3-lg font-medium">This is not a fit if…</h3>
             <ul className="mt-6 space-y-4">
               {notFit.map((line) => (
                 <li key={line} className="flex gap-3">
@@ -227,9 +232,9 @@ export default function HomePage() {
       </Section>
 
       {/* 9. FAQ teasers */}
-      <Section labelledBy="faq-title" className="pt-0 sm:pt-0 lg:pt-0">
-        <SectionHeading id="faq-title" eyebrow="Questions" title="Common questions" />
-        <FAQ items={faqs.slice(0, 4)} className="mt-10" />
+      <Section labelledBy="faq-title" rhythm="tight" className="pt-0 sm:pt-0 lg:pt-0">
+        <SectionHeading id="faq-title" variant="compact" eyebrow="Questions" title="Common questions" />
+        <FAQ items={faqs.slice(0, 4)} className="mt-12" />
         <div className="mt-8">
           <TextLink href="/faq">Read every question</TextLink>
         </div>

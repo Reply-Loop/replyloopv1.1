@@ -32,14 +32,14 @@ export default function BlogIndex() {
         intro="Plain answers about Google reviews, your Google Business Profile, and local search."
         showButton={false}
       />
-      <Section reveal={false}>
+      <Section rhythm="tight" reveal={false}>
         <ul className="grid gap-6 md:grid-cols-3">
           {allPostMeta.map((p) => (
             <Card as="li" key={p.slug} className="flex flex-col">
-              <p className="text-sm text-slate">
+              <p className="text-small text-slate">
                 <time dateTime={p.date}>{formatDate(p.date)}</time>
               </p>
-              <h2 className="mt-3 font-serif text-2xl font-medium leading-snug">
+              <h2 className="mt-3 font-serif text-h3-lg font-medium">
                 <Link
                   href={`/blog/${p.slug}`}
                   className="underline decoration-brass decoration-1 underline-offset-4 hover:decoration-2"

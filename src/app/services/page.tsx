@@ -48,6 +48,7 @@ export default function ServicesPage() {
 
       <Section labelledBy="bundle-title">
         <SectionHeading
+          variant="split"
           id="bundle-title"
           eyebrow="The monthly work"
           title="What the bundle includes"
@@ -63,6 +64,7 @@ export default function ServicesPage() {
 
       <Section tone="charcoal" labelledBy="one-time-title">
         <SectionHeading
+          variant="split"
           id="one-time-title"
           eyebrow="One-time projects"
           title="Also available, priced one time"
@@ -74,11 +76,11 @@ export default function ServicesPage() {
               <span className="mb-5 inline-flex size-11 items-center justify-center rounded-full border border-rule text-brass">
                 <Icon name={p.icon} className="size-5" />
               </span>
-              <h3 className="font-serif text-2xl font-medium">{p.name}</h3>
+              <h3 className="font-serif text-h3-lg font-medium">{p.name}</h3>
               <p className="mt-3 text-slate">{p.intro}</p>
               <Link
                 href={`/services/${p.slug}`}
-                className="mt-auto inline-flex items-center gap-1.5 pt-6 font-medium underline decoration-brass underline-offset-[6px] hover:decoration-2"
+                className="mt-auto inline-flex items-center gap-2 pt-6 font-semibold underline decoration-brass underline-offset-[6px] hover:decoration-2"
               >
                 More on {p.name.toLowerCase()}
                 <Icon name="arrow" className="size-4" />
@@ -90,6 +92,7 @@ export default function ServicesPage() {
 
       <Section labelledBy="who-title">
         <SectionHeading
+          variant="split"
           id="who-title"
           eyebrow="Who we serve"
           title="Home care first, and local health practices"
@@ -98,7 +101,7 @@ export default function ServicesPage() {
         <ul className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {audiences.map((a) => (
             <Card as="li" key={a.title}>
-              <h3 className="font-serif text-xl font-medium">{a.title}</h3>
+              <h3 className="font-serif text-h3 font-medium">{a.title}</h3>
               <p className="mt-3 text-slate">{a.body}</p>
               {a.href ? (
                 <div className="mt-4">

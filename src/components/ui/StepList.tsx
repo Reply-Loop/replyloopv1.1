@@ -5,7 +5,7 @@ export type Step = { title: string; body: string };
 /** Ordered process steps with brass numerals. */
 export function StepList({ steps, className }: { steps: Step[]; className?: string }) {
   return (
-    <ol className={cn("grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4", className)}>
+    <ol className={cn("grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4", className)}>
       {steps.map((step, i) => (
         <li key={step.title} className="relative border-t border-rule pt-6 on-dark:border-mist/30">
           <span
@@ -14,7 +14,7 @@ export function StepList({ steps, className }: { steps: Step[]; className?: stri
           >
             {String(i + 1).padStart(2, "0")}
           </span>
-          <h3 className="mt-4 font-serif text-xl font-medium">
+          <h3 className="mt-4 font-serif text-h3 font-medium">
             <span className="sr-only">Step {i + 1}: </span>
             {step.title}
           </h3>

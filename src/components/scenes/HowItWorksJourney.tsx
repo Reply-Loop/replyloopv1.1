@@ -109,7 +109,7 @@ export function HowItWorksJourney({ steps }: { steps: Step[] }) {
   );
 
   return (
-    <div ref={ref} className="journey relative mt-14">
+    <div ref={ref} className="journey relative mt-12">
       <div data-journey-stage className="journey-stage">
         {/* The camera's loop: only shown in the sticky stage. */}
         <svg aria-hidden focusable="false" viewBox="-160 -100 320 200" className="journey-loop" preserveAspectRatio="xMidYMid slice">
@@ -130,11 +130,11 @@ export function HowItWorksJourney({ steps }: { steps: Step[] }) {
                   <span aria-hidden className="font-serif text-4xl font-medium leading-none text-brass">
                     {String(i + 1).padStart(2, "0")}
                   </span>
-                  <h3 className="mt-4 font-serif text-xl font-medium lg:text-[1.75rem]">
+                  <h3 className="mt-4 font-serif text-h3-lg font-medium">
                     <span className="sr-only">Step {i + 1}: </span>
                     {step.title}
                   </h3>
-                  <p className="mt-3 text-slate lg:text-lg">{step.body}</p>
+                  <p className="mt-3 text-slate lg:text-lede">{step.body}</p>
                 </div>
               </li>
             );

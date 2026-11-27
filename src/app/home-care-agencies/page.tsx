@@ -73,6 +73,7 @@ export default function HomeCarePage() {
         backdrop={<RibbonBackdrop />}
         crumbs={crumbs}
         eyebrow="For home care owners and administrators"
+        eyebrowShort="For home care owners"
         title="Home care agency SEO and review replies in Utah"
         intro={
           <>
@@ -112,6 +113,7 @@ export default function HomeCarePage() {
       <Section labelledBy="visibility-title">
         <SectionHeading
           id="visibility-title"
+          variant="split"
           eyebrow="Local visibility"
           title="What we do for your agency each month"
           intro="Local SEO for home care agencies starts with your Google Business Profile, your listing on Google Search and Maps."
@@ -143,7 +145,7 @@ export default function HomeCarePage() {
           title="Home care agencies across Salt Lake County and Utah"
           intro="We are based in Salt Lake County. We work with home care agencies in these cities and across Utah:"
         />
-        <ul className="mt-10 flex max-w-4xl flex-wrap gap-3">
+        <ul className="mt-12 flex max-w-4xl flex-wrap gap-3">
           {cities.map((c) => (
             <li key={c} className="flex items-center gap-2 rounded-full border border-rule px-4 py-2">
               <Icon name="pin" className="size-4 text-brass" />
@@ -155,25 +157,25 @@ export default function HomeCarePage() {
 
       <Section tone="charcoal" labelledBy="steps-title">
         <SectionHeading id="steps-title" eyebrow="How it works" title="Four steps, and nothing goes out early" />
-        <StepList steps={steps} className="mt-14" />
+        <StepList steps={steps} className="mt-12" />
       </Section>
 
       <Section labelledBy="promises-title">
-        <SectionHeading id="promises-title" eyebrow="What we will not bend" title="Seven promises we keep" />
+        <SectionHeading id="promises-title" variant="statement" eyebrow="What we will not bend" title="Seven promises we keep" />
         <PromiseList className="mt-12" />
       </Section>
 
-      <Section labelledBy="hc-faq-title" className="pt-0 sm:pt-0 lg:pt-0">
-        <SectionHeading id="hc-faq-title" eyebrow="Questions" title="Questions home care owners ask" />
-        <FAQ items={homeCareFaqs} className="mt-10" />
+      <Section labelledBy="hc-faq-title" rhythm="tight" className="pt-0 sm:pt-0 lg:pt-0">
+        <SectionHeading id="hc-faq-title" variant="compact" eyebrow="Questions" title="Questions home care owners ask" />
+        <FAQ items={homeCareFaqs} className="mt-12" />
       </Section>
 
-      <Section labelledBy="reading-title" className="pt-0 sm:pt-0 lg:pt-0">
-        <SectionHeading id="reading-title" eyebrow="Reading" title="Guides for home care owners" />
-        <ul className="mt-10 grid gap-6 md:grid-cols-3">
+      <Section labelledBy="reading-title" rhythm="tight" className="pt-0 sm:pt-0 lg:pt-0">
+        <SectionHeading id="reading-title" variant="compact" eyebrow="Reading" title="Guides for home care owners" />
+        <ul className="mt-12 grid gap-6 md:grid-cols-3">
           {allPostMeta.map((p) => (
             <Card as="li" key={p.slug} className="flex flex-col">
-              <h3 className="font-serif text-xl font-medium leading-snug">
+              <h3 className="font-serif text-h3 font-medium">
                 <Link
                   href={`/blog/${p.slug}`}
                   className="underline decoration-brass decoration-1 underline-offset-4 hover:decoration-2"
