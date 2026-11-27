@@ -1,0 +1,231 @@
+/*
+ * How it works journey (HowItWorksJourney). Imported by src/app/globals.css (inside its layers) so each scene's CSS
+ * lives beside its own work. Brief §8.3.5, §7.9.
+ */
+@layer components {
+  /*
+   * How it works. Default (phones, short screens, large text, reduced motion,
+   * no JS, a failed GSAP load): steps stacked, each with its vignette; a
+   * 4-column row on wide screens.
+   * Journey mode is pure CSS, final before first paint: wide and tall-enough
+   * screens (em-based, so it follows the visitor's text size) with motion on.
+   * The wrapper is tall and the stage sticks below the header; GSAP only scrubs.
+   * The media query below is JOURNEY_QUERY in HowItWorksJourney.tsx: keep them in sync.
+   */
+  .journey-loop,
+  .journey-bead-layer,
+  .journey-progress {
+    display: none;
+  }
+  .journey-steps {
+    display: grid;
+    gap: 3rem 2rem;
+  }
+  @media (min-width: 640px) {
+    .journey-steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .journey-steps {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .journey-step {
+    border-top: 1px solid var(--color-rule);
+    padding-top: 1.5rem;
+  }
+  .journey-vignette {
+    margin-bottom: 1.25rem;
+  }
+
+  /* Chapter type. Stacked: the numeral token and h3-lg titles. */
+  .journey-numeral {
+    display: block;
+    font-size: var(--text-numeral);
+    line-height: var(--text-numeral--line-height);
+    letter-spacing: var(--text-numeral--letter-spacing);
+    font-variant-numeric: tabular-nums;
+    font-variation-settings: "opsz" 144;
+  }
+  .journey-title {
+    margin-top: 1rem;
+    font-size: var(--text-h3-lg);
+    line-height: var(--text-h3-lg--line-height);
+    letter-spacing: var(--text-h3-lg--letter-spacing);
+    text-wrap: balance;
+  }
+  .journey-body {
+    margin-top: 0.75rem;
+    text-wrap: pretty;
+  }
+  @media (min-width: 1024px) {
+    .journey-body {
+      font-size: var(--text-lede);
+      line-height: var(--text-lede--line-height);
+    }
+  }
+
+  @media (min-width: 1024px) and (min-height: 40em) {
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed) .journey {
+      --journey-header: var(--header-h);
+      /* Shared by the chapter grid and the loop mask's text-column layer. */
+      --journey-gap: 4rem;
+      height: calc((100vh - var(--journey-header)) * 3.6);
+    }
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed) .journey-stage {
+      position: sticky;
+      top: var(--journey-header);
+      height: calc(100vh - var(--journey-header));
+      overflow: hidden;
+    }
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed) .journey-loop {
+      display: block;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      color: color-mix(in srgb, var(--color-brass) 45%, transparent);
+      /*
+       * The loop fades out behind the text column (brief §8.3.5), so slate text
+       * sits on plain paper with no backing box. Layer 1 is the existing ellipse.
+       * Layer 2 (intersected) clears the whole text column, which starts at
+       * 5/9 of (width - gap) + gap: the ellipse alone leaves the corners of a
+       * tall text block over the loop on short or narrow stages, and slate on
+       * the darkest paper grain (7.40:1) has no room for even a 3% brass tint.
+       */
+      mask-image:
+        radial-gradient(ellipse 34% 46% at 78% 50%, transparent 70%, #000 100%),
+        linear-gradient(
+          to right,
+          #000 calc((100% - var(--journey-gap)) * 5 / 9),
+          transparent calc((100% - var(--journey-gap)) * 5 / 9 + var(--journey-gap))
+        );
+      mask-composite: intersect;
+    }
+    /* The bead layer sits above the chapters (and so above every vignette). */
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed) .journey-bead-layer {
+      display: block;
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed) .journey-steps {
+      display: block;
+      position: absolute;
+      inset: 0;
+    }
+    /*
+     * Every chapter fills the stage. Earlier chapters stack above later ones, so a
+     * leaving vignette (and its paper patch) fades out over the next one instead
+     * of the next one's patch covering it.
+     */
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed) .journey-step {
+      position: absolute;
+      inset: 0;
+      z-index: calc(10 - var(--step, 0));
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+      align-items: center;
+      gap: var(--journey-gap);
+      border: 0;
+      padding: 0;
+    }
+    /* The art sits on a feathered patch of the same paper grain, so it lifts off
+       the loop without showing as a flat rectangle on the grained band. */
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed) .journey-vignette {
+      position: relative;
+      isolation: isolate;
+      margin: 0;
+      padding: 2rem;
+    }
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed) .journey-vignette::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: var(--color-ivory) url("/brand/textures/paper-128.png") 0 0 / 128px 128px;
+      mask-image: radial-gradient(closest-side, #000 70%, transparent);
+      pointer-events: none;
+    }
+    /* No backing box: the text sits on the band's own paper (the loop is masked away). */
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed) .journey-text {
+      max-width: 30rem;
+      padding: 0;
+    }
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed) .journey-numeral {
+      font-size: 5rem;
+    }
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed) .journey-title {
+      margin-top: 1.5rem;
+      font-size: 2.5rem;
+      line-height: 1.1;
+      letter-spacing: -0.015em;
+    }
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed) .journey-body {
+      margin-top: 1.25rem;
+      font-size: 1.25rem;
+      line-height: 1.6;
+    }
+    /* Progress beside the text: "01 / 04" and a 120px track the timeline fills. */
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed) .journey-progress {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /*
+     * Before-states (§7.9): exactly where the timeline is built (this media query,
+     * motion on, GSAP not failed), and only until the scene marks itself built.
+     * Chapter 1's art waits for the arrival trigger; later chapters wait off stage.
+     * Every li stays at opacity 1; only the text's children and the art layers wait.
+     */
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed)
+      .journey:not([data-animated])
+      [data-v-layer] {
+      opacity: 0;
+    }
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed)
+      .journey:not([data-animated])
+      .journey-step:not(:first-child)
+      .journey-text
+      > * {
+      opacity: 0;
+    }
+  }
+
+  .journey-progress-label {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-slate);
+  }
+  .journey-track {
+    position: relative;
+    width: 120px;
+    height: 2px;
+    overflow: hidden;
+    border-radius: var(--radius-xs);
+    background: var(--color-rule);
+  }
+  /* Filled by the timeline through --journey-progress (scaleX only, never a colour change). */
+  .journey-track::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--color-brass);
+    transform-origin: left center;
+    transform: scaleX(var(--journey-progress, 0.25));
+  }
+  .journey-bead {
+    fill: var(--color-brass);
+    stroke: var(--color-ivory);
+  }
+}

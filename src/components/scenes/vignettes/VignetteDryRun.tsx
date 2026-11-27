@@ -81,7 +81,7 @@ export function VignetteDryRun({ idPrefix = "vdr", className }: Props) {
       </g>
 
       <g data-v-layer="3" style={anim}>
-        <path d={RIBBON} transform="translate(3 4)" fill="none" stroke="#1B1F23" strokeWidth="4.2" strokeLinecap="round" opacity="0.16" filter={url("contact")} />
+        <path d={RIBBON} transform="translate(3 4)" fill="none" stroke="#1B1F23" strokeWidth="4.2" strokeLinecap="round" opacity="0.16" filter={url("contact")} data-v-draw="true" />
         <path d={RIBBON} fill="none" stroke={url("brass")} strokeWidth="4.2" strokeLinecap="round" data-v-draw="true" />
         <path d={RIBBON} transform="translate(-0.5 -0.8)" fill="none" stroke="#C49A5A" strokeWidth="1" strokeLinecap="round" opacity="0.75" data-v-draw="true" />
       </g>

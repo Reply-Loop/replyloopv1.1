@@ -1,6 +1,14 @@
 type Props = { idPrefix?: string; className?: string };
 
-const anim = { transformBox: "fill-box", transformOrigin: "center" } as const;
+/*
+ * Landscape problem art (640px and up; ProblemArtPortrait draws the phone composition).
+ * Hooks for ProblemScene's scrub: data-p = warm-light, card, dust-settled, dust (with
+ * data-d particles), cool-light, reply, thread. The markup is the finished state
+ * (reply arrived, thread drawn, warm light, no grey wash); src/styles/problem.css hides
+ * the dust wherever no timeline runs and sets the before-state where one will.
+ * No filter is ever animated: the static drop-shadow blurs sit on paths whose own
+ * filter never changes. The thread stroke is non-scaling (2 screen px, §9.1).
+ */
 
 // Message card with a speech tail (bottom right) and the reply card (tail bottom left).
 const CARD =
@@ -25,7 +33,7 @@ export function ProblemArt({ idPrefix = "pa", className }: Props) {
   const id = (s: string) => `${idPrefix}-${s}`;
   const url = (s: string) => `url(#${id(s)})`;
   return (
-    <svg viewBox="0 0 960 420" aria-hidden="true" focusable="false" className={className}>
+    <svg viewBox="0 0 960 420" aria-hidden="true" focusable="false" data-art="landscape" className={className}>
       <defs>
         <radialGradient id={id("warm")} cx="225" cy="215" r="215" gradientUnits="userSpaceOnUse">
           <stop offset="0" stopColor="#FFE9C4" stopOpacity="0.45" />
@@ -65,57 +73,50 @@ export function ProblemArt({ idPrefix = "pa", className }: Props) {
         <filter id={id("contact")} x="-10%" y="-10%" width="120%" height="130%">
           <feGaussianBlur stdDeviation="1.8" />
         </filter>
-        <filter id={id("grain")} x="0" y="0" width="100%" height="100%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" />
-          <feColorMatrix values="0 0 0 0 0.42 0 0 0 0 0.36 0 0 0 0 0.28 0 0 0 0.5 0" />
-          <feComposite in2="SourceGraphic" operator="in" />
-        </filter>
-        <filter id={id("blur")} x="-30%" y="-30%" width="160%" height="160%">
-          <feGaussianBlur stdDeviation="6" />
-        </filter>
-        <filter id={id("feather")} x="-5%" y="-10%" width="110%" height="120%">
-          <feGaussianBlur stdDeviation="16" />
-        </filter>
+        {/* Cool light: a soft wash centred on the card, faded by opacity only. */}
+        <radialGradient id={id("cool")} cx="230" cy="210" r="260" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#3A4048" stopOpacity="0.1" />
+          <stop offset="1" stopColor="#3A4048" stopOpacity="0" />
+        </radialGradient>
         <clipPath id={id("clip")}>
           <path d={CARD} />
         </clipPath>
       </defs>
 
-      <g data-p="warm-light" style={anim}>
+      <g data-p="warm-light" opacity="0.95">
         <circle cx="225" cy="215" r="215" fill={url("warm")} />
       </g>
 
-      <g data-p="card" style={anim}>
+      <g data-p="card">
         <path d={CARD} transform="translate(16 20)" fill="#1B1F23" opacity="0.16" filter={url("cast")} />
         <path d={CARD} transform="translate(1.5 2.5)" fill="#1B1F23" opacity="0.14" filter={url("contact")} />
         <path d={CARD} transform="translate(0 2)" fill="#E6DCCB" />
         <path d={CARD} fill={url("paper")} />
         <path d={CARD} fill={url("sheen")} opacity="0.4" />
         <path d={CARD} fill={url("shade")} />
-        <path d={CARD} fill="#fff" filter={url("grain")} opacity="0.16" />
         <path d={CARD} fill="none" stroke="#E6DCCB" strokeWidth="1" />
         <path d="M108,117.5H352" stroke="#FFFFFF" strokeOpacity="0.9" strokeWidth="1.2" strokeLinecap="round" />
-        <g stroke="#1B1F23" strokeWidth="4.6" strokeLinecap="round" opacity="0.78">
-          <path d="M130,170H318" />
-          <path d="M130,204H290" />
-          <path d="M130,238H226" />
-        </g>
+        <path d="M130,170H318M130,204H290M130,238H226" stroke="#1B1F23" strokeWidth="4.6" strokeLinecap="round" opacity="0.78" />
       </g>
 
-      <g data-p="dust-settled" opacity="0" style={anim}>
+      <g data-p="dust-settled" opacity="0">
         <g clipPath={url("clip")}>
           <rect x="96" y="114" width="268" height="58" fill={url("haze")} />
           <rect x="100" y="112" width="260" height="10" fill="#8B857C" opacity="0.18" filter={url("contact")} />
         </g>
       </g>
 
-      <g data-p="dust" style={anim}>
+      <g data-p="dust">
         {DUST.map(([cx, cy, r, iv, o], i) => (
           <circle key={i} data-d="1" cx={cx} cy={cy} r={r} fill={iv ? "#EFE6D6" : "#9A9184"} stroke={iv ? "#B3A893" : "none"} strokeWidth="0.5" opacity={o} />
         ))}
       </g>
 
-      <g data-p="reply" opacity="0" style={anim}>
+      <g data-p="cool-light" opacity="0">
+        <circle cx="230" cy="210" r="260" fill={url("cool")} />
+      </g>
+
+      <g data-p="reply">
         <path d={REPLY} transform="translate(13 16)" fill="#1B1F23" opacity="0.15" filter={url("cast")} />
         <path d={REPLY} transform="translate(1.2 2)" fill="#1B1F23" opacity="0.13" filter={url("contact")} />
         <path d={REPLY} transform="translate(0 1.6)" fill="#E6DCCB" />
@@ -124,27 +125,20 @@ export function ProblemArt({ idPrefix = "pa", className }: Props) {
         <path d={REPLY} fill={url("shade")} />
         <path d={REPLY} fill="none" stroke="#8A5F1C" strokeWidth="1" strokeOpacity="0.85" />
         <path d="M662,151.5H860" stroke="#C49A5A" strokeOpacity="0.7" strokeWidth="0.8" strokeLinecap="round" />
-        <g stroke="#1B1F23" strokeWidth="4.2" strokeLinecap="round" opacity="0.72">
-          <path d="M680,196H836" />
-          <path d="M680,228H778" />
-        </g>
+        <path d="M680,196H836M680,228H778" stroke="#1B1F23" strokeWidth="4.2" strokeLinecap="round" opacity="0.72" />
       </g>
 
+      {/* Drawn by DrawSVG from the card's tail; no pathLength (DrawSVG measures the real length). */}
       <path
         data-p="thread"
-        data-v-draw="true"
-        pathLength={1}
         d={THREAD}
         fill="none"
         stroke={url("brass")}
-        strokeWidth="2.5"
+        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
+        vectorEffect="non-scaling-stroke"
       />
-
-      <g data-p="cool-light" opacity="0" style={anim}>
-        <rect x="60" y="50" width="840" height="320" rx="160" fill="#262B31" opacity="0.06" filter={url("feather")} />
-      </g>
     </svg>
   );
 }

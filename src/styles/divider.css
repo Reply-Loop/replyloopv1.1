@@ -1,0 +1,35 @@
+/*
+ * Loop divider (Thread / LoopDivider). Imported by src/app/globals.css (inside its layers) so each scene's CSS
+ * lives beside its own work. Brief §8.1, §7.9.
+ *
+ * The markup is the finished state: knot and both lines fully drawn.
+ * data-animated on [data-thread-scene]: "true" while Thread's timeline owns the strokes,
+ * "static" when it could not build one (finished state), absent before it builds.
+ */
+@layer components {
+  /* The thread spans the container, not the viewport, and fades out at both ends. */
+  .loop-divider-band {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  }
+
+  /*
+   * Before-state, from first paint, scoped to exactly where the timeline is built: full or
+   * paused motion, full tier, GSAP not failed, scene not yet built. The timeline builds at
+   * every width (§7.1), so there is no width condition. It matches the timeline at progress
+   * 0: nothing drawn. A zero-length dash with an endless gap, the same form DrawSVG writes
+   * for "0%" and "50% 50%", so the hand-over to GSAP is seamless; the strokes use butt
+   * caps, so the zero-length dash paints nothing. Everywhere else the thread shows drawn.
+   * It stays on while the timeline owns the strokes (data-animated="true"): DrawSVG writes
+   * an inline dash on every stroke it has started, which beats this rule, so a stroke with
+   * none is one the scrub has not reached, for example right after a ScrollTrigger refresh
+   * renders progress 0, before the segments' tween begins. Cleanup removes data-animated
+   * and the inline dashes together.
+   */
+  :root:is([data-motion="full"], [data-motion="paused"])[data-tier="full"]:not(.rl-gsap-failed)
+    [data-thread-scene]:not([data-animated="static"])
+    [data-thread] {
+    stroke-dasharray: 0 999999px;
+    stroke-dashoffset: 0;
+  }
+}

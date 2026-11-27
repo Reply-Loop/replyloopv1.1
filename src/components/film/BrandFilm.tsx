@@ -96,7 +96,10 @@ export function BrandFilm({ className }: { className?: string }) {
     <div
       ref={box}
       className={cn(
-        "reveal-art relative aspect-video overflow-hidden rounded-card border border-rule bg-[#efe8dc] shadow-3",
+        // The frame (brief §8.3.3): 20px radius, 1px rule border, --shadow-3. Its unveil
+        // ends with the clip opened past the shadow (.film-frame in src/styles/home.css).
+        // The surface behind the poster is the palette's paper shade (no off-palette hex).
+        "film-frame reveal-art relative aspect-video overflow-hidden rounded-card border border-rule bg-paper-shade shadow-3",
         className,
       )}
     >
