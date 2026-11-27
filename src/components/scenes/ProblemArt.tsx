@@ -33,7 +33,16 @@ export function ProblemArt({ idPrefix = "pa", className }: Props) {
   const id = (s: string) => `${idPrefix}-${s}`;
   const url = (s: string) => `url(#${id(s)})`;
   return (
-    <svg viewBox="0 0 960 420" aria-hidden="true" focusable="false" data-art="landscape" className={className}>
+    // overflow visible: the cool light (r 260 around the card, §8.3.2) is taller than the
+    // 420-unit box; clipped, its faint edges showed as straight lines mid-scrub.
+    <svg
+      viewBox="0 0 960 420"
+      overflow="visible"
+      aria-hidden="true"
+      focusable="false"
+      data-art="landscape"
+      className={className}
+    >
       <defs>
         <radialGradient id={id("warm")} cx="225" cy="215" r="215" gradientUnits="userSpaceOnUse">
           <stop offset="0" stopColor="#FFE9C4" stopOpacity="0.45" />

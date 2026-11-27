@@ -93,6 +93,8 @@
        * 5/9 of (width - gap) + gap: the ellipse alone leaves the corners of a
        * tall text block over the loop on short or narrow stages, and slate on
        * the darkest paper grain (7.40:1) has no room for even a 3% brass tint.
+       * Layer 3 (intersected) fades the stroke in from the container's left
+       * edge, where the stage ends, so the loop never ends in a square cut.
        */
       mask-image:
         radial-gradient(ellipse 34% 46% at 78% 50%, transparent 70%, #000 100%),
@@ -100,7 +102,8 @@
           to right,
           #000 calc((100% - var(--journey-gap)) * 5 / 9),
           transparent calc((100% - var(--journey-gap)) * 5 / 9 + var(--journey-gap))
-        );
+        ),
+        linear-gradient(to right, transparent 0, #000 8%);
       mask-composite: intersect;
     }
     /* The bead layer sits above the chapters (and so above every vignette). */

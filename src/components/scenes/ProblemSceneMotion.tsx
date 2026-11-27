@@ -42,7 +42,9 @@ function buildTimeline(gsap: Gsap, art: SVGSVGElement, landscape: boolean) {
     defaults: { ease: "none", lazy: false },
     scrollTrigger: landscape
       ? { trigger: art, start: "top 80%", end: "bottom 45%", scrub: 1 }
-      : { trigger: art, start: "top 85%", end: "bottom 40%", scrub: 1 },
+      : // Phones end at "bottom 62%" (the brief's 40% let the clean-up run while the card was
+        // already under the header): the card is fully on screen when the dust lifts.
+        { trigger: art, start: "top 85%", end: "bottom 62%", scrub: 1 },
   });
 
   tl.fromTo(dust, { y: 0 }, { y: (i: number) => fall + ((i * 37) % spread), duration: 0.38 }, 0)

@@ -74,7 +74,8 @@ export function ProblemArtPortrait({ idPrefix = "pp", className }: Props) {
       </g>
 
       <g data-p="cool-light" opacity="0">
-        <circle cx="126" cy="120" r="150" fill={url("cool")} />
+        {/* r 118 keeps the whole falloff inside the viewBox (cy 120), so nothing is clipped. */}
+        <circle cx="126" cy="120" r="118" fill={url("cool")} />
       </g>
 
       <g data-p="reply">
