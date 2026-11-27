@@ -52,11 +52,11 @@ export function ProblemScene({ className }: { className?: string }) {
         delete root.dataset.animated;
       };
     },
-    { enabled: scroll },
+    { enabled: scroll, tier: "full" },
   );
 
   return (
-    <div ref={ref} aria-hidden className={`problem-scene ${className ?? ""}`}>
+    <div ref={ref} aria-hidden data-gsap-scene className={`problem-scene ${className ?? ""}`}>
       <ProblemArt idPrefix="pa" className="block h-auto w-full" />
     </div>
   );

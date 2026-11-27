@@ -23,7 +23,6 @@ type SectionProps = {
   rhythm?: "loose" | "default" | "tight";
   /** Paper/felt grain on ivory and charcoal bands (default on). */
   grain?: boolean;
-  reveal?: boolean;
 };
 
 const RHYTHM = {
@@ -51,7 +50,6 @@ export function Section({
   containerSize,
   rhythm = "default",
   grain = true,
-  reveal = true,
 }: SectionProps) {
   return (
     <section
@@ -59,7 +57,7 @@ export function Section({
       aria-labelledby={labelledBy}
       className={cn("scroll-mt-[calc(var(--header-h)+1.5rem)]", RHYTHM[rhythm], TONE[tone][grain ? "grain" : "flat"], className)}
     >
-      <Container size={containerSize} className={reveal ? "reveal" : undefined}>
+      <Container size={containerSize}>
         {children}
       </Container>
     </section>

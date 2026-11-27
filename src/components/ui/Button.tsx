@@ -9,7 +9,7 @@ import { Icon } from "./Icon";
  * small arrow. Ivory on #8A5F1C measures 5.17:1 (WCAG AA for normal text).
  */
 export const buttonClass =
-  "group inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-brass px-6 py-3 font-sans text-[0.975rem] font-semibold tracking-[0.005em] text-ivory shadow-[inset_0_0_0_1px_rgb(248_245_239/0.14)] on-dark:ring-1 on-dark:ring-brass-line transition-colors duration-200 hover:bg-brass-press active:bg-brass-press";
+  "group inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-brass px-6 py-3 font-sans text-[0.975rem] font-semibold tracking-[0.005em] text-ivory shadow-[inset_0_0_0_1px_rgb(248_245_239/0.14)] on-dark:ring-1 on-dark:ring-brass-line transition-[background-color] duration-150 ease-standard hover:bg-brass-press active:bg-brass-press active:transition-none";
 
 type ButtonProps = {
   href: string;
@@ -25,7 +25,7 @@ export function Button({ href, children, className, external, track }: ButtonPro
       <span>{children}</span>
       <Icon
         name="arrow"
-        className="size-4 transition-transform duration-200 group-hover:translate-x-0.5"
+        className="size-4 transition-transform duration-150 ease-soft group-hover:translate-x-[3px] group-focus-visible:translate-x-[3px]"
       />
       {external ? <span className="sr-only">(opens in a new tab)</span> : null}
     </>
@@ -115,7 +115,7 @@ export function TextLink({
       )}
     >
       {children}
-      <Icon name="arrow" className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+      <Icon name="arrow" className="size-4 transition-transform duration-150 ease-soft group-hover:translate-x-[3px] group-focus-visible:translate-x-[3px]" />
     </Link>
   );
 }

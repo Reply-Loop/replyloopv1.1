@@ -9,7 +9,7 @@ import { LOOP_PATH, LOOP_VIEWBOX } from "@/lib/loop/geometry.generated";
  */
 export function ServiceEmblem({ icon, pair = false }: { icon: IconName; pair?: boolean }) {
   return (
-    <InView className="pointer-events-none absolute top-1/2 right-[max(2rem,calc((100%-72rem)/2+2rem))] hidden w-[24rem] -translate-y-1/2 lg:block xl:w-[28rem]">
+    <InView className="reveal-art pointer-events-none absolute top-1/2 right-[max(2rem,calc((100%-72rem)/2+2rem))] hidden w-[24rem] -translate-y-1/2 lg:block xl:w-[28rem]">
       <svg viewBox={LOOP_VIEWBOX} className="block h-auto w-full overflow-visible" focusable="false">
         <path d={LOOP_PATH} fill="none" className="stroke-rule" strokeWidth={1.2} />
         <path d={LOOP_PATH} fill="none" pathLength={100} className="loop-comet stroke-brass" strokeWidth={1.6} strokeLinecap="round" />

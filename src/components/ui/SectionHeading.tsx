@@ -58,20 +58,26 @@ export function SectionHeading({
   // Statement display carries its own weight (500, then 400 at >= 3.5rem): no font-medium.
   const weight = size === "text-display" ? undefined : "font-medium";
   const centred = variant === "statement";
+  // Scroll reveal per block: eyebrow, heading, intro rise in order (--i 0, 1, 2).
+  // Never on a page's H1 (subpage heroes): the H1 does not animate.
+  const reveal = Tag !== "h1";
+  const step = (i: number) => (reveal ? ({ "--i": i } as CSSProperties) : undefined);
 
   const lead = (
     <>
       {eyebrow ? (
-        <Eyebrow short={eyebrowShort} centered={centred} className="mb-6 lg:mb-5">
+        <Eyebrow short={eyebrowShort} centered={centred} reveal={reveal} className="mb-6 lg:mb-5">
           {eyebrow}
         </Eyebrow>
       ) : (
-        <Rule className={cn("mb-6", centred && "mx-auto")} />
+        <Rule className={cn("mb-6", centred && "mx-auto", reveal && "reveal-rule")} />
       )}
       <Tag
         id={id}
+        style={step(1)}
         className={cn(
           "font-serif text-charcoal on-dark:text-ivory",
+          reveal && "reveal",
           size,
           weight,
           centred && "mx-auto max-w-[18ch]",
@@ -83,7 +89,7 @@ export function SectionHeading({
   );
 
   const introBody = intro ? (typeof intro === "string" ? <p>{intro}</p> : intro) : null;
-  const introClass = "text-lede text-slate on-dark:text-mist [&>p+p]:mt-4";
+  const introClass = cn("text-lede text-slate on-dark:text-mist [&>p+p]:mt-4", reveal && "reveal");
 
   if (variant === "split") {
     const style = {
@@ -98,6 +104,7 @@ export function SectionHeading({
               introClass,
               "mt-5 max-w-lede lg:col-span-6 lg:col-start-7 lg:mt-0 lg:pt-[calc(var(--split-lead)+0.9015*var(--text-h2)-1.139*var(--text-lede))]",
             )}
+            style={step(2)}
           >
             {introBody}
           </div>
@@ -110,7 +117,7 @@ export function SectionHeading({
     <header className={cn(centred ? "mx-auto text-center" : "max-w-3xl", className)}>
       {lead}
       {introBody ? (
-        <div className={cn(introClass, "mt-5", centred ? "mx-auto max-w-[38rem]" : "max-w-lede")}>
+        <div className={cn(introClass, "mt-5", centred ? "mx-auto max-w-[38rem]" : "max-w-lede")} style={step(2)}>
           {introBody}
         </div>
       ) : null}

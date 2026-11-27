@@ -228,6 +228,10 @@
     color: var(--color-ivory);
   }
 
+  /*
+   * Reduced motion (brief §7.9, web.dev recipe): a still, finished state, not a
+   * shorter animation. Applies under the OS setting and html[data-motion=reduce].
+   */
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
@@ -237,30 +241,74 @@
     *::after {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
+      animation-delay: -1ms !important;
       transition-duration: 0.01ms !important;
+      transition-delay: -1ms !important;
+      background-attachment: initial !important;
+      scroll-behavior: auto !important;
     }
+  }
+  :root[data-motion="reduce"] {
+    scroll-behavior: auto;
+  }
+  :root[data-motion="reduce"] *,
+  :root[data-motion="reduce"] *::before,
+  :root[data-motion="reduce"] *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: -1ms !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: -1ms !important;
+    background-attachment: initial !important;
+    scroll-behavior: auto !important;
   }
 }
 
 @layer components {
   /*
-   * Quiet rise on scroll. Text slides, it never fades: opacity stays 1, so
-   * contrast holds at every scroll position (a text fade once measured below
-   * AA mid-animation). Runs only with motion on (full or paused, never the
-   * no-JS "static" mode) and only where scroll timelines and animation-range
-   * are both supported. Interim form: Phase 3 moves the class from whole
-   * containers to individual blocks.
-   * The timeline longhands sit in a separate rule from animation-name so the
+   * Reveal system (brief §7.5), CSS scroll-driven, per block (never a whole section):
+   * - .reveal: TEXT. Slides 10px, never fades: opacity stays 1, so contrast holds at
+   *   every scroll position. Stagger with --i (0..4): each step starts 4% later.
+   * - .reveal-art: DECORATION ONLY (aria-hidden art, film frame, emblems): may fade
+   *   and unclip. Never on text.
+   * - .reveal-rule: a hairline that draws from the left on the same timeline.
+   * Runs only with motion on (full or paused; never the no-JS "static" mode or
+   * reduce) and only where scroll timelines AND animation-range are supported
+   * (partial implementations pass view() alone). No hidden base state exists
+   * outside this block, so content is visible whenever it does not apply.
+   * Fill is "backwards": the start state holds before the range, and after it
+   * the animation lets go, so hover transforms (card lift) work normally.
+   * The timeline longhands sit in rules apart from animation-name so the
    * minifier cannot fold them into a shorthand that browsers would ignore.
+   * Never on a sticky element or an ancestor of one (the journey).
    */
   @supports ((animation-timeline: view()) and (animation-range: 0% 100%)) {
     @media (prefers-reduced-motion: no-preference) {
       :root:is([data-motion="full"], [data-motion="paused"]) .reveal {
         animation-name: rl-rise;
-        animation-fill-mode: both;
+        animation-fill-mode: backwards;
         animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
       }
       :root:is([data-motion="full"], [data-motion="paused"]) .reveal {
+        animation-timeline: view();
+        animation-range: entry calc(0% + var(--i, 0) * 4%) entry calc(45% + var(--i, 0) * 4%);
+      }
+      :root:is([data-motion="full"], [data-motion="paused"]) .reveal-art {
+        animation-name: rl-unveil;
+        animation-fill-mode: backwards;
+        animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      :root:is([data-motion="full"], [data-motion="paused"]) .reveal-art {
+        animation-timeline: view();
+        animation-range: entry 15% cover 40%;
+      }
+      :root:is([data-motion="full"], [data-motion="paused"]) .reveal-rule {
+        transform-origin: left center;
+        animation-name: rl-rule;
+        animation-fill-mode: backwards;
+        animation-timing-function: cubic-bezier(0.45, 0, 0.2, 1);
+      }
+      :root:is([data-motion="full"], [data-motion="paused"]) .reveal-rule {
         animation-timeline: view();
         animation-range: entry 0% entry 45%;
       }
@@ -274,6 +322,42 @@
     to {
       transform: none;
     }
+  }
+  @keyframes rl-unveil {
+    from {
+      opacity: 0;
+      clip-path: inset(0 12% 0 12% round 20px);
+    }
+    to {
+      opacity: 1;
+      clip-path: inset(0 0 0 0 round 20px);
+    }
+  }
+  @keyframes rl-rule {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  /*
+   * Scroll-drawn strokes: CSS before-states (brief §7.9), correct before first
+   * paint, scoped to exactly the conditions their timelines are built under
+   * (motion full or paused, full device tier, GSAP not failed, scene not yet
+   * built). Everywhere else the finished state shows: no draw-then-erase.
+   */
+  :root:is([data-motion="full"], [data-motion="paused"])[data-tier="full"]:not(.rl-gsap-failed)
+    [data-thread-scene]:not([data-animated])
+    path[data-thread] {
+    stroke-dashoffset: 1;
+  }
+  :root:is([data-motion="full"], [data-motion="paused"])[data-tier="full"]:not(.rl-gsap-failed)
+    .problem-scene:not([data-animated])
+    [data-p="thread"] {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
   }
 
   /* Service emblem: a short brass stroke parked on the loop, travelling it with motion fully on. */
@@ -397,6 +481,12 @@
   .problem-scene:not([data-animated]) [data-p="reply"] {
     opacity: 1;
   }
+  /* ...except where the scrub will run: there the reply waits off stage from first paint. */
+  :root:is([data-motion="full"], [data-motion="paused"])[data-tier="full"]:not(.rl-gsap-failed)
+    .problem-scene:not([data-animated])
+    [data-p="reply"] {
+    opacity: 0;
+  }
 
   /*
    * How it works. Default (phones, reduced motion, no JS, large text): steps
@@ -432,17 +522,17 @@
   }
 
   @media (min-width: 1024px) and (min-height: 40em) {
-    :root:is([data-motion="full"], [data-motion="paused"]) .journey {
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed) .journey {
       --journey-header: var(--header-h);
       height: calc((100vh - var(--journey-header)) * 4.6);
     }
-    :root:is([data-motion="full"], [data-motion="paused"]) .journey-stage {
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed) .journey-stage {
       position: sticky;
       top: var(--journey-header);
       height: calc(100vh - var(--journey-header));
       overflow: hidden;
     }
-    :root:is([data-motion="full"], [data-motion="paused"]) .journey-loop {
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed) .journey-loop {
       display: block;
       position: absolute;
       inset: 0;
@@ -453,16 +543,16 @@
          sits on plain paper (7.4:1) with no backing box. */
       mask-image: radial-gradient(ellipse 34% 46% at 78% 50%, transparent 70%, #000 100%);
     }
-    :root:is([data-motion="full"], [data-motion="paused"]) .journey-bead {
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed) .journey-bead {
       fill: var(--color-brass);
       filter: drop-shadow(0 0 3px rgb(196 154 90 / 0.8));
     }
-    :root:is([data-motion="full"], [data-motion="paused"]) .journey-steps {
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed) .journey-steps {
       display: block;
       position: absolute;
       inset: 0;
     }
-    :root:is([data-motion="full"], [data-motion="paused"]) .journey-step {
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed) .journey-step {
       position: absolute;
       inset: 0;
       display: grid;
@@ -473,18 +563,18 @@
       padding: 0 0 4rem;
     }
     /* Before GSAP takes over, only the first chapter shows (opacity only: all stay in the a11y tree). */
-    :root:is([data-motion="full"], [data-motion="paused"]) .journey-step:not(:first-child) {
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed) .journey-step:not(:first-child) {
       opacity: 0;
     }
     /* The art sits on a feathered patch of the same paper grain, so it lifts off
        the loop without showing as a flat rectangle on the grained band. */
-    :root:is([data-motion="full"], [data-motion="paused"]) .journey-vignette {
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed) .journey-vignette {
       position: relative;
       isolation: isolate;
       margin: 0;
       padding: 2rem;
     }
-    :root:is([data-motion="full"], [data-motion="paused"]) .journey-vignette::before {
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed) .journey-vignette::before {
       content: "";
       position: absolute;
       inset: 0;
@@ -493,11 +583,11 @@
       mask-image: radial-gradient(closest-side, #000 70%, transparent);
       pointer-events: none;
     }
-    :root:is([data-motion="full"], [data-motion="paused"]) .journey-text {
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed) .journey-text {
       max-width: 28rem;
       padding: 2rem;
     }
-    :root:is([data-motion="full"], [data-motion="paused"]) .journey-dots {
+    :root:is([data-motion="full"], [data-motion="paused"]):not(.rl-gsap-failed) .journey-dots {
       display: flex;
       position: absolute;
       left: 0;
@@ -529,4 +619,116 @@
       stroke-dashoffset: -320;
     }
   }
+
+  /*
+   * Micro-interactions (brief §7.7). All instant under reduced motion (the global
+   * block above zeroes durations).
+   */
+
+  /* Nav links: a 1px brass underline drawn in from the left, leaving to the right. */
+  .nav-link {
+    background-image: linear-gradient(var(--color-brass), var(--color-brass));
+    background-repeat: no-repeat;
+    background-position: right bottom;
+    background-size: 0% 1px;
+    transition: background-size 260ms var(--ease-soft);
+  }
+  .nav-link:hover,
+  .nav-link:focus-visible {
+    background-position: left bottom;
+    background-size: 100% 1px;
+  }
+  .nav-link[aria-current="page"] {
+    background-size: 100% 1px;
+  }
+
+  /*
+   * FAQ: native <details> that opens smoothly where ::details-content and
+   * interpolate-size exist (Chromium); elsewhere it opens instantly. The answer
+   * fades in once it is open (named exception 1: user-initiated, settles at 1).
+   */
+  :root {
+    interpolate-size: allow-keywords;
+  }
+  .faq-item::details-content {
+    height: 0;
+    overflow: clip;
+    transition:
+      height 320ms var(--ease-soft),
+      content-visibility 320ms allow-discrete;
+  }
+  .faq-item[open]::details-content {
+    height: auto;
+  }
+  .faq-answer {
+    opacity: 0;
+    transition: opacity 250ms var(--ease-soft);
+  }
+  .faq-item[open] .faq-answer {
+    opacity: 1;
+  }
+  /* The plus becomes a minus: its vertical bar turns flat. */
+  .faq-bar-v {
+    transition: transform 240ms var(--ease-soft);
+  }
+  .faq-item[open] .faq-bar-v {
+    transform: rotate(90deg);
+  }
+}
+
+/*
+ * Route transitions (brief §7.8). React <ViewTransition> on each page body below
+ * the hero (never the home hero: the H1 must paint as LCP untouched). The header and
+ * the mobile bar hold still; the browser's default whole-page cross-fade is off, so
+ * only the named .rl-page groups move. No @view-transition { navigation: auto }.
+ * Named exception 3: the page fade is user-initiated and settles at opacity 1.
+ */
+::view-transition-group(site-header),
+::view-transition-group(mobile-bar) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(site-header),
+::view-transition-old(mobile-bar) {
+  display: none;
+}
+::view-transition-new(site-header),
+::view-transition-new(mobile-bar) {
+  animation: none;
+}
+::view-transition {
+  pointer-events: none;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+::view-transition-old(.rl-page) {
+  animation: 160ms var(--ease-in) both rl-fade-out;
+}
+::view-transition-new(.rl-page) {
+  animation: 280ms var(--ease-out) 60ms both rl-fade-in-up;
+}
+@keyframes rl-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes rl-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+:root:is([data-motion="reduce"], [data-motion="paused"])::view-transition-group(*),
+:root:is([data-motion="reduce"], [data-motion="paused"])::view-transition-old(*),
+:root:is([data-motion="reduce"], [data-motion="paused"])::view-transition-new(*) {
+  animation: none !important;
 }

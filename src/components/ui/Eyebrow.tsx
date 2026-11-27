@@ -11,20 +11,29 @@ export function Eyebrow({
   children,
   short,
   centered = false,
+  reveal = false,
   className,
 }: {
   children: ReactNode;
   short?: ReactNode;
   /** Centred over a centred heading: a matching rule on the right keeps the label on the axis. */
   centered?: boolean;
+  /** Scroll reveal: the label rises and its hairline draws in (section headings only, never a hero). */
+  reveal?: boolean;
   className?: string;
 }) {
-  const rule = <span aria-hidden className="mt-[0.62em] h-px w-10 shrink-0 bg-brass on-dark:bg-brass-line" />;
+  const rule = (
+    <span
+      aria-hidden
+      className={cn("mt-[0.62em] h-px w-10 shrink-0 bg-brass on-dark:bg-brass-line", reveal && "reveal-rule")}
+    />
+  );
   return (
     <p
       className={cn(
         "flex items-start gap-3 font-sans text-eyebrow font-semibold uppercase tracking-[0.08em] text-brass on-dark:text-ivory sm:tracking-[0.14em]",
         centered && "justify-center text-center",
+        reveal && "reveal",
         className,
       )}
     >

@@ -226,6 +226,11 @@ Calm, warm motion built in code from the brand kit (`assets/social-kit`, provena
 - The header "Pause motion" toggle (`aria-pressed`) stops all ambient motion and is remembered. Scroll-linked scenes still follow the visitor's scroll while paused.
 - Device tier: phones, Save-Data, low memory or few cores, and no WebGL get the light version (SVG stills, no 3D).
 - Everything pauses off screen and when a route is hidden by `<Activity>`.
+- The head script also sets `html[data-tier]` (`full` or `lite`: Save-Data, under 4 GB memory or under 4 cores give `lite`) and owns a GSAP failure timer: on a page with a scene (`[data-gsap-scene]`), if GSAP has not loaded 3 s after `load`, it adds `html.rl-gsap-failed` and every scene shows its finished state.
+- One motion gate (`useGsapScene`): scenes build inside `gsap.matchMedia()`, rebuild when `data-motion` changes, build nothing after `rl-gsap-failed`, and can be limited to the full tier. Easing is the brand film's (`rl.out`, `rl.soft`, `rl.in`, `rl.inOut`, `rl.draw` in GSAP; `--ease-*` in CSS). DrawSVG and MotionPath load lazily, only where a scene asks for them.
+- Scroll reveals are CSS scroll-driven animations, per block, never per section: `.reveal` slides text 10px and never fades it; `.reveal-art` may fade and unclip decoration; `.reveal-rule` draws a hairline. Stagger with `--i`. They run only with motion on and where `animation-timeline` and `animation-range` are both supported; nothing is hidden outside that.
+- Scroll-drawn strokes (dividers, the problem thread) and the problem scene's reply start hidden in CSS from first paint, scoped to exactly when their timelines run, so nothing draws and then erases.
+- Micro-interactions: drawn nav underline, button colour and arrow feedback, smooth FAQ open (Chromium; others open instantly), card lift. Route transitions: each page's content below the hero is one React `<ViewTransition>` (`PageBody`); the header and the mobile bar hold still, the browser's whole-page cross-fade is off, and the home hero never animates. Off under reduced motion and Pause motion.
 
 **Scenes**
 
@@ -243,6 +248,14 @@ Calm, warm motion built in code from the brand kit (`assets/social-kit`, provena
 **Remotion licence.** Remotion is free for individuals and companies of up to 3 people; companies of 4 or more need a Company License (see remotion.dev/license). ReplyLoop has 2 people, so the free licence applies today. Only pre-rendered video ships, so the site carries no Remotion runtime. Re-check when the team grows.
 
 **Photoreal assets.** `ASSET_BRIEF.md` has prompts for four stills the code cannot make (paper, window light, felt, brushed brass). Stand-ins are listed in `PLACEHOLDERS.md`.
+
+## QA results, premium redesign Phase 3: motion foundation (2026-11-27)
+
+`npm run check`, `npm run build:verify` (compliance: 0 problems) and `npm run qa` (17 pages, axe at 390 and 1280) pass. Lighthouse, median of 3 warm runs on `npm start`: mobile performance 95 on `/` and 99 or 100 on `/services`, `/services/review-replies`, `/home-care-agencies`, `/about` and the blog post; accessibility 100 on all six; LCP 0.90 to 0.91 s; CLS 0; desktop performance and accessibility 100 on `/`, `/services/review-replies` and `/home-care-agencies`. The LCP element on `/` is `h1#hero-title`.
+
+Scripted checks, at 390 and 1440, on the production server and on the static export: strokes are hidden at first paint and drawn after a scroll-through (no draw-then-erase); with the GSAP chunks blocked and the scroll reveals switched off, the page shows its finished state, every heading and paragraph is visible, and the journey falls back to the stacked layout; a no-scroll full-page capture has no faded text; on a client navigation from `/services` to `/` the H1 stays at opacity 1 on every frame, the page transition runs with motion on and does not run under reduced motion or Pause motion; the lite tier shows the finished art; the FAQ opens smoothly and its answer settles at opacity 1.
+
+Static export: Worker bundle 2,722,650 B (gate 2,900,000 B). JS fetched on `/` is 220,670 B gzip, 11.1 KB over the pre-redesign baseline (budget: 15 KB).
 
 ## QA results, premium redesign Phase 2: surfaces and chrome (2026-11-27)
 

@@ -109,7 +109,7 @@ export function HowItWorksJourney({ steps }: { steps: Step[] }) {
   );
 
   return (
-    <div ref={ref} className="journey relative mt-12">
+    <div ref={ref} data-gsap-scene className="journey relative mt-12">
       <div data-journey-stage className="journey-stage">
         {/* The camera's loop: only shown in the sticky stage. */}
         <svg aria-hidden focusable="false" viewBox="-160 -100 320 200" className="journey-loop" preserveAspectRatio="xMidYMid slice">

@@ -20,8 +20,11 @@ export function Thread({ dark = false }: { dark?: boolean }) {
   useGsapScene(
     ref,
     ({ gsap }) => {
-      const path = ref.current?.querySelector("path[data-thread]");
-      if (!path) return;
+      const root = ref.current;
+      const path = root?.querySelector("path[data-thread]");
+      if (!root || !path) return;
+      // From here GSAP owns the stroke; the CSS before-state (globals.css) steps aside.
+      root.dataset.animated = "true";
       // Tween the attribute: CSS stroke-dashoffset is rounded to whole px by GSAP,
       // which on a pathLength of 1 would pop instead of draw.
       gsap.fromTo(
@@ -30,15 +33,18 @@ export function Thread({ dark = false }: { dark?: boolean }) {
         {
           attr: { "stroke-dashoffset": 0 },
           ease: "none",
-          scrollTrigger: { trigger: ref.current, start: "top 92%", end: "top 38%", scrub: 0.8 },
+          scrollTrigger: { trigger: root, start: "top 92%", end: "top 38%", scrub: 0.8 },
         },
       );
+      return () => {
+        delete root.dataset.animated;
+      };
     },
-    { enabled: scroll },
+    { enabled: scroll, tier: "full" },
   );
 
   return (
-    <div ref={ref} aria-hidden className={dark ? "text-brass-line" : "text-brass"}>
+    <div ref={ref} aria-hidden data-gsap-scene data-thread-scene className={dark ? "text-brass-line" : "text-brass"}>
       <svg viewBox="0 0 1200 96" preserveAspectRatio="none" className="block h-16 w-full sm:h-20" focusable="false">
         <path
           data-thread

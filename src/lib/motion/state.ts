@@ -16,8 +16,18 @@ export const MOTION_STORAGE_KEY = "rl-motion-v1";
 const CHANGE_EVENT = "rl-motion-change";
 const REDUCE_QUERY = "(prefers-reduced-motion: reduce)";
 
-/** Inline <head> script. Must stay tiny and must not throw. */
-export const MOTION_HEAD_SCRIPT = `(function(){try{var d=document.documentElement,r=window.matchMedia("${REDUCE_QUERY}").matches,p=false;try{p=localStorage.getItem("${MOTION_STORAGE_KEY}")==="paused"}catch(e){}d.setAttribute("data-motion",r?"reduce":p?"paused":"full")}catch(e){}})()`;
+/**
+ * Inline <head> script. Must stay tiny and must not throw. Before first paint it sets:
+ * - html[data-motion]: reduce | paused | full (the server renders "static", kept without JS);
+ * - html[data-tier]: full | lite, from the same pre-paint tests as getMotionTier()
+ *   (Save-Data, device memory < 4 GB, fewer than 4 cores), so CSS before-states can be
+ *   scoped to the tier their timelines run on.
+ * It also owns the GSAP failure timer (a bundle that fails could not set it): when a page
+ * has a GSAP scene ([data-gsap-scene]) or loadGsap() asks for it (window.__rlWatchGsap),
+ * and html.rl-gsap-ready has not appeared 3 s later, it adds html.rl-gsap-failed, which
+ * voids every CSS before-state so the finished state shows.
+ */
+export const MOTION_HEAD_SCRIPT = `(function(){try{var d=document.documentElement,w=window,n=navigator,r=w.matchMedia("${REDUCE_QUERY}").matches,p=false;try{p=localStorage.getItem("${MOTION_STORAGE_KEY}")==="paused"}catch(e){}d.setAttribute("data-motion",r?"reduce":p?"paused":"full");var c=n.connection,l=(c&&c.saveData)||(typeof n.deviceMemory=="number"&&n.deviceMemory<4)||(typeof n.hardwareConcurrency=="number"&&n.hardwareConcurrency<4);d.setAttribute("data-tier",l?"lite":"full");var t=0;w.__rlWatchGsap=function(){if(t||d.classList.contains("rl-gsap-ready"))return;t=setTimeout(function(){t=0;if(!d.classList.contains("rl-gsap-ready"))d.classList.add("rl-gsap-failed")},3000)};w.addEventListener("load",function(){if(document.querySelector("[data-gsap-scene]"))w.__rlWatchGsap()})}catch(e){}})()`;
 
 let memoryPaused = false;
 

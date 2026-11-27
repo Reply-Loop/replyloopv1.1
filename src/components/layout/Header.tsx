@@ -1,11 +1,10 @@
-import Link from "next/link";
-import { primaryNav } from "@/lib/site";
 import { BookButton } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { Logo } from "@/components/ui/Logo";
 import { MotionToggle } from "@/components/motion/MotionToggle";
 import { HeaderScroll } from "./HeaderScroll";
 import { MobileNav } from "./MobileNav";
+import { NavLinks } from "./NavLinks";
 
 /** The sticky header; HeaderScroll sets data-scrolled on it. */
 export const SITE_HEADER_ID = "site-header";
@@ -28,24 +27,14 @@ export function Header() {
   return (
     <header
       id={SITE_HEADER_ID}
+      style={{ viewTransitionName: "site-header" }}
       className="sticky top-0 z-40 bg-ivory after:pointer-events-none after:absolute after:inset-0 after:-z-1 after:border-b after:border-rule after:opacity-0 after:shadow-header after:transition-opacity after:duration-[240ms] after:ease-soft data-scrolled:after:opacity-100 motion-reduce:after:transition-none [:root[data-motion=reduce]_&]:after:transition-none"
     >
       <HeaderScroll headerId={SITE_HEADER_ID} sentinelId={SCROLL_SENTINEL_ID} />
       <Container className="grid h-[var(--header-h)] grid-cols-[1fr_auto_1fr] items-center lg:gap-6">
         <Logo className="col-start-1 justify-self-start" />
         <nav aria-label="Main" className="col-start-2 hidden lg:block">
-          <ul className="flex items-center gap-5 text-small xl:gap-7">
-            {primaryNav.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className="rounded-sm py-2 text-charcoal underline-offset-[6px] decoration-brass hover:underline"
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <NavLinks />
         </nav>
         <div className="col-start-3 flex items-center gap-3 justify-self-end">
           <MotionToggle />

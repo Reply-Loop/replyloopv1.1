@@ -125,6 +125,7 @@ export function MobileBar() {
   return (
     <div
       data-visible={visible ? "" : undefined}
+      style={{ viewTransitionName: "mobile-bar" }}
       inert={!visible}
       aria-hidden={visible ? undefined : true}
       className="tone-dark fixed inset-x-0 bottom-0 z-40 translate-y-full border-t border-brass-line/30 bg-charcoal h-[calc(4rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] transition-transform duration-180 ease-in data-visible:translate-y-0 data-visible:duration-280 data-visible:ease-soft motion-reduce:transition-none md:hidden [:root[data-motion=reduce]_&]:transition-none"

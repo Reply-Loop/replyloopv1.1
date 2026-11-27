@@ -42,7 +42,7 @@ export function Footer() {
               <span>{site.booking.label}</span>
               <Icon
                 name="arrow"
-                className="size-4 transition-transform duration-200 group-hover:translate-x-0.5 motion-reduce:transition-none [:root[data-motion=reduce]_&]:transition-none"
+                className="size-4 transition-transform duration-150 ease-soft group-hover:translate-x-[3px] motion-reduce:transition-none [:root[data-motion=reduce]_&]:transition-none"
               />
               <span className="sr-only">(opens in a new tab)</span>
             </a>

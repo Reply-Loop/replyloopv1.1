@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 /**
@@ -28,6 +28,7 @@ export function Card({
   tone = "light",
   interactive = false,
   size = "lg",
+  reveal,
 }: {
   children: ReactNode;
   className?: string;
@@ -35,6 +36,8 @@ export function Card({
   tone?: "light" | "dark";
   interactive?: boolean;
   size?: "md" | "lg";
+  /** Position in its grid: the card rises with the scroll reveal, staggered (capped at 4). */
+  reveal?: number;
 }) {
   return (
     <Tag
@@ -45,8 +48,10 @@ export function Card({
           ? "tone-light border border-[color-mix(in_srgb,var(--color-rule)_80%,transparent)] bg-paper text-charcoal shadow-2"
           : "tone-dark border border-[rgb(184_137_74/0.22)] bg-ink-2 text-ivory",
         interactive && "card-lift",
+        reveal !== undefined && "reveal",
         className,
       )}
+      style={reveal !== undefined ? ({ "--i": Math.min(reveal, 4) } as CSSProperties) : undefined}
     >
       {children}
     </Tag>

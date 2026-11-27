@@ -133,6 +133,7 @@ export function ProblemArt({ idPrefix = "pa", className }: Props) {
       <path
         data-p="thread"
         data-v-draw="true"
+        pathLength={1}
         d={THREAD}
         fill="none"
         stroke={url("brass")}

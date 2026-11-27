@@ -14,6 +14,7 @@ import { cn } from "@/lib/cn";
 import { blogPostingSchema, breadcrumbSchema, graph, type Crumb } from "@/lib/schema";
 import { pageMetadata } from "@/lib/seo";
 import { formatDate } from "@/lib/date";
+import { PageBody } from "@/components/motion/PageBody";
 
 /**
  * Whole-card link (Card interactive): the link's ::after covers the card, and
@@ -54,17 +55,19 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
     <>
       <article aria-labelledby="page-title">
         <header className="border-b border-rule pt-8 pb-12 sm:pt-12 sm:pb-16">
+          <PageBody>
           <Container size="prose">
-            <Breadcrumbs crumbs={crumbs} />
-            <Eyebrow className="mt-12">Guide</Eyebrow>
-            <h1 id="page-title" className="mt-6 font-serif text-h2 font-medium lg:mt-5">
-              {post.title}
-            </h1>
-            <p className="mt-5 text-lede text-slate">{post.description}</p>
-            <p className="mt-6 text-small text-slate">
-              ReplyLoop · <time dateTime={post.date}>{formatDate(post.date)}</time>
-            </p>
-          </Container>
+              <Breadcrumbs crumbs={crumbs} />
+              <Eyebrow className="mt-12">Guide</Eyebrow>
+              <h1 id="page-title" className="mt-6 font-serif text-h2 font-medium lg:mt-5">
+                {post.title}
+              </h1>
+              <p className="mt-5 text-lede text-slate">{post.description}</p>
+              <p className="mt-6 text-small text-slate">
+                ReplyLoop · <time dateTime={post.date}>{formatDate(post.date)}</time>
+              </p>
+            </Container>
+        </PageBody>
         </header>
         <Container size="prose" className="py-12 sm:py-16">
           <Prose className="[&_blockquote]:mt-4 [&_blockquote]:rounded-md [&_blockquote]:border-l-2 [&_blockquote]:border-brass [&_blockquote]:bg-[#F1ECE3] [&_blockquote]:px-5 [&_blockquote]:py-4 [&_blockquote]:font-serif [&_blockquote]:text-lg [&_em]:text-slate">
@@ -73,24 +76,26 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
         </Container>
       </article>
 
-      <Section labelledBy="related-title" rhythm="tight" className="border-t border-rule">
-        <SectionHeading id="related-title" variant="compact" eyebrow="Keep reading" title="Related guides" />
-        <ul className="mt-12 grid gap-6 md:grid-cols-2">
-          {relatedPosts(post.slug).map((p) => (
-            <Card as="li" key={p.slug} interactive>
-              <h3 className="font-serif text-h3 font-medium">
-                <Link
-                  href={`/blog/${p.slug}`}
-                  className={cn(cardLinkOverlay, "underline decoration-brass decoration-1 underline-offset-4 hover:decoration-2")}
-                >
-                  {p.title}
-                </Link>
-              </h3>
-              <p className="mt-3 text-slate">{p.description}</p>
-            </Card>
-          ))}
-        </ul>
-      </Section>
+      <PageBody>
+        <Section labelledBy="related-title" rhythm="tight" className="border-t border-rule">
+          <SectionHeading id="related-title" variant="compact" eyebrow="Keep reading" title="Related guides" />
+          <ul className="mt-12 grid gap-6 md:grid-cols-2">
+            {relatedPosts(post.slug).map((p, i) => (
+              <Card as="li" key={p.slug} interactive reveal={i}>
+                <h3 className="font-serif text-h3 font-medium">
+                  <Link
+                    href={`/blog/${p.slug}`}
+                    className={cn(cardLinkOverlay, "underline decoration-brass decoration-1 underline-offset-4 hover:decoration-2")}
+                  >
+                    {p.title}
+                  </Link>
+                </h3>
+                <p className="mt-3 text-slate">{p.description}</p>
+              </Card>
+            ))}
+          </ul>
+        </Section>
+      </PageBody>
 
       <JsonLd
         data={graph(

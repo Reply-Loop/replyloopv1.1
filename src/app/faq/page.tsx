@@ -6,6 +6,7 @@ import { Section } from "@/components/ui/Section";
 import { faqs } from "@/content/faq";
 import { breadcrumbSchema, faqPageSchema, graph, type Crumb } from "@/lib/schema";
 import { pageMetadata } from "@/lib/seo";
+import { PageBody } from "@/components/motion/PageBody";
 
 export const metadata: Metadata = pageMetadata({
   title: "Questions About Review Replies and Local SEO | ReplyLoop",
@@ -30,9 +31,11 @@ export default function FaqPage() {
         intro="Plain answers. If yours is not here, ask it on the intro call."
         showButton={false}
       />
-      <Section rhythm="tight" reveal={false}>
-        <FAQ items={faqs} headingLevel="h2" />
-      </Section>
+      <PageBody>
+        <Section rhythm="tight">
+          <FAQ items={faqs} headingLevel="h2" />
+        </Section>
+      </PageBody>
       <JsonLd data={graph(breadcrumbSchema(crumbs), faqPageSchema(faqs, "/faq"))} />
     </>
   );

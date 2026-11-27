@@ -96,7 +96,7 @@ export function BrandFilm({ className }: { className?: string }) {
     <div
       ref={box}
       className={cn(
-        "relative aspect-video overflow-hidden rounded-2xl border border-rule bg-[#efe8dc] shadow-[0_30px_60px_-30px_rgb(32_33_36/0.35)]",
+        "reveal-art relative aspect-video overflow-hidden rounded-card border border-rule bg-[#efe8dc] shadow-3",
         className,
       )}
     >

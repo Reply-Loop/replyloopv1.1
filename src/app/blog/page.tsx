@@ -9,6 +9,7 @@ import { breadcrumbSchema, graph, type Crumb } from "@/lib/schema";
 import { cn } from "@/lib/cn";
 import { formatDate } from "@/lib/date";
 import { pageMetadata } from "@/lib/seo";
+import { PageBody } from "@/components/motion/PageBody";
 
 export const metadata: Metadata = pageMetadata({
   title: "Guides for Home Care Owners | ReplyLoop Blog",
@@ -38,26 +39,28 @@ export default function BlogIndex() {
         intro="Plain answers about Google reviews, your Google Business Profile, and local search."
         showButton={false}
       />
-      <Section rhythm="tight" reveal={false}>
-        <ul className="grid gap-6 md:grid-cols-3">
-          {allPostMeta.map((p) => (
-            <Card as="li" key={p.slug} interactive className="flex flex-col">
-              <p className="text-small text-slate">
-                <time dateTime={p.date}>{formatDate(p.date)}</time>
-              </p>
-              <h2 className="mt-3 font-serif text-h3-lg font-medium">
-                <Link
-                  href={`/blog/${p.slug}`}
-                  className={cn(cardLinkOverlay, "underline decoration-brass decoration-1 underline-offset-4 hover:decoration-2")}
-                >
-                  {p.title}
-                </Link>
-              </h2>
-              <p className="mt-3 text-slate">{p.description}</p>
-            </Card>
-          ))}
-        </ul>
-      </Section>
+      <PageBody>
+        <Section rhythm="tight">
+          <ul className="grid gap-6 md:grid-cols-3">
+            {allPostMeta.map((p, i) => (
+              <Card as="li" key={p.slug} interactive reveal={i} className="flex flex-col">
+                <p className="text-small text-slate">
+                  <time dateTime={p.date}>{formatDate(p.date)}</time>
+                </p>
+                <h2 className="mt-3 font-serif text-h3-lg font-medium">
+                  <Link
+                    href={`/blog/${p.slug}`}
+                    className={cn(cardLinkOverlay, "underline decoration-brass decoration-1 underline-offset-4 hover:decoration-2")}
+                  >
+                    {p.title}
+                  </Link>
+                </h2>
+                <p className="mt-3 text-slate">{p.description}</p>
+              </Card>
+            ))}
+          </ul>
+        </Section>
+      </PageBody>
       <JsonLd data={graph(breadcrumbSchema(crumbs))} />
     </>
   );

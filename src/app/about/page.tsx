@@ -8,6 +8,7 @@ import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { breadcrumbSchema, graph, personSchema, type Crumb } from "@/lib/schema";
 import { pageMetadata } from "@/lib/seo";
+import { PageBody } from "@/components/motion/PageBody";
 
 export const metadata: Metadata = pageMetadata({
   title: "About ReplyLoop | Salt Lake County, Utah",
@@ -45,73 +46,74 @@ export default function AboutPage() {
         backdrop={<ServiceEmblem icon="reply" pair />}
         intro="ReplyLoop helps local service businesses keep the “thank you” alive, by capturing and answering every review so honest service becomes the rock their growth is built on."
       />
+      <PageBody>
 
-      <Section labelledBy="why-title">
-        <SectionHeading
-          id="why-title"
-          eyebrow="Why we do this"
-          title="The thank you is worth protecting"
-          intro={
-            <>
-              <p>
-                At the end of good service, two people say thank you. The customer says it, and so does the business. When
-                a customer writes that thank you on Google, it deserves an answer.
-              </p>
-              <p>
-                We believe honest reviews, answered well, are a foundation a local business can build on. So we ask every
-                customer the same way, we never reward a review, and you keep the keys.
-              </p>
-            </>
-          }
-        />
-      </Section>
+        <Section labelledBy="why-title">
+          <SectionHeading
+            id="why-title"
+            eyebrow="Why we do this"
+            title="The thank you is worth protecting"
+            intro={
+              <>
+                <p>
+                  At the end of good service, two people say thank you. The customer says it, and so does the business. When
+                  a customer writes that thank you on Google, it deserves an answer.
+                </p>
+                <p>
+                  We believe honest reviews, answered well, are a foundation a local business can build on. So we ask every
+                  customer the same way, we never reward a review, and you keep the keys.
+                </p>
+              </>
+            }
+          />
+        </Section>
 
-      <Section tone="charcoal" labelledBy="founders-title">
-        <SectionHeading
-          id="founders-title"
-          eyebrow="The people"
-          title="Run by Hunter Newbold and Brigham Tiffany"
-          intro="Based in Salt Lake County, Utah."
-        />
-        <ul className="mt-12 grid gap-6 md:grid-cols-2">
-          {founders.map((f) => (
-            <Card as="li" key={f.name} tone="dark">
-              <div className="flex items-center gap-5">
-                {/* Initials avatar: charcoal circle, ivory serif initials, decorative 1px brass-line ring. */}
-                <span
-                  aria-hidden
-                  className="inline-flex size-16 shrink-0 items-center justify-center rounded-full border border-brass-line bg-charcoal font-serif text-xl text-ivory"
-                >
-                  {f.initials}
-                </span>
-                <div>
-                  <h3 className="font-serif text-h3-lg font-medium text-ivory">{f.name}</h3>
-                  <p className="text-mist">{f.title}</p>
+        <Section tone="charcoal" labelledBy="founders-title">
+          <SectionHeading
+            id="founders-title"
+            eyebrow="The people"
+            title="Run by Hunter Newbold and Brigham Tiffany"
+            intro="Based in Salt Lake County, Utah."
+          />
+          <ul className="mt-12 grid gap-6 md:grid-cols-2">
+            {founders.map((f, i) => (
+              <Card as="li" key={f.name} tone="dark" reveal={i}>
+                <div className="flex items-center gap-5">
+                  {/* Initials avatar: charcoal circle, ivory serif initials, decorative 1px brass-line ring. */}
+                  <span
+                    aria-hidden
+                    className="inline-flex size-16 shrink-0 items-center justify-center rounded-full border border-brass-line bg-charcoal font-serif text-xl text-ivory"
+                  >
+                    {f.initials}
+                  </span>
+                  <div>
+                    <h3 className="font-serif text-h3-lg font-medium text-ivory">{f.name}</h3>
+                    <p className="text-mist">{f.title}</p>
+                  </div>
                 </div>
-              </div>
-              <ProofSlot
-                kind={f.bioSlot}
-                label={`${f.name} bio and photo`}
-                path="src/content/founders.ts, public/people/"
-                className="mt-6"
-              />
-            </Card>
-          ))}
-        </ul>
-      </Section>
+                <ProofSlot
+                  kind={f.bioSlot}
+                  label={`${f.name} bio and photo`}
+                  path="src/content/founders.ts, public/people/"
+                  className="mt-6"
+                />
+              </Card>
+            ))}
+          </ul>
+        </Section>
 
-      <Section labelledBy="values-title">
-        <SectionHeading id="values-title" eyebrow="How we work" title="What you can expect from us" />
-        <ul className="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-          {values.map((v) => (
-            <Card as="li" key={v.title} size="md">
-              <h3 className="font-serif text-h3 font-medium">{v.title}</h3>
-              <p className="mt-3 text-slate">{v.body}</p>
-            </Card>
-          ))}
-        </ul>
-      </Section>
-
+        <Section labelledBy="values-title">
+          <SectionHeading id="values-title" eyebrow="How we work" title="What you can expect from us" />
+          <ul className="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+            {values.map((v, i) => (
+              <Card as="li" key={v.title} size="md" reveal={i}>
+                <h3 className="font-serif text-h3 font-medium">{v.title}</h3>
+                <p className="mt-3 text-slate">{v.body}</p>
+              </Card>
+            ))}
+          </ul>
+        </Section>
+      </PageBody>
       <JsonLd
         data={graph(
           breadcrumbSchema(crumbs),

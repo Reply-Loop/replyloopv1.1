@@ -24,15 +24,18 @@ export function PillarCard({
   pillar,
   headingLevel = "h3",
   tone = "light",
+  reveal,
 }: {
   pillar: Pillar;
   headingLevel?: "h3" | "h2";
   tone?: "light" | "dark";
+  /** Position in its grid, for the staggered scroll reveal. */
+  reveal?: number;
 }) {
   const H = headingLevel;
   const dark = tone === "dark";
   return (
-    <Card as="li" tone={tone} className="relative flex h-full flex-col">
+    <Card as="li" tone={tone} reveal={reveal} className="relative flex h-full flex-col">
       <span
         aria-hidden
         className={cn("pointer-events-none absolute inset-x-5 -top-px h-0.5", dark ? "bg-brass-line" : "bg-brass")}

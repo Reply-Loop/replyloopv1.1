@@ -23,6 +23,7 @@ import { HeroVisual } from "@/components/hero/HeroVisual";
 import { HowItWorksJourney } from "@/components/scenes/HowItWorksJourney";
 import { ProblemScene } from "@/components/scenes/ProblemScene";
 import { BrandFilm } from "@/components/film/BrandFilm";
+import { PageBody } from "@/components/motion/PageBody";
 
 // Primary keyword: Google review replies for local health businesses.
 export const metadata: Metadata = pageMetadata({
@@ -97,150 +98,154 @@ export default function HomePage() {
         </Container>
       </section>
 
-      <LoopDivider />
+      {/* Everything below the hero is one route-transition group; the hero (and its LCP H1) never animates. */}
+      <PageBody>
 
-      {/* 2. Problem */}
-      <Section labelledBy="problem-title" rhythm="loose">
-        <SectionHeading
-          id="problem-title"
-          variant="statement"
-          eyebrow="What we see"
-          title="The thank you is already there. It just has no answer."
-          intro="None of this means the service is poor. It means nobody has had the time to answer it."
-        />
-        <ProblemScene className="mt-12" />
-        <ul className="mt-12 grid gap-6 md:grid-cols-3">
-          {problems.map((p) => (
-            <Card as="li" key={p.title}>
-              <h3 className="font-serif text-h3 font-medium">{p.title}</h3>
-              <p className="mt-3 text-slate">{p.body}</p>
+        <LoopDivider />
+
+        {/* 2. Problem */}
+        <Section labelledBy="problem-title" rhythm="loose">
+          <SectionHeading
+            id="problem-title"
+            variant="statement"
+            eyebrow="What we see"
+            title="The thank you is already there. It just has no answer."
+            intro="None of this means the service is poor. It means nobody has had the time to answer it."
+          />
+          <ProblemScene className="mt-12" />
+          <ul className="mt-12 grid gap-6 md:grid-cols-3">
+            {problems.map((p, i) => (
+              <Card as="li" key={p.title} reveal={i}>
+                <h3 className="font-serif text-h3 font-medium">{p.title}</h3>
+                <p className="mt-3 text-slate">{p.body}</p>
+              </Card>
+            ))}
+          </ul>
+          <p className="mt-8 max-w-lede text-lede">That is the part we take on.</p>
+          <BrandFilm className="mt-12" />
+        </Section>
+
+        {/* 3. The bundle. Charcoal, with dark pillar cards: no ivory slab on charcoal (brief §8.3.4). */}
+        <Section tone="charcoal" labelledBy="bundle-title" id="bundle" rhythm="loose">
+          <SectionHeading
+            id="bundle-title"
+            variant="split"
+            eyebrow="The monthly work"
+            title="One bundle, built around your reviews"
+            intro="Answered well, every honest review becomes part of the foundation the next customer stands on."
+          />
+          <ul className="mt-12 grid gap-6 md:grid-cols-2">
+            {bundlePillars.map((pillar, i) => (
+              <PillarCard key={pillar.title} pillar={pillar} tone="dark" reveal={i} />
+            ))}
+          </ul>
+          <p className="mt-8 max-w-3xl text-mist">
+            Also available as one-time projects:{" "}
+            {oneTimeProjects.map((p, i) => (
+              <span key={p.href}>
+                <Link href={p.href} className="text-ivory underline decoration-brass-line underline-offset-4 hover:decoration-2">
+                  {p.label}
+                </Link>
+                {i < oneTimeProjects.length - 1 ? " and " : "."}
+              </span>
+            ))}
+          </p>
+          <p className="mt-4 max-w-3xl text-mist">
+            <Link href="/services" className="text-ivory underline decoration-brass-line underline-offset-4 hover:decoration-2">
+              See every service
+            </Link>
+          </p>
+        </Section>
+
+        {/* 4. How it works */}
+        {/* Reveals are per block; never on the journey stage or its ancestors (a transform would break the sticky stage). */}
+        <Section labelledBy="how-title" id="how-it-works" rhythm="loose">
+          <SectionHeading
+            id="how-title"
+            variant="default"
+            eyebrow="How it works"
+            title="Four steps, and nothing goes out early"
+            intro="Setup includes your voice interview, a one-time audit of your online presence, and replies to the Google reviews already waiting."
+          />
+          <HowItWorksJourney steps={steps} />
+        </Section>
+
+        <LoopDivider />
+
+        {/* 5. Promises */}
+        <Section labelledBy="promises-title" id="promises" rhythm="loose">
+          <SectionHeading
+            id="promises-title"
+            variant="statement"
+            eyebrow="What we will not bend"
+            title="Seven promises we keep"
+            intro="These hold even when bending them would win a sale."
+          />
+          <PromiseList className="mt-12" />
+        </Section>
+
+        {/* 6. Health handling. ivory-2 band with one dark example card, so the page keeps two dark bands plus the footer (brief §6.1, §8.3.7). */}
+        <Section tone="ivory-2" labelledBy="health-handling" rhythm="loose">
+          <HealthHandling />
+        </Section>
+
+        {/* 7. Proof. Placeholder only: no invented numbers, quotes, or logos. */}
+        <Section labelledBy="proof-title">
+          <SectionHeading
+            id="proof-title"
+            variant="default"
+            eyebrow="Proof"
+            title="We would rather show you a real profile than invent a number."
+            intro="On the intro call, we can look at your Google profile as it is today and agree on how you will check the work."
+          />
+          <div className="mt-12 grid gap-6 md:grid-cols-2">
+            <ProofSlot kind="testimonial" label="Client testimonial (written permission first)" path="src/content/proof.ts" />
+            <ProofSlot kind="profile-before-after" label="Before and after profile screenshots" path="public/proof/" />
+            <ProofSlot kind="client-logos" label="Client logos (written permission first)" path="public/proof/logos/" />
+          </div>
+        </Section>
+
+        <LoopDivider />
+
+        {/* 8. Fit */}
+        <Section labelledBy="fit-title">
+          <SectionHeading id="fit-title" variant="split" eyebrow="Fit" title="Is this a fit?" />
+          <div className="mt-12 grid gap-6 md:grid-cols-2">
+            <Card reveal={0}>
+              <h3 className="font-serif text-h3-lg font-medium">This is a fit if…</h3>
+              <ul className="mt-6 space-y-4">
+                {fit.map((line) => (
+                  <li key={line} className="flex gap-3">
+                    <Icon name="check" className="mt-1 size-5 shrink-0 text-brass" />
+                    <span>{line}</span>
+                  </li>
+                ))}
+              </ul>
             </Card>
-          ))}
-        </ul>
-        <p className="mt-8 max-w-lede text-lede">That is the part we take on.</p>
-        <BrandFilm className="mt-12" />
-      </Section>
+            <Card reveal={1}>
+              <h3 className="font-serif text-h3-lg font-medium">This is not a fit if…</h3>
+              <ul className="mt-6 space-y-4">
+                {notFit.map((line) => (
+                  <li key={line} className="flex gap-3">
+                    <Icon name="close" className="mt-1 size-5 shrink-0 text-slate" />
+                    <span>{line}</span>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          </div>
+        </Section>
 
-      {/* 3. The bundle. Charcoal, with dark pillar cards: no ivory slab on charcoal (brief §8.3.4). */}
-      <Section tone="charcoal" labelledBy="bundle-title" id="bundle" rhythm="loose">
-        <SectionHeading
-          id="bundle-title"
-          variant="split"
-          eyebrow="The monthly work"
-          title="One bundle, built around your reviews"
-          intro="Answered well, every honest review becomes part of the foundation the next customer stands on."
-        />
-        <ul className="mt-12 grid gap-6 md:grid-cols-2">
-          {bundlePillars.map((pillar) => (
-            <PillarCard key={pillar.title} pillar={pillar} tone="dark" />
-          ))}
-        </ul>
-        <p className="mt-8 max-w-3xl text-mist">
-          Also available as one-time projects:{" "}
-          {oneTimeProjects.map((p, i) => (
-            <span key={p.href}>
-              <Link href={p.href} className="text-ivory underline decoration-brass-line underline-offset-4 hover:decoration-2">
-                {p.label}
-              </Link>
-              {i < oneTimeProjects.length - 1 ? " and " : "."}
-            </span>
-          ))}
-        </p>
-        <p className="mt-4 max-w-3xl text-mist">
-          <Link href="/services" className="text-ivory underline decoration-brass-line underline-offset-4 hover:decoration-2">
-            See every service
-          </Link>
-        </p>
-      </Section>
-
-      {/* 4. How it works */}
-      {/* No reveal transform here: a transformed ancestor would break the pinned journey. */}
-      <Section labelledBy="how-title" id="how-it-works" rhythm="loose" reveal={false}>
-        <SectionHeading
-          id="how-title"
-          variant="default"
-          eyebrow="How it works"
-          title="Four steps, and nothing goes out early"
-          intro="Setup includes your voice interview, a one-time audit of your online presence, and replies to the Google reviews already waiting."
-        />
-        <HowItWorksJourney steps={steps} />
-      </Section>
-
-      <LoopDivider />
-
-      {/* 5. Promises */}
-      <Section labelledBy="promises-title" id="promises" rhythm="loose">
-        <SectionHeading
-          id="promises-title"
-          variant="statement"
-          eyebrow="What we will not bend"
-          title="Seven promises we keep"
-          intro="These hold even when bending them would win a sale."
-        />
-        <PromiseList className="mt-12" />
-      </Section>
-
-      {/* 6. Health handling. ivory-2 band with one dark example card, so the page keeps two dark bands plus the footer (brief §6.1, §8.3.7). */}
-      <Section tone="ivory-2" labelledBy="health-handling" rhythm="loose">
-        <HealthHandling />
-      </Section>
-
-      {/* 7. Proof. Placeholder only: no invented numbers, quotes, or logos. */}
-      <Section labelledBy="proof-title">
-        <SectionHeading
-          id="proof-title"
-          variant="default"
-          eyebrow="Proof"
-          title="We would rather show you a real profile than invent a number."
-          intro="On the intro call, we can look at your Google profile as it is today and agree on how you will check the work."
-        />
-        <div className="mt-12 grid gap-6 md:grid-cols-2">
-          <ProofSlot kind="testimonial" label="Client testimonial (written permission first)" path="src/content/proof.ts" />
-          <ProofSlot kind="profile-before-after" label="Before and after profile screenshots" path="public/proof/" />
-          <ProofSlot kind="client-logos" label="Client logos (written permission first)" path="public/proof/logos/" />
-        </div>
-      </Section>
-
-      <LoopDivider />
-
-      {/* 8. Fit */}
-      <Section labelledBy="fit-title">
-        <SectionHeading id="fit-title" variant="split" eyebrow="Fit" title="Is this a fit?" />
-        <div className="mt-12 grid gap-6 md:grid-cols-2">
-          <Card>
-            <h3 className="font-serif text-h3-lg font-medium">This is a fit if…</h3>
-            <ul className="mt-6 space-y-4">
-              {fit.map((line) => (
-                <li key={line} className="flex gap-3">
-                  <Icon name="check" className="mt-1 size-5 shrink-0 text-brass" />
-                  <span>{line}</span>
-                </li>
-              ))}
-            </ul>
-          </Card>
-          <Card>
-            <h3 className="font-serif text-h3-lg font-medium">This is not a fit if…</h3>
-            <ul className="mt-6 space-y-4">
-              {notFit.map((line) => (
-                <li key={line} className="flex gap-3">
-                  <Icon name="close" className="mt-1 size-5 shrink-0 text-slate" />
-                  <span>{line}</span>
-                </li>
-              ))}
-            </ul>
-          </Card>
-        </div>
-      </Section>
-
-      {/* 9. FAQ teasers */}
-      <Section labelledBy="faq-title" rhythm="tight" className="pt-0 sm:pt-0 lg:pt-0">
-        <SectionHeading id="faq-title" variant="compact" eyebrow="Questions" title="Common questions" />
-        <FAQ items={faqs.slice(0, 4)} className="mt-12" />
-        <div className="mt-8">
-          <TextLink href="/faq">Read every question</TextLink>
-        </div>
-      </Section>
-      {/* 10. The closing CTA band is rendered by the root layout on every page. */}
+        {/* 9. FAQ teasers */}
+        <Section labelledBy="faq-title" rhythm="tight" className="pt-0 sm:pt-0 lg:pt-0">
+          <SectionHeading id="faq-title" variant="compact" eyebrow="Questions" title="Common questions" />
+          <FAQ items={faqs.slice(0, 4)} className="mt-12" />
+          <div className="mt-8">
+            <TextLink href="/faq">Read every question</TextLink>
+          </div>
+        </Section>
+        {/* 10. The closing CTA band is rendered by the root layout on every page. */}
+      </PageBody>
     </>
   );
 }
