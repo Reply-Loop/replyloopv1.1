@@ -121,7 +121,7 @@ export default function ServicesPage() {
                   href={`/services/${p.slug}`}
                   className="mt-auto inline-flex items-center gap-2 pt-6 font-semibold text-ivory underline decoration-brass-line underline-offset-[6px] hover:decoration-2"
                 >
-                  More on {p.name.toLowerCase()}
+                  More on {/[A-Z]{2}|&/.test(p.name) ? p.name : p.name.toLowerCase()}
                   <Icon name="arrow" className="size-4" />
                 </Link>
               </Card>

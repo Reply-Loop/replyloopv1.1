@@ -13,8 +13,10 @@ const root = fileURLToPath(new URL("../..", import.meta.url));
 const out = join(root, "public/brand");
 mkdirSync(out, { recursive: true });
 
-// 06-og-link-preview (1734 x 907): the ribbon loop on the right, cropped for the
-// /home-care-agencies hero backdrop. Decorative, alt="", desktop only.
+// 06-og-link-preview (1734 x 907): the ribbon loop on the right. Kept as the pattern for
+// installing ASSET_BRIEF stills (crop, colour-match to ivory, AVIF only). Its output is not
+// wired any more: since 2026-11-28 the /home-care-agencies hero draws its ribbon in SVG
+// (RibbonBackdrop.tsx), because this raster crops the band at its right edge.
 const src = join(root, "assets/social-kit/backgrounds/06-og-link-preview.png");
 const crop = { left: 960, top: 0, width: 774, height: 907 };
 // The kit paper is a touch pinker than the page ivory (#F8F5EF). Scale each

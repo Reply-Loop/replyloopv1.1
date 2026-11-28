@@ -271,7 +271,7 @@ Calm, warm motion built in code from the brand kit (`assets/social-kit`, provena
 | Journey along the loop | `/` how it works | CSS sticky stage (no JS pin, CLS 0) with scrubbed chapter fades and a camera along the loop (`HowItWorksJourney`); stacked on phones, short screens, large text and reduced motion |
 | Brass thread | Loop dividers | SVG stroke drawn with scroll (`Thread`) |
 | Brand film | `/` and `/services` | Remotion (`/video`), 16 s seamless loop, 1280×720. MP4 and WebM about 400 KB each, AVIF/WebP poster. Starts on screen with motion on; "Pause film" control; reduced motion and no JS get the poster only. Save-Data starts paused. |
-| Ribbon backdrop | `/home-care-agencies` hero | Kit `06-og-link-preview`, cropped and colour-matched; desktop only, phones never download it |
+| Ribbon backdrop | `/home-care-agencies` hero | Drawn ribbon (inline SVG: the loop as a charcoal band with a brass underside), desktop only; phones get the HeroPlate. Replaced the kit raster on 2026-11-28 (owner decision) |
 | Service emblems | `/services/*`, `/about` heroes | SVG loop with a travelling brass stroke (CSS) |
 | Trust loop | `/services/review-replies` | SVG loop with a bead that lights each HTML step (Ask, Review, Reply, Learn) |
 
@@ -319,7 +319,7 @@ Open item: the footer is 816px tall at 390px wide against a 700px target. Its co
 | `/about` | 99 | 100 | 0.76 s | 0 | intro paragraph (as before) | |
 | `/blog/respond-to-google-reviews-without-sharing-private-details` | 99 | 100 | 0.90 s | 0 | page H1 | |
 
-Accessibility is now 100 on every page tested (it was 96 on `/services` and `/services/review-replies`): the scroll reveal no longer fades text. Open item, unchanged from before: on `/home-care-agencies` at desktop the ribbon image, not the H1, is the LCP element; the hero rework in Phase 7 fixes it.
+Accessibility is now 100 on every page tested (it was 96 on `/services` and `/services/review-replies`): the scroll reveal no longer fades text. The open item from Phase 3 is closed: on `/home-care-agencies` the H1 is now the LCP element at every width (Phase 7).
 
 Static export (`npm run build:static`): Worker bundle `tar czf - -C out . | wc -c` went from 2,831,842 B to 2,590,136 B (gate: 2,900,000 B). Fonts went from 10 files (365,564 B) to 2 (115,820 B). HTML and RSC payloads grew by under 4 KB gzip in total. JS is unchanged: no new script in this phase. OG images and the film are unchanged. No visible text is under 14px on any page, with or without JavaScript, or under reduced motion.
 
