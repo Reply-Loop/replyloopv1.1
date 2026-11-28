@@ -4,7 +4,7 @@ Main marketing site for ReplyLoop. *Keep the thank you alive.*
 
 Stack: Next.js 16 (App Router, Cache Components), TypeScript, Tailwind CSS 4. Deploy target: Vercel.
 
-> Build status: **all six phases complete.** See QA results below and `PLACEHOLDERS.md` for what still needs real content.
+> Build status: **premium redesign Phases 1-9 complete on `claude/new-session-w7lhf7`; deploy waits for owner approval.** See QA results below and `PLACEHOLDERS.md` for what still needs real content.
 
 ## Setup
 
@@ -62,6 +62,7 @@ Locked values live in `src/app/globals.css` under `@theme`:
 | `slate` | `#4A4F55` | Secondary text on ivory (derived) |
 | `mist` | `#C9C4BA` | Secondary text on charcoal (derived) |
 | `rule` | `#E2DBCF` | Decorative borders on ivory (derived) |
+| `ink-2` | `#262B30` | Raised surface on charcoal (derived) |
 
 Tints of the locked palette (no new hues), added in the premium redesign:
 
@@ -83,7 +84,7 @@ The same `@theme` block holds the rest of the design system (source of truth: `d
 - **Section rhythm:** `<Section rhythm="loose | default | tight">`, 96/128/160, 80/96/128 and 64/80/96 px (mobile/sm/lg).
 - **Heading variants:** `<SectionHeading variant="statement | split | default | compact">`.
 - **Radii:** `rounded-xs` 2, `rounded-sm` 8, `rounded-md` 12, `rounded-card` 20, `rounded-xl` 28, `rounded-pill`.
-- **Shadows** (one light at 315°, warm): `shadow-1`, `shadow-2` (resting card), `shadow-3` (hover, film frame), `shadow-object`, `shadow-header`.
+- **Shadows** (one light at 315°, warm): `shadow-hair` (paper top edge), `shadow-1`, `shadow-2` (resting card), `shadow-3` (hover, film frame), `shadow-object`, `shadow-header`.
 - **Easing** (matches the brand film, `video/src/theme.ts`): `ease-out`, `ease-in`, `ease-inout`, `ease-draw`, plus the site-only `ease-soft` (the default transition curve, 240ms) and `ease-standard`. Durations are CSS variables `--dur-*`.
 - **Header height:** `--header-h` (4rem, 4.5rem from lg), reused by scroll margins and the journey stage.
 
@@ -147,7 +148,7 @@ Every page ends with the same CTA band. The only conversion paths are the cal.co
 - Root layout: skip link, a solid ivory sticky header (centred nav; a hairline and soft shadow fade in once the page scrolls, set by an IntersectionObserver on a 1px sentinel) with the booking button (md and up), the small-screen menu, the small-screen bottom bar, the CTA band on every page, and the footer with phone, email, and service area. No street address.
 - Small-screen bar (Call and Book): it slides in only after the hero's booking button has scrolled out of view, steps aside while the CTA band or the footer is on screen and while the menu is open, and never shows on `/contact`. Visitors without JavaScript get no bar, on purpose: the hero button and the CTA band remain.
 - Small-screen menu: the panel stays in the page, inert while closed. Without JavaScript it cannot open; those visitors use the footer links, which list every page.
-- Surfaces: ivory bands carry a faint paper grain (`.paper`), charcoal bands a felt grain (`.felt`); both are AVIF tiles under 4 KB painted beneath the content (`scripts/brand/textures.mjs`). Cards are raised paper on light bands and ink-2 on charcoal (`<Card tone>`). At most two dark bands per page, plus the footer.
+- Surfaces: ivory bands carry a faint paper grain (`.paper`), charcoal bands a felt grain (`.felt`); both are 128px lossless palette PNG tiles (about 5 KB each) painted beneath the content (`scripts/brand/textures.mjs`). Cards are raised paper on light bands and ink-2 on charcoal (`<Card tone>`). At most two dark bands per page, plus the footer.
 - Repeated decorative art (the CTA card's loop drawing, the footer's wordmark sign-off) comes from one cached sprite, `public/brand/sprite.svg`, built by `scripts/brand/build-sprite.py` (needs `pip install fonttools uharfbuzz brotli`).
 - Components (`src/components/ui`): Button, BookButton, PhoneLink, EmailLink, TextLink, Card, Section, Container, Eyebrow, Rule, SectionHeading, LoopDivider, FAQ (native `<details>`), PillarCard, StepList, PromiseList, ProofSlot, CTABand, HealthHandling, Logo, Icon.
 - Content sources: `src/lib/site.ts` (business facts), `src/content/promises.ts` (seven red lines, customer-facing), `src/content/health.ts` (health review handling).
@@ -266,18 +267,63 @@ Calm, warm motion built in code from the brand kit (`assets/social-kit`, provena
 
 | Scene | Where | Built with |
 |---|---|---|
-| Brass loop (3D) | `/` hero | three.js + R3F `createRoot` (`src/components/hero`). The SVG still paints first; the 3D loads after the first interaction (or 7 s) on capable desktops and falls back to the still on a low frame rate. The H1 stays the LCP element. |
-| Waiting review, arriving reply | `/` problem section | Layered SVG, scrubbed by GSAP ScrollTrigger (`ProblemScene`) |
-| Journey along the loop | `/` how it works | CSS sticky stage (no JS pin, CLS 0) with scrubbed chapter fades and a camera along the loop (`HowItWorksJourney`); stacked on phones, short screens, large text and reduced motion |
-| Brass thread | Loop dividers | SVG stroke drawn with scroll (`Thread`) |
-| Brand film | `/` and `/services` | Remotion (`/video`), 16 s seamless loop, 1280×720. MP4 and WebM about 400 KB each, AVIF/WebP poster. Starts on screen with motion on; "Pause film" control; reduced motion and no JS get the poster only. Save-Data starts paused. |
-| Ribbon backdrop | `/home-care-agencies` hero | Drawn ribbon (inline SVG: the loop as a charcoal band with a brass underside), desktop only; phones get the HeroPlate. Replaced the kit raster on 2026-11-28 (owner decision) |
-| Service emblems | `/services/*`, `/about` heroes | SVG loop with a travelling brass stroke (CSS) |
-| Trust loop | `/services/review-replies` | SVG loop with a bead that lights each HTML step (Ask, Review, Reply, Learn) |
+| Brass loop (3D) | `/` hero | three.js + R3F `createRoot` (`src/components/hero`). The SVG still paints first, in a box the canvas shares, and the H1 stays the LCP element. On a capable desktop with motion fully on, the 3D arms on a trusted pointer or key gesture (never wheel or touch, which are scrolling) or after 7 s idle, and only while the hero is still mostly in view. Software renderers are refused (`failIfMajorPerformanceCaveat`), so three.js never loads there. Init is split across idle callbacks; the brass is lit by a light map built at runtime from emissive cards (PMREM, no EXR file). The canvas fades in over the still and the still fades out only after that, so the two are never partly visible together; a low frame rate brings the still back for the session. `?hero=webgl` is a QA override. |
+| Waiting review, arriving reply | `/` problem section | Two code-drawn notecards and a brass thread, scrubbed by GSAP ScrollTrigger (`ProblemScene`); a portrait drawing on phones (`ProblemArtPortrait`) |
+| Journey along the loop | `/` how it works | CSS sticky stage (no JS pin, CLS 0) with scrubbed chapter fades and a camera along the loop (`HowItWorksJourney`); four vignettes in the illustration system, each on the flat window-light plate; stacked on phones, short screens, large text and reduced motion |
+| Brass thread | One loop divider per page (`/`, `/home-care-agencies`) | SVG stroke drawn with scroll (`LoopDivider`, `Thread`) |
+| Brand film | `/` (its own band after How it works) and `/services` | Remotion (`/video`), Phase 8 re-cut: 16 s seamless loop, 1280×720, vector window-light opening plate. MP4 299,419 B, WebM 242,230 B, AVIF/WebP poster. The caption beside it is the film's on-screen words as HTML (`FilmFeature`). Starts on screen with motion on; "Pause film" control; reduced motion and no JS get the poster only. Save-Data starts paused. |
+| Hero plates | Subpage heroes (not `/`) | Drawn inline SVG (`HeroPlate`): the kit ribbon language redrawn, `LOOP_PATH` as a charcoal band with a brass underside, per-route crop; static. Shown below `lg` (phones and tablets) in place of the desktop emblem or ribbon. |
+| Ribbon backdrop | `/home-care-agencies` hero | Drawn ribbon (inline SVG: the loop as a charcoal band with a brass underside), desktop only; phones get the HeroPlate. Replaced the kit raster on 2026-11-28 (owner decision); no raster ships in this hero. |
+| Service emblems | `/services/*`, `/about`, `/faq`, `/contact`, `/blog` heroes | `ServiceEmblem`: on service pages a bespoke 64 px object on the loop's right lobe, with a CSS brass comet on the loop; `about` is two notecards joined by a `LoopThread`; FAQ, contact and blog use the loop and comet only |
+| Trust loop | `/services/review-replies` | SVG loop with a bead that travels to each HTML step (Ask, Review, Reply, Learn) and dwells there: 2.6 s travel, 1.4 s dwell, a 16 s lap (`TrustLoop`) |
+
+All inline art follows the illustration system below (`LoopThread`, flat fills, non-scaling strokes, no filters).
 
 **Remotion licence.** Remotion is free for individuals and companies of up to 3 people; companies of 4 or more need a Company License (see remotion.dev/license). ReplyLoop has 2 people, so the free licence applies today. Only pre-rendered video ships, so the site carries no Remotion runtime. Re-check when the team grows.
 
-**Photoreal assets.** `ASSET_BRIEF.md` has prompts for four stills the code cannot make (paper, window light, felt, brushed brass). Stand-ins are listed in `PLACEHOLDERS.md`.
+**Photoreal assets.** `ASSET_BRIEF.md` has prompts for six stills the code cannot make (1 paper, 2 window light, 3 felt, 4 brushed brass, 6 letterpress notecard, 7 brass loop object); #5, the ribbon raster, is no longer needed. None is generated yet, so the code stand-ins listed in `PLACEHOLDERS.md` are live.
+
+## QA results, premium redesign Phases 4-9 (2026-11-28)
+
+Measured on the static export (`out/`), locally. Phases 4 to 8 changed code; Phase 9 is documentation only, because no brief still exists yet.
+
+| Measure | Budget or gate | Before the redesign | Now |
+|---|---|---|---|
+| Worker bundle (`tar czf` of `out/`) | ≤ 2,900,000 B | 2,830,193 B | 2,303,714 B |
+| JS on `/` (gzip, load plus full scroll, lazy chunks, without the desktop 3D chunk) | ≤ +15 KB over baseline | 209,596 B | 221,775 B (+12.2 KB) |
+| Desktop WebGL chunk (hardware GPUs only, gzip) | not counted in the JS budget | 208,440 B (with EXRLoader) | 187,264 B (-21 KB; EXRLoader removed) |
+| OG images | ≤ 70 KB each, ≤ 450 KB total | 7 files, 418,698 B | 12 files, 252,212 B (15.9 to 23.7 KB each) |
+| Film and posters | ≤ 859,457 B total | 859,457 B | 548,058 B (MP4 299,419, WebM 242,230, posters 2,187 AVIF + 4,222 WebP) |
+| Lighthouse mobile, median of 3 | | | performance 99 to 100, accessibility 100, best practices 100, SEO 100; LCP 0.9 s, CLS 0, TBT 51 to 92 ms |
+| Lighthouse desktop | | | 100 on `/`, `/services/review-replies`, `/home-care-agencies` (LCP 0.24 s) |
+
+Worker bundle by phase: P3 2,722,650; P4 2,754,892; P5 2,625,830 (EXR light map dropped, -131 KB); P6 2,678,639; P7 2,636,812, then 2,623,760 after the owner decisions (raster ribbon removed); P8 2,303,714 (film re-cut).
+
+Lighthouse mobile ran on `/`, `/services`, `/services/review-replies`, `/home-care-agencies`, `/about`, `/blog`, `/faq`, `/contact` and `/blog/respond-to-google-reviews-without-sharing-private-details`. The LCP element at 390×844 and 1440×900 is the page H1 on every page tested, except `/about` (its intro paragraph) and blog posts (the lede paragraph); neither has a raster.
+
+Hero 3D: framing matches the SVG still within ±3 px (p95) at 1024, 1440 and 1920; brass mean saturation 0.566 against 0.559 for the still, top decile 0.30; the swap has 0 frames where both layers are partly visible; software WebGL never loads three.js. The long task during the first draw on SwiftShader (software) is about 1.2 s.
+
+Checks run, all passing: `npm run check`; `npm run build:verify` (compliance: 0 problems); `npm run qa` (17 pages); axe through Lighthouse (100); journey opacity table (0 overlapping rows) and desync test (0 difference); first-paint stroke log (0 leaking frames); double failure, with GSAP blocked and the reveals off (all text visible); client navigation into `/` (the H1 stays at opacity 1); no visible text under 14px; one H1 per page.
+
+Owner decisions (2026-11-28): the `/home-care-agencies` hero uses a drawn ribbon (ASSET_BRIEF #5 not needed); "More on Owner Q&A videos" casing; the proof row "You approve each month's posts before they go out." stays; the 816 px phone footer is accepted.
+
+Commits on `claude/new-session-w7lhf7`: P1 tokens and type; P2 surfaces and chrome; P3 motion foundation (29111bd); P4 home scenes (712b069, 429c9aa); P5 hero 3D (28da9ff, 1ea6ad0); P6 illustration system (d28bb77); P7 subpages and OG (2ac39e1, 9daf272, 28ab00f); P8 film (0d36051).
+
+Open items:
+
+- **Hardware long-task check: not measured.** Only a software renderer was available here. On a desktop with a hardware GPU, open `/` in Chrome, paste this into the DevTools console before moving the pointer, then move the pointer over the hero and wait 15 s. It prints the `rl-hero:*` init marks and every long task:
+
+  ```js
+  const lt = [];
+  new PerformanceObserver((l) => lt.push(...l.getEntries())).observe({ type: "longtask", buffered: true });
+  setTimeout(() => {
+    console.table(performance.getEntriesByType("mark").filter((m) => m.name.startsWith("rl-hero:")).map((m) => ({ mark: m.name, ms: Math.round(m.startTime) })));
+    console.table(lt.map((e) => ({ start: Math.round(e.startTime), ms: Math.round(e.duration) })));
+  }, 15000);
+  ```
+
+- **ASSET_BRIEF stills 1-4, 6 and 7: not generated.** The code stand-ins are live (`PLACEHOLDERS.md`).
+- **Deploy: pending owner approval.** `npm run deploy:worker` and a smoke test of the live URL run only after the owner approves the final report.
 
 ## QA results, premium redesign Phase 3: motion foundation (2026-11-27)
 
