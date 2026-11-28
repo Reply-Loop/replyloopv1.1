@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { PostCard } from "@/components/blog/PostCard";
-import { PostToc } from "@/components/blog/PostToc";
-import { PostHeading, postOutline } from "@/components/blog/outline";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+import { Card } from "@/components/ui/Card";
 import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Prose } from "@/components/ui/Prose";
@@ -14,8 +13,6 @@ import { allPostMeta, getPost, relatedPosts } from "@/content/posts";
 import { blogPostingSchema, breadcrumbSchema, graph, type Crumb } from "@/lib/schema";
 import { pageMetadata } from "@/lib/seo";
 import { formatDate } from "@/lib/date";
-import { readingLabel } from "@/lib/readingTime";
-import { PageBody } from "@/components/motion/PageBody";
 
 export function generateStaticParams() {
   return allPostMeta.map((p) => ({ slug: p.slug }));
@@ -34,15 +31,6 @@ export async function generateMetadata({ params }: PageProps<"/blog/[slug]">): P
   });
 }
 
-/*
- * Post layout (brief §8.11). Below lg: one centred reading column. At lg and up: a 12-column
- * grid with the "On this page" outline sticky in cols 1-3 (the left gutter) and the header and
- * body in cols 4-12, both left-aligned on the same edge. The reading column is set in the prose
- * size so its 66ch measure matches the body's (children set their own sizes).
- */
-const GRID = "lg:grid lg:grid-cols-12 lg:gap-x-8";
-const COLUMN = "mx-auto max-w-reading text-prose lg:col-span-9 lg:col-start-4 lg:mx-0";
-
 export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
   const { slug } = await params;
   const post = getPost(slug);
@@ -55,54 +43,48 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
     { name: post.title, path },
   ];
   const { Content } = post;
-  const outline = postOutline(Content);
 
   return (
     <>
       <article aria-labelledby="page-title">
-        {/* The post's hero: never inside the route-transition wrapper (the H1 does not animate). */}
-        <header className="border-b border-rule pt-8 pb-12 sm:pt-12 sm:pb-16">
-          <Container className={GRID}>
-            <div className={COLUMN}>
-              <Breadcrumbs crumbs={crumbs} />
-              <Eyebrow className="mt-12">Guide</Eyebrow>
-              <h1 id="page-title" className="mt-6 font-serif text-h2 font-medium lg:mt-5">
-                {post.title}
-              </h1>
-              <p className="mt-5 max-w-lede text-lede text-slate">{post.description}</p>
-              <p className="mt-6 text-small text-slate">
-                ReplyLoop<span aria-hidden className="mx-2">·</span>
-                <time dateTime={post.date}>{formatDate(post.date)}</time>
-                <span aria-hidden className="mx-2">·</span>
-                {readingLabel(post.readingMinutes)}
-              </p>
-            </div>
+        <header className="border-b border-rule pt-10 pb-14 sm:pt-12 sm:pb-16">
+          <Container size="prose">
+            <Breadcrumbs crumbs={crumbs} />
+            <Eyebrow className="mt-12">Guide</Eyebrow>
+            <h1 id="page-title" className="mt-5 font-serif text-[2.2rem] font-medium sm:text-[2.75rem]">
+              {post.title}
+            </h1>
+            <p className="mt-5 text-lg text-slate">{post.description}</p>
+            <p className="mt-6 text-sm text-slate">
+              ReplyLoop · <time dateTime={post.date}>{formatDate(post.date)}</time>
+            </p>
           </Container>
         </header>
-        <PageBody>
-          <Container className={`py-12 sm:py-16 ${GRID}`}>
-            {outline.length ? (
-              <aside className="hidden lg:col-span-3 lg:row-start-1 lg:block">
-                <PostToc items={outline} />
-              </aside>
-            ) : null}
-            <Prose className={`${COLUMN} lg:row-start-1 [&_em]:text-slate`}>
-              <Content components={{ h2: PostHeading }} />
-            </Prose>
-          </Container>
-        </PageBody>
+        <Container size="prose" className="py-14 sm:py-16">
+          <Prose className="[&_blockquote]:mt-4 [&_blockquote]:rounded-xl [&_blockquote]:border-l-2 [&_blockquote]:border-brass [&_blockquote]:bg-[#F1ECE3] [&_blockquote]:px-5 [&_blockquote]:py-4 [&_blockquote]:font-serif [&_blockquote]:text-lg [&_em]:text-slate">
+            <Content />
+          </Prose>
+        </Container>
       </article>
 
-      <PageBody>
-        <Section tone="ivory-2" labelledBy="related-title" rhythm="tight">
-          <SectionHeading id="related-title" variant="compact" eyebrow="Keep reading" title="Related guides" />
-          <ul className="mt-12 grid gap-6 md:grid-cols-2 lg:gap-8">
-            {relatedPosts(post.slug).map((p, i) => (
-              <PostCard key={p.slug} post={p} index={i} heading="h3" />
-            ))}
-          </ul>
-        </Section>
-      </PageBody>
+      <Section labelledBy="related-title" className="border-t border-rule">
+        <SectionHeading id="related-title" eyebrow="Keep reading" title="Related guides" />
+        <ul className="mt-10 grid gap-6 md:grid-cols-2">
+          {relatedPosts(post.slug).map((p) => (
+            <Card as="li" key={p.slug}>
+              <h3 className="font-serif text-xl font-medium leading-snug">
+                <Link
+                  href={`/blog/${p.slug}`}
+                  className="underline decoration-brass decoration-1 underline-offset-4 hover:decoration-2"
+                >
+                  {p.title}
+                </Link>
+              </h3>
+              <p className="mt-3 text-slate">{p.description}</p>
+            </Card>
+          ))}
+        </ul>
+      </Section>
 
       <JsonLd
         data={graph(

@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import localFont from "next/font/local";
+import { Fraunces, Inter } from "next/font/google";
 import { Analytics } from "@/components/analytics/Analytics";
 import { Footer } from "@/components/layout/Footer";
-import { Header, SCROLL_SENTINEL_ID } from "@/components/layout/Header";
+import { Header } from "@/components/layout/Header";
 import { MobileBar } from "@/components/layout/MobileBar";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { CTABand } from "@/components/ui/CTABand";
@@ -11,26 +11,18 @@ import { MOTION_HEAD_SCRIPT } from "@/lib/motion/state";
 import { site } from "@/lib/site";
 import "./globals.css";
 
-// Self-hosted by next/font. Only the Latin subsets ship (the site renders no
-// other script), the same files next/font/google produced: Fraunces with its
-// opsz and wght axes, Inter with wght. SIL OFL, see assets/fonts/*-OFL.txt.
-// The SOFT axis was measured and dropped: +53,484 B against a 20 KB gate.
-const fraunces = localFont({
-  src: "./fonts/fraunces-latin-opsz-wght.woff2",
-  weight: "100 900",
-  style: "normal",
+// Self-hosted at build time by next/font. No request to Google at runtime.
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  axes: ["opsz"],
   variable: "--font-fraunces",
   display: "swap",
-  adjustFontFallback: "Times New Roman",
 });
 
-const inter = localFont({
-  src: "./fonts/inter-latin-wght.woff2",
-  weight: "100 900",
-  style: "normal",
+const inter = Inter({
+  subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
-  adjustFontFallback: "Arial",
 });
 
 export const metadata: Metadata = {
@@ -66,8 +58,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: MOTION_HEAD_SCRIPT }} />
       </head>
       <body className="flex min-h-dvh flex-col">
-        {/* Scrolled-state sentinel for the header (HeaderScroll): out of flow, takes no space. */}
-        <div id={SCROLL_SENTINEL_ID} aria-hidden className="pointer-events-none absolute top-0 left-0 h-px w-px" />
         <a
           href="#main"
           className="sr-only z-50 rounded-full bg-charcoal px-5 py-3 font-semibold text-ivory focus:not-sr-only focus:fixed focus:top-3 focus:left-3"

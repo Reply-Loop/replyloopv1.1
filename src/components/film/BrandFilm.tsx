@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useInViewport } from "@/components/motion/useInViewport";
 import { useMotion } from "@/components/motion/useMotion";
-import { PauseControl } from "@/components/motion/PauseControl";
 import { cn } from "@/lib/cn";
 import { getPauseEpoch, subscribeMotion } from "@/lib/motion/state";
 import { getFilmPaused, setFilmPaused, subscribeFilmPaused } from "./filmChoice";
@@ -96,10 +95,7 @@ export function BrandFilm({ className }: { className?: string }) {
     <div
       ref={box}
       className={cn(
-        // The frame (brief §8.3.3): 20px radius, 1px rule border, --shadow-3. Its unveil
-        // ends with the clip opened past the shadow (.film-frame in src/styles/home.css).
-        // The surface behind the poster is the palette's paper shade (no off-palette hex).
-        "film-frame reveal-art relative aspect-video overflow-hidden rounded-card border border-rule bg-paper-shade shadow-3",
+        "relative aspect-video overflow-hidden rounded-2xl border border-rule bg-[#efe8dc] shadow-[0_30px_60px_-30px_rgb(32_33_36/0.35)]",
         className,
       )}
     >
@@ -130,7 +126,19 @@ export function BrandFilm({ className }: { className?: string }) {
         <source src={SRC_MP4} type="video/mp4" />
         <source src={SRC_WEBM} type='video/webm; codecs="vp9"' />
       </video>
-      {controllable ? <PauseControl label="Pause film" pressed={pressed} onToggle={toggle} tone="light" /> : null}
+      {controllable ? (
+        <button
+          type="button"
+          aria-pressed={pressed}
+          onClick={toggle}
+          className="absolute bottom-3 left-3 inline-flex size-11 items-center justify-center rounded-full border border-rule bg-ivory/85 text-charcoal backdrop-blur hover:border-brass"
+        >
+          <svg viewBox="0 0 24 24" className="size-4" aria-hidden focusable="false" fill="currentColor">
+            {pressed ? <path d="M8 5.5v13l10.5-6.5z" /> : <path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" />}
+          </svg>
+          <span className="sr-only">Pause film</span>
+        </button>
+      ) : null}
     </div>
   );
 }

@@ -1,11 +1,10 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useMemo, useRef, useState, type TransitionEvent } from "react";
-import { setMotionPaused, getMotionTier, heroWebGLForced } from "@/lib/motion/state";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { setMotionPaused, getMotionTier } from "@/lib/motion/state";
 import { useMotion } from "@/components/motion/useMotion";
 import { useInViewport } from "@/components/motion/useInViewport";
-import { PauseControl } from "@/components/motion/PauseControl";
 import { cn } from "@/lib/cn";
 import { LoopStill } from "./LoopStill";
 import type { Pointer } from "./LoopScene";
@@ -14,21 +13,14 @@ import type { Pointer } from "./LoopScene";
 const LoopCanvas = dynamic(() => import("./LoopCanvas"), { ssr: false });
 
 const LOW_POWER_KEY = "rl-hero-lowpower";
-/** Clear intent only (brief §8.2): never wheel or touchstart, which are scrolling. */
-const INTENT_EVENTS = ["pointermove", "pointerdown", "keydown"] as const;
-const IDLE_ARM_MS = 7000;
 
 /**
- * Hero object: the sculptural brass loop beside the locked H1 (brief §8.2).
- * 1. First paint: the SVG still, in a box the 3D canvas shares exactly. Vector art is
- *    never an LCP candidate, so the H1 stays LCP. The contact shadow is a CSS gradient.
- * 2. On a capable desktop with motion fully on, after a pointer or key gesture (or 7 s
- *    idle), and only while the hero is still mostly in view, the WebGL loop loads. It
- *    is framed to the still's silhouette. The canvas fades in over the still (900ms,
- *    ease-soft); only when that has finished does the still fade out (300ms, linear),
- *    so the two never show half-and-half (no ghost). The one-time light sweep follows.
- * 3. If the frame rate is too low, or the renderer fails, the still comes back under
- *    the canvas and the canvas fades out (600ms, ease-inout) for the rest of the session.
+ * Hero object: the sculptural brass loop beside the locked H1.
+ * 1. First paint: the SVG still (never the LCP element).
+ * 2. After the first interaction (or 7 s), on capable desktops with motion allowed:
+ *    the WebGL loop fades in over the still. It turns slowly and leans toward
+ *    the cursor (or device tilt where no permission prompt is needed).
+ * 3. If the frame rate is too low, it fades back to the still for the session.
  */
 export function HeroVisual({ className }: { className?: string }) {
   const { mode, ambient, paused } = useMotion();
@@ -36,44 +28,33 @@ export function HeroVisual({ className }: { className?: string }) {
   const onScreen = useInViewport(box, "0px");
   const seen = useInViewport(box, "0px", { once: true });
   const pointer = useMemo(() => ({ current: { x: 0, y: 0 } as Pointer }), []);
-  // The QA override only reaches the client-only canvas, never the markup, so reading it
-  // during hydration cannot cause a mismatch.
-  const [forced] = useState(() => typeof window !== "undefined" && heroWebGLForced());
   const [eligible, setEligible] = useState(false);
-  // ready: the renderer has drawn; covered: the canvas has finished fading in.
-  const [ready, setReady] = useState(false);
-  const [covered, setCovered] = useState(false);
-  // retiring: falling back to the still; the canvas fades out, then unmounts.
-  const [retiring, setRetiring] = useState(false);
+  const [shown, setShown] = useState(false);
   const [lowPower, setLowPower] = useState(false);
   const [failed, setFailed] = useState(false);
 
-  // Decide only after load and clear intent (or 7 s idle), and only while motion is
-  // fully on. Paused visitors never download the 3D at all.
+  // Decide only after load and a real user gesture (or 7 s), and only while
+  // motion is fully on. Paused visitors never download the 3D at all.
   useEffect(() => {
     if (mode !== "full") return;
-    const qa = forced;
     let cancelled = false;
     let idle = 0;
     let fallback = 0;
     const decide = () => {
       if (cancelled) return;
-      // A visitor who has already scrolled past half the hero never pays for the 3D.
-      const hero = box.current?.closest("section") ?? box.current;
-      if (hero && window.scrollY > 0.5 * hero.getBoundingClientRect().height) return;
       let flagged = false;
       try {
-        flagged = !qa && sessionStorage.getItem(LOW_POWER_KEY) === "1";
+        flagged = sessionStorage.getItem(LOW_POWER_KEY) === "1";
       } catch {}
-      setEligible(!flagged && getMotionTier({ forceWebGL: qa }) === "full");
+      setEligible(!flagged && getMotionTier() === "full");
     };
     const start = () => {
       disarm();
       const ric = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 200));
       idle = ric(decide, { timeout: 1500 }) as unknown as number;
     };
-    // Trusted events only, and not the synthetic pointermove Chrome sends when layout
-    // moves under a resting cursor.
+    // Clear user intent only: not browser-driven scrolls (anchors, restoration)
+    // and not the synthetic pointermove Chrome sends when layout moves under a cursor.
     const onIntent = (e: Event) => {
       if (!e.isTrusted) return;
       if (e.type === "pointermove") {
@@ -82,13 +63,14 @@ export function HeroVisual({ className }: { className?: string }) {
       }
       start();
     };
+    const EVENTS = ["pointermove", "pointerdown", "keydown", "wheel", "touchstart"] as const;
     const disarm = () => {
       window.clearTimeout(fallback);
-      INTENT_EVENTS.forEach((t) => window.removeEventListener(t, onIntent));
+      EVENTS.forEach((t) => window.removeEventListener(t, onIntent));
     };
     const arm = () => {
-      INTENT_EVENTS.forEach((t) => window.addEventListener(t, onIntent, { passive: true }));
-      fallback = window.setTimeout(start, IDLE_ARM_MS);
+      EVENTS.forEach((t) => window.addEventListener(t, onIntent, { passive: true }));
+      fallback = window.setTimeout(start, 7000);
     };
     if (document.readyState === "complete") arm();
     else window.addEventListener("load", arm, { once: true });
@@ -98,7 +80,7 @@ export function HeroVisual({ className }: { className?: string }) {
       disarm();
       (window.cancelIdleCallback ?? window.clearTimeout)(idle);
     };
-  }, [mode, forced]);
+  }, [mode]);
 
   // Cursor lean (and device tilt where the browser allows it without a prompt).
   useEffect(() => {
@@ -128,107 +110,63 @@ export function HeroVisual({ className }: { className?: string }) {
     };
   }, [eligible, pointer]);
 
-  const readyRef = useRef(false);
-  useEffect(() => {
-    readyRef.current = ready;
-  }, [ready]);
-  const onReady = useCallback(() => setReady(true), []);
-  // Fall back: the still is shown again at once (it sits under the canvas), then the canvas
-  // fades out. A canvas that never became visible has nothing to fade: it simply unmounts.
-  const retire = useCallback(() => {
-    setCovered(false);
-    if (readyRef.current) setRetiring(true);
-  }, []);
-  const onFail = useCallback(() => {
-    setFailed(true);
-    retire();
-  }, [retire]);
+  const onReady = useCallback(() => setShown(true), []);
+  const onFail = useCallback(() => setFailed(true), []);
+  // The renderer is gone (unmounted or route hidden): show the still until a new one is ready.
+  const onTeardown = useCallback(() => setShown(false), []);
   const onLowPower = useCallback(() => {
+    // QA override: ?hero=webgl keeps WebGL on software renderers (screenshots).
+    if (new URLSearchParams(window.location.search).get("hero") === "webgl") return;
     try {
       sessionStorage.setItem(LOW_POWER_KEY, "1");
     } catch {}
     setLowPower(true);
-    retire();
-  }, [retire]);
-  // The renderer is gone (unmounted, or the route was hidden): the still shows until a new one is ready.
-  const onTeardown = useCallback(() => {
-    setReady(false);
-    setCovered(false);
   }, []);
 
   // Mount the 3D only once the hero has been seen; a deep link far down the page never pays for it.
-  const wanted = eligible && seen && !lowPower && !failed && mode !== "reduce";
-  const mounted = wanted || retiring;
-  const live = ready && !retiring && mounted;
-
-  // The fade-out normally ends on transitionend; a hidden tab may never send it.
-  useEffect(() => {
-    if (!retiring) return;
-    const t = window.setTimeout(() => {
-      setRetiring(false);
-      setReady(false);
-    }, 700);
-    return () => window.clearTimeout(t);
-  }, [retiring]);
-
-  const onCanvasFade = (e: TransitionEvent<HTMLDivElement>) => {
-    if (e.target !== e.currentTarget || e.propertyName !== "opacity") return;
-    if (live) setCovered(true);
-    else if (retiring) {
-      setRetiring(false);
-      setReady(false);
-    }
-  };
+  const webgl = eligible && seen && !lowPower && !failed && mode !== "reduce";
+  const live = webgl && shown;
 
   return (
-    <div className={cn("relative", className)}>
-      {/* One box for the still and the canvas: the loop fills the column, at most 520px wide. */}
-      <div ref={box} className="relative mx-auto w-full max-w-[520px]" aria-hidden={!live || undefined}>
-        {/* Contact shadow on the paper: a CSS gradient (never a raster: no LCP candidate, CLS 0). */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-[16%] bottom-[10%] h-[16%] rounded-[50%] bg-[radial-gradient(closest-side,rgb(27_31_35/0.1),transparent)] blur-[24px]"
-        />
-        <div
-          aria-hidden
-          className={cn(
-            "relative",
-            covered && !retiring ? "opacity-0 transition-opacity duration-300 ease-linear" : "opacity-100",
-          )}
-        >
-          <LoopStill className="px-[6%] py-[8%]" />
-        </div>
-        {mounted ? (
-          <div
-            aria-hidden
-            onTransitionEnd={onCanvasFade}
-            className={cn(
-              "absolute inset-0 transition-opacity",
-              retiring ? "duration-600 ease-inout" : "duration-[var(--dur-hero)] ease-soft",
-              live ? "opacity-100" : "opacity-0",
-            )}
-          >
-            <LoopCanvas
-              active={ambient && onScreen && !retiring}
-              forced={forced}
-              alive={covered && !retiring}
-              pointer={pointer}
-              onReady={onReady}
-              onLowPower={onLowPower}
-              onFail={onFail}
-              onTeardown={onTeardown}
-            />
-          </div>
-        ) : null}
-        {/* Film grain, static (no motion cost). */}
-        <div
-          aria-hidden
-          className="film-grain pointer-events-none absolute inset-0 opacity-[0.14] [mask-image:radial-gradient(closest-side,black,transparent)]"
-        />
-        {live ? (
-          <PauseControl label="Pause motion" pressed={paused} onToggle={() => setMotionPaused(!paused)} tone="light" />
-        ) : null}
+    <div ref={box} className={cn("relative", className)} aria-hidden={!live || undefined}>
+      {/* Soft contact shadow on the paper. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-[18%] bottom-[14%] h-[12%] rounded-[50%] bg-charcoal/20 blur-2xl"
+      />
+      <div aria-hidden className={cn("relative transition-opacity duration-[1200ms]", live ? "opacity-0" : "opacity-100")}>
+        <LoopStill className="px-[6%] py-[14%]" />
       </div>
+      {webgl ? (
+        <div aria-hidden className={cn("absolute inset-0 transition-opacity duration-[1400ms]", live ? "opacity-100" : "opacity-0")}>
+          <LoopCanvas
+            active={ambient && onScreen}
+            pointer={pointer}
+            onReady={onReady}
+            onLowPower={onLowPower}
+            onFail={onFail}
+            onTeardown={onTeardown}
+          />
+        </div>
+      ) : null}
+      {/* Film grain, static (no motion cost). */}
+      <div
+        aria-hidden
+        className="film-grain pointer-events-none absolute inset-0 opacity-[0.14] [mask-image:radial-gradient(closest-side,black,transparent)]"
+      />
+      {live ? (
+        <button
+          type="button"
+          aria-pressed={paused}
+          onClick={() => setMotionPaused(!paused)}
+          className="absolute right-2 bottom-2 inline-flex size-11 items-center justify-center rounded-full border border-rule bg-ivory/80 text-charcoal backdrop-blur hover:border-brass"
+        >
+          <svg viewBox="0 0 24 24" className="size-4" aria-hidden focusable="false" fill="currentColor">
+            {paused ? <path d="M8 5.5v13l10.5-6.5z" /> : <path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" />}
+          </svg>
+          <span className="sr-only">Pause motion</span>
+        </button>
+      ) : null}
     </div>
   );
 }

@@ -75,7 +75,7 @@ export function Analytics() {
       aria-label="Cookie choice"
       className="tone-dark fixed inset-x-3 bottom-24 z-50 mx-auto max-w-xl rounded-2xl border border-brass-line/40 bg-charcoal p-5 text-ivory shadow-[0_16px_40px_-16px_rgb(0_0_0/0.5)] md:bottom-5"
     >
-      <p className="text-small text-mist">
+      <p className="text-[0.95rem] leading-relaxed text-mist">
         With your yes, we use Google Analytics cookies to see which pages help owners. No ads, and nothing sold.{" "}
         <Link href="/privacy" className="text-ivory underline decoration-brass-line underline-offset-4">
           Privacy

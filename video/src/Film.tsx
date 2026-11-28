@@ -4,45 +4,18 @@ import {
   cancelRender,
   continueRender,
   delayRender,
+  Img,
   interpolate,
+  spring,
   staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { LOOP_PATH } from "../../src/lib/loop/geometry.generated";
-import { INK, Notecard, Placed, loopThreadPath, STROKE } from "./illustration";
-import { Key, NIB, Notebook, ProofSheets } from "./objects";
+import { LOOP_CROSSING_PATH, LOOP_PATH, LOOP_STROKE, LOOP_VIEWBOX } from "../../src/lib/loop/geometry.generated";
 import { theme } from "./theme";
-
-/**
- * The brand film, Phase 8 re-cut (brief §8.3.3). 16 s, 30 fps, 1280 x 720, seamless loop:
- * the last frame flows into frame 0, and frame 0 is the poster.
- *
- *  0-4 s   Window-light plate (vector: soft light panes on a warm paper-shade pool, the left
- *          half fading into exact ivory, no vignette) with one letterpress notecard, right of
- *          centre.
- *  4-10 s  The card steps aside and the three chapters arrive as objects (voice interview:
- *          notebook and pen; dry run: proof sheets in a brass clip; go live: the notecard and a
- *          brass key). Then one brass LoopThread draws from the pen's nib, closes into LOOP_PATH
- *          and runs on to the key.
- *  10-16 s A charcoal lockup card lifts in over the scene (translateY 100% -> 0, 0.7 s, ease
- *          0.16,1,0.3,1) while the cards underneath dim to 0.6: a brass-line stroke drawing of
- *          LOOP_PATH draws on, cropped off the right edge (as on the OG cards), with the
- *          "ReplyLoop" wordmark and "Based in Salt Lake County, Utah.". Under cover the scene
- *          resets to its frame-0 state; the lockup lifts away and reveals it.
- *
- * Words on screen, in order: "ReplyLoop", "Based in Salt Lake County, Utah." Nothing else. The
- * HTML caption (src/components/film/FilmFeature.tsx) carries exactly these, in this order.
- *
- * Flat vector throughout: no grain, no vignette, no raster plate (the film budget is
- * 450,000 B per file).
- */
 
 const c = theme.colors;
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
-
-/** The scene's drawing space: one unit = one screen px when the film plays 800px wide. */
-const VB = { w: 800, h: 450 } as const;
 
 /** Seconds -> frames, always from fps (never magic numbers). */
 const useT = () => {
@@ -66,264 +39,333 @@ function useBrandFonts() {
   }, [handle]);
 }
 
-/* Layout (VB units) ------------------------------------------------------------------------- */
-
-/**
- * The notecard: alone at frame 0, right of centre (centre at 58% of the width), then the go-live
- * chapter's card. Its left edge sits at about 32% of the width (rotation included), so the open
- * space beside it stays under the brief's 35%.
- */
-const CARD_OPEN = { x: 258, y: 92, width: 404, height: 262, rotate: -3 } as const;
-const CARD_CHAPTER = { x: 568, y: 136, width: 180, height: 117, rotate: -3 } as const;
-
-/** Chapter objects: vignette drawings placed at a uniform scale. */
-const NOTEBOOK = { x: -6, y: 102, scale: 0.56 } as const;
-const PROOFS = { x: 274, y: 88, scale: 0.62 } as const;
-const KEY = { x: 659, y: 369, rot: -10 } as const;
-
-/**
- * The thread: from the pen's nib (upper left), through one LOOP_PATH (uniform scale, the site's
- * small tilt), to the key's bow (lower right). It enters the crossing on the falling strand, so
- * neither lead crosses a lobe: the loop reads as the mark, not a tangle.
- */
-const THREAD = loopThreadPath({
-  from: [NOTEBOOK.x + NIB[0] * NOTEBOOK.scale, NOTEBOOK.y + NIB[1] * NOTEBOOK.scale],
-  to: [KEY.x - 9, KEY.y - 9],
-  loopAt: [285, 305],
-  loopScale: 0.56,
-  rotation: -12,
-  strand: "falling",
-});
-
-/* Film --------------------------------------------------------------------------------------- */
-
 export const Film = () => {
   useBrandFonts();
   const frame = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
   const t = useT();
 
-  // The lockup: lifts in, holds, lifts away. Under cover the scene resets to frame 0.
-  const liftIn = interpolate(frame, [t(10), t(10.7)], [1, 0], { ...clamp, easing: theme.ease.out });
-  const liftOut = interpolate(frame, [t(14.8), t(15.6)], [0, -1], { ...clamp, easing: theme.ease.inOut });
-  const lockupY = frame < t(14.8) ? liftIn : liftOut;
-  const lockupOn = frame >= t(10) && frame < t(15.6);
-  const covered = frame >= t(10.7);
-
-  // Cards underneath dim to 0.6 as the lockup arrives (never lower) and brighten as it leaves.
-  const dim = covered
-    ? interpolate(frame, [t(14.8), t(15.6)], [0.6, 1], { ...clamp, easing: theme.ease.inOut })
-    : interpolate(frame, [t(10), t(10.7)], [1, 0.6], { ...clamp, easing: theme.ease.out });
+  // Shot opacities. Exits are quicker than entrances.
+  const plateIn = interpolate(frame, [0, 1], [1, 1], clamp);
+  const plateOut = interpolate(frame, [t(3.4), t(4.1)], [1, 0], { ...clamp, easing: theme.ease.in });
+  // Closing: the plate is back underneath (frame-0 framing) as the charcoal card slides away.
+  const plateBack = frame >= durationInFrames - t(2.4) ? 1 : 0;
+  const plate = Math.max(plateIn * plateOut, plateBack);
+  const cardsOn = interpolate(frame, [t(3.6), t(4.2)], [0, 1], { ...clamp, easing: theme.ease.out });
+  const cardsOff = interpolate(frame, [t(8.1), t(8.6)], [1, 0], { ...clamp, easing: theme.ease.in });
+  const dark = interpolate(frame, [t(8.0), t(8.9)], [0, 1], { ...clamp, easing: theme.ease.inOut });
+  const lift = interpolate(frame, [durationInFrames - t(2.4), durationInFrames - t(1.5)], [0, -1], {
+    ...clamp,
+    easing: theme.ease.in,
+  });
+  const darkOff = lift > -1 ? 1 : 0;
 
   return (
-    <AbsoluteFill style={{ background: INK.ivory }}>
-      <svg viewBox={`0 0 ${VB.w} ${VB.h}`} width="100%" height="100%" style={{ position: "absolute", inset: 0 }}>
-        <WindowLight />
-        <g opacity={dim}>{covered ? <Opening /> : <Scene />}</g>
-      </svg>
-      {lockupOn ? <Lockup y={lockupY} /> : null}
+    <AbsoluteFill style={{ background: c.ivory }}>
+      {/* 1. Background: ivory paper with a slow warm mesh. */}
+      <PaperMesh />
+      {/* 2. Assets: the kit's 07 plate (opening and closing shot, identical frames for a seamless loop). */}
+      <AbsoluteFill style={{ opacity: plate }}>
+        <Plate />
+      </AbsoluteFill>
+      {/* 3. Graphics: the reply story, then the charcoal title card. */}
+      <AbsoluteFill style={{ opacity: cardsOn * cardsOff }}>
+        <ReplyStory />
+      </AbsoluteFill>
+      <AbsoluteFill style={{ opacity: dark * darkOff, background: c.charcoal, transform: `translateY(${lift * 100}%)` }}>
+        <TitleCard />
+      </AbsoluteFill>
+      {/* 4. Grade, then 5. grain + vignette. */}
+      <Grade dark={dark * darkOff * (1 + lift)} />
+      <Grain />
+      <Vignette />
     </AbsoluteFill>
   );
 };
 
-/* Plate -------------------------------------------------------------------------------------- */
-
-/**
- * Window light on paper (stands in for ASSET_BRIEF #2, which does not exist): a warm
- * paper-shade pool graded in from the right, with four window panes of paper light falling
- * across it, soft-edged. The left 30% is exact ivory (#F8F5EF), so the poster's top-left pixel
- * is the page colour. The light drifts on a 16 s period, so the loop stays seamless.
- */
-const PANES = [
-  [0, 0],
-  [124, 0],
-  [0, 148],
-  [124, 148],
-] as const;
-
-const WindowLight = () => {
+/** Slow, periodic warm light on paper. Periodic in the film length so the loop is seamless. */
+const PaperMesh = () => {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
   const a = (frame / durationInFrames) * Math.PI * 2;
-  const drift = Math.sin(a) * 9;
   return (
-    <g>
-      <defs>
-        <linearGradient id="pool" x1="0" x2="1" y1="0" y2="0">
-          <stop offset="0.36" stopColor={INK.paperShade} stopOpacity="0" />
-          <stop offset="0.78" stopColor={INK.paperShade} stopOpacity="0.9" />
-          <stop offset="1" stopColor={INK.paperShade} stopOpacity="1" />
-        </linearGradient>
-        <linearGradient id="paneFade" x1="0" x2="1" y1="0" y2="0">
-          <stop offset="0.3" stopColor="#fff" stopOpacity="0" />
-          <stop offset="0.55" stopColor="#fff" stopOpacity="1" />
-        </linearGradient>
-        <mask id="paneMask" maskUnits="userSpaceOnUse" x="0" y="0" width={VB.w} height={VB.h}>
-          <rect width={VB.w} height={VB.h} fill="url(#paneFade)" />
-        </mask>
-        <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="5" />
-        </filter>
-      </defs>
-      <rect width={VB.w} height={VB.h} fill={INK.ivory} />
-      <rect width={VB.w} height={VB.h} fill="url(#pool)" />
-      <g mask="url(#paneMask)">
-        <g filter="url(#soft)" fill={INK.paper} transform={`translate(${drift} 0) matrix(1 .14 .58 1 244 22)`}>
-          {PANES.map(([x, y]) => (
-            <rect key={`${x} ${y}`} x={x} y={y} width="112" height="136" rx="3" opacity="0.95" />
-          ))}
-        </g>
-      </g>
-    </g>
-  );
-};
-
-/* Scene: opening card -> chapters -> thread -------------------------------------------------- */
-
-const lerp = (a: number, b: number, k: number) => a + (b - a) * k;
-
-/** Frame-0 state: the notecard alone. */
-const Opening = () => <Notecard {...CARD_OPEN} />;
-
-const Scene = () => {
-  const frame = useCurrentFrame();
-  const t = useT();
-
-  const move = interpolate(frame, [t(4), t(5)], [0, 1], { ...clamp, easing: theme.ease.inOut });
-  const card = {
-    x: lerp(CARD_OPEN.x, CARD_CHAPTER.x, move),
-    y: lerp(CARD_OPEN.y, CARD_CHAPTER.y, move),
-    width: lerp(CARD_OPEN.width, CARD_CHAPTER.width, move),
-    height: lerp(CARD_OPEN.height, CARD_CHAPTER.height, move),
-    rotate: CARD_OPEN.rotate,
-  };
-
-  // Chapters arrive in order (a short lift, no bounce), then the thread draws: plate -> objects -> thread.
-  const arrive = (s: number) => interpolate(frame, [t(s), t(s + 0.7)], [0, 1], { ...clamp, easing: theme.ease.out });
-  const nb = arrive(4.3);
-  const pr = arrive(4.6);
-  const ky = arrive(4.9);
-  const draw = interpolate(frame, [t(5.5), t(9)], [1, 0], { ...clamp, easing: theme.ease.draw });
-
-  return (
-    <g>
-      <Notecard {...card} />
-      {nb > 0 ? (
-        <g opacity={nb} transform={`translate(0 ${(1 - nb) * 14})`}>
-          <Placed {...NOTEBOOK}>
-            <Notebook unit={1 / NOTEBOOK.scale} />
-          </Placed>
-        </g>
-      ) : null}
-      {pr > 0 ? (
-        <g opacity={pr} transform={`translate(0 ${(1 - pr) * 14})`}>
-          <Placed {...PROOFS}>
-            <ProofSheets unit={1 / PROOFS.scale} />
-          </Placed>
-        </g>
-      ) : null}
-      {ky > 0 ? (
-        <g opacity={ky} transform={`translate(${KEY.x} ${KEY.y + (1 - ky) * 14})`}>
-          <Key rot={KEY.rot} unit={1} />
-        </g>
-      ) : null}
-      {draw < 1 ? (
-        <path
-          d={THREAD}
-          fill="none"
-          stroke={INK.brass}
-          strokeWidth={STROKE.thread}
-          strokeLinecap="butt"
-          strokeLinejoin="round"
-          pathLength={1}
-          strokeDasharray="1 1"
-          strokeDashoffset={draw}
-        />
-      ) : null}
-    </g>
-  );
-};
-
-/* Lockup ------------------------------------------------------------------------------------- */
-
-/** The lockup's loop: crossing near the right edge, the right lobe running off the frame. */
-const LOCKUP_LOOP = { at: [1132, 360] as const, k: 3.5, line: 3.6 };
-
-/**
- * Charcoal lockup card (flat: no felt raster, no noise, for the byte budget). Brass-line is a
- * decorative line only, never text. Ivory wordmark in Fraunces, mist sentence in Inter.
- * `y` is the card's offset as a fraction of the frame height (1 = below, 0 = in place, -1 = above).
- */
-const Lockup = ({ y }: { y: number }) => {
-  const frame = useCurrentFrame();
-  const t = useT();
-  const line = interpolate(frame, [t(10.5), t(12.3)], [1, 0], { ...clamp, easing: theme.ease.draw });
-  const word = interpolate(frame, [t(10.9), t(11.6)], [0, 1], { ...clamp, easing: theme.ease.out });
-  const place = interpolate(frame, [t(11.3), t(12)], [0, 1], { ...clamp, easing: theme.ease.out });
-  return (
-    <AbsoluteFill
-      style={{
-        background: c.charcoal,
-        transform: `translateY(${y * 100}%)`,
-        // The lifted card's edge reads against the paper below it.
-        boxShadow: `0 0 36px rgba(27,31,35,${(0.18 * Math.min(1, (1 - Math.abs(y)) * 4)).toFixed(3)})`,
-      }}
-    >
-      <svg viewBox="0 0 1280 720" width="100%" height="100%" style={{ position: "absolute", inset: 0 }}>
-        {/* Not drawn at all before the draw starts: Chrome paints a speck at a full dash offset. */}
-        {line < 0.999 ? (
-          <path
-            d={LOOP_PATH}
-            transform={`translate(${LOCKUP_LOOP.at[0]} ${LOCKUP_LOOP.at[1]}) scale(${LOCKUP_LOOP.k})`}
-            fill="none"
-            stroke={INK.brassLine}
-            strokeWidth={LOCKUP_LOOP.line / LOCKUP_LOOP.k}
-            strokeLinecap="butt"
-            pathLength={1}
-            strokeDasharray="1 1"
-            strokeDashoffset={line}
-          />
-        ) : null}
-      </svg>
+    <AbsoluteFill>
       <div
         style={{
           position: "absolute",
-          left: 136,
-          top: 0,
-          bottom: 0,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
+          width: 1100,
+          height: 1100,
+          borderRadius: "50%",
+          left: -320 + Math.sin(a) * 40,
+          top: -520 + Math.cos(a) * 30,
+          filter: "blur(60px)",
+          background: `radial-gradient(circle, ${c.warm}66, transparent 62%)`,
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          width: 900,
+          height: 900,
+          borderRadius: "50%",
+          right: -300 - Math.cos(a) * 30,
+          bottom: -480,
+          filter: "blur(70px)",
+          background: `radial-gradient(circle, ${c.ivoryDeep}cc, transparent 65%)`,
+        }}
+      />
+    </AbsoluteFill>
+  );
+};
+
+/**
+ * The 07 video-thumbnail plate with Ken Burns. The move runs during the
+ * opening; the closing shot holds the frame-0 framing so the loop is seamless.
+ * A warm light band crosses once, and a few motes drift.
+ */
+const Plate = () => {
+  const frame = useCurrentFrame();
+  const t = useT();
+  const k = interpolate(frame, [0, t(4.2)], [0, 1], { ...clamp, easing: theme.ease.inOut });
+  const opening = frame < t(6);
+  const scale = opening ? 1 + 0.06 * k : 1;
+  const pan = opening ? -18 * k : 0;
+  const sweep = interpolate(frame, [t(0.4), t(3.6)], [-0.4, 1.3], { ...clamp, easing: theme.ease.inOut });
+  return (
+    <AbsoluteFill style={{ overflow: "hidden" }}>
+      <Img
+        src={staticFile("plates/07-video-thumbnail.png")}
+        style={{ width: "100%", height: "100%", objectFit: "cover", transform: `scale(${scale}) translateX(${pan}px)` }}
+      />
+      {opening ? (
+        <AbsoluteFill
+          style={{
+            background: `linear-gradient(105deg, transparent ${sweep * 100 - 22}%, ${c.warm}55 ${sweep * 100}%, transparent ${sweep * 100 + 22}%)`,
+            mixBlendMode: "soft-light",
+          }}
+        />
+      ) : null}
+      {opening ? <Motes /> : null}
+    </AbsoluteFill>
+  );
+};
+
+const Motes = () => {
+  const frame = useCurrentFrame();
+  const t = useT();
+  const fade = interpolate(frame, [t(0.2), t(1), t(3), t(3.8)], [0, 1, 1, 0], clamp);
+  return (
+    <AbsoluteFill style={{ opacity: fade * 0.7 }}>
+      {Array.from({ length: 18 }).map((_, i) => {
+        const x = 760 + ((i * 97) % 460);
+        const y0 = 120 + ((i * 61) % 380);
+        const y = y0 + (frame * (0.25 + (i % 5) * 0.06)) % 60;
+        const r = 1 + (i % 3) * 0.7;
+        return (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              left: x + Math.sin((frame + i * 13) / 28) * 6,
+              top: y,
+              width: r * 2,
+              height: r * 2,
+              borderRadius: "50%",
+              background: i % 2 ? c.ivory : c.mist,
+            }}
+          />
+        );
+      })}
+    </AbsoluteFill>
+  );
+};
+
+/** A message card with plain lines (no words, no stars), lit and shadowed. */
+const Card = ({ w, lines, tail, edge }: { w: number; lines: number[]; tail: "left" | "right"; edge?: boolean }) => {
+  const h = 46 + lines.length * 26;
+  return (
+    <div style={{ position: "relative", width: w, height: h }}>
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          borderRadius: 18,
+          background: `linear-gradient(160deg, #FFFDF8, ${c.ivory} 45%, ${c.ivoryDeep})`,
+          boxShadow: `0 30px 60px -24px rgba(27,31,35,0.35), 0 2px 0 rgba(255,255,255,0.8) inset`,
+          border: edge ? `1.5px solid ${c.brass}` : "1px solid rgba(27,31,35,0.06)",
+        }}
+      />
+      <svg
+        width="34"
+        height="28"
+        viewBox="0 0 34 28"
+        style={{ position: "absolute", bottom: -24, [tail]: 34, transform: tail === "left" ? "scaleX(-1)" : undefined }}
+      >
+        <path d="M0 0 L34 0 L8 26 Z" fill={c.ivoryDeep} />
+      </svg>
+      <div style={{ position: "absolute", left: 30, top: 28, display: "flex", flexDirection: "column", gap: 16 }}>
+        {lines.map((len, i) => (
+          <div key={i} style={{ width: len, height: 7, borderRadius: 4, background: c.charcoal, opacity: 0.62 }} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+/** Beat B: the thank-you card, then the reply, then the brass thread that joins them. */
+const ReplyStory = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const t = useT();
+  const a = spring({ frame: frame - t(4.0), fps, config: theme.spring.smooth });
+  const b = spring({ frame: frame - t(5.6), fps, config: theme.spring.smooth });
+  const draw = interpolate(frame, [t(6.2), t(7.7)], [1, 0], { ...clamp, easing: theme.ease.draw });
+  const breathe = Math.sin(frame / 24) * 2.5;
+  // Camera push into the thread's loop before the cut to charcoal.
+  const push = interpolate(frame, [t(7.6), t(8.6)], [1, 1.35], { ...clamp, easing: theme.ease.in });
+  return (
+    <AbsoluteFill style={{ transform: `scale(${push})`, transformOrigin: "640px 420px" }}>
+      <div
+        style={{
+          position: "absolute",
+          left: 190,
+          top: 180,
+          opacity: a,
+          transform: `translateY(${interpolate(a, [0, 1], [40, 0]) + breathe}px) scale(${interpolate(a, [0, 1], [0.95, 1])})`,
         }}
       >
-        <div
-          style={{
-            fontFamily: theme.fonts.display,
-            fontWeight: 500,
-            fontSize: 112,
-            letterSpacing: "-0.02em",
-            lineHeight: 1.04,
-            color: c.ivory,
-            opacity: word,
-            transform: `translateY(${(1 - word) * 16}px)`,
-          }}
-        >
-          ReplyLoop
+        <Card w={360} lines={[290, 230, 150]} tail="right" />
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          left: 760,
+          top: 300,
+          opacity: b,
+          transform: `translateY(${interpolate(b, [0, 1], [34, 0]) - breathe}px) scale(${interpolate(b, [0, 1], [0.95, 1])})`,
+        }}
+      >
+        <Card w={300} lines={[220, 140]} tail="left" edge />
+      </div>
+      <svg width="1280" height="720" style={{ position: "absolute", inset: 0 }}>
+        <path
+          d="M492 330 C520 430 600 470 650 440 C700 410 690 360 650 362 C610 364 606 420 660 448 C720 478 780 440 826 412"
+          fill="none"
+          stroke={c.brass}
+          strokeWidth={3.2}
+          strokeLinecap="round"
+          pathLength={1}
+          strokeDasharray={1}
+          strokeDashoffset={draw}
+        />
+      </svg>
+    </AbsoluteFill>
+  );
+};
+
+/** Beat C: charcoal title card in the manner of the cover master. Brass is the line only, never text. */
+const TitleCard = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const t = useT();
+  const line = interpolate(frame, [t(8.6), t(10.6)], [1, 0], { ...clamp, easing: theme.ease.draw });
+  const mark = spring({ frame: frame - t(9.0), fps, config: theme.spring.gentle });
+  const word = spring({ frame: frame - t(9.4), fps, config: theme.spring.gentle });
+  const tagline = "Keep the thank you alive.".split(" ");
+  const breathe = 1 + Math.sin(frame / 30) * 0.004;
+  return (
+    <AbsoluteFill>
+      {/* The thin brass infinity line, cropped at the right edge (cover master). */}
+      <svg viewBox={LOOP_VIEWBOX} style={{ position: "absolute", width: 820, right: -260, top: 196 }}>
+        <path
+          d={LOOP_PATH}
+          fill="none"
+          stroke={c.brassLine}
+          strokeWidth={0.5}
+          strokeLinecap="round"
+          pathLength={1}
+          strokeDasharray={1}
+          strokeDashoffset={line}
+        />
+      </svg>
+      <div style={{ position: "absolute", left: 150, top: 262, transform: `scale(${breathe})`, transformOrigin: "left center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 22, opacity: mark, transform: `translateY(${interpolate(mark, [0, 1], [24, 0])}px)` }}>
+          <svg viewBox={LOOP_VIEWBOX} style={{ height: 46 }}>
+            <path d={LOOP_PATH} fill="none" stroke={c.brass} strokeWidth={LOOP_STROKE} strokeLinejoin="round" />
+            <path d={LOOP_CROSSING_PATH} fill="none" stroke={c.ivory} strokeWidth={LOOP_STROKE + 0.4} />
+          </svg>
+          <div
+            style={{
+              fontFamily: theme.fonts.display,
+              fontWeight: 500,
+              fontSize: 96,
+              letterSpacing: "-0.02em",
+              lineHeight: 1.04,
+              color: c.ivory,
+              opacity: word,
+              transform: `translateY(${interpolate(word, [0, 1], [18, 0])}px)`,
+            }}
+          >
+            ReplyLoop
+          </div>
         </div>
-        <div
-          style={{
-            marginTop: 22,
-            fontFamily: theme.fonts.body,
-            fontWeight: 500,
-            fontSize: 32,
-            lineHeight: 1.3,
-            color: c.mist,
-            opacity: place,
-            transform: `translateY(${(1 - place) * 12}px)`,
-          }}
-        >
-          Based in Salt Lake County, Utah.
+        <div style={{ display: "flex", gap: 14, marginTop: 26 }}>
+          {tagline.map((w, i) => {
+            const p = spring({ frame: frame - t(10.2) - i * 4, fps, config: theme.spring.smooth });
+            return (
+              <span
+                key={i}
+                style={{
+                  fontFamily: theme.fonts.body,
+                  fontWeight: 500,
+                  fontSize: 38,
+                  color: c.mist,
+                  opacity: p,
+                  transform: `translateY(${interpolate(p, [0, 1], [16, 0])}px)`,
+                  display: "inline-block",
+                }}
+              >
+                {w}
+              </span>
+            );
+          })}
         </div>
       </div>
     </AbsoluteFill>
   );
 };
+
+/** Warm soft-light grade; slightly stronger on the charcoal card. */
+const Grade = ({ dark }: { dark: number }) => (
+  <AbsoluteFill style={{ pointerEvents: "none" }}>
+    <AbsoluteFill style={{ backgroundColor: c.brass, mixBlendMode: "soft-light", opacity: 0.08 + dark * 0.08 }} />
+    <AbsoluteFill
+      style={{ background: "linear-gradient(180deg, rgba(27,31,35,0.05), transparent 30%, transparent 70%, rgba(27,31,35,0.1))" }}
+    />
+  </AbsoluteFill>
+);
+
+/** Procedural grain. Offset cycles every 4 frames, so frame 0 and the last+1 frame match. */
+const Grain = () => {
+  const frame = useCurrentFrame();
+  const noise = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E")`;
+  const o = (frame % 4) * 55;
+  return (
+    <AbsoluteFill
+      style={{
+        pointerEvents: "none",
+        backgroundImage: noise,
+        backgroundSize: "220px",
+        backgroundPosition: `${o}px ${(o * 2) % 220}px`,
+        opacity: 0.06,
+        mixBlendMode: "multiply",
+      }}
+    />
+  );
+};
+
+const Vignette = () => (
+  <AbsoluteFill
+    style={{ pointerEvents: "none", background: "radial-gradient(ellipse at center, transparent 58%, rgba(27,31,35,0.18) 100%)" }}
+  />
+);

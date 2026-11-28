@@ -7,8 +7,7 @@ import { LOOP_CROSSING_RANGE, LOOP_POINTS } from "@/lib/loop/geometry.generated"
  * strand (s=0.5) drops away, so the over-under reads in 3D exactly as the flat
  * mark draws it.
  */
-/** The kit stroke is 0.1761 of the half-width (LOOP_STROKE / 100), so the tube silhouette matches the still. */
-export const LOOP_TUBE_RADIUS = 0.088;
+export const LOOP_TUBE_RADIUS = 0.098; // kit stroke is 0.176 of the half-width
 const LIFT = 0.12; // > radius, so the strands clear each other
 const LIFT_WIDTH = 0.07; // fraction of the curve length
 

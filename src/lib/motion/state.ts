@@ -16,18 +16,8 @@ export const MOTION_STORAGE_KEY = "rl-motion-v1";
 const CHANGE_EVENT = "rl-motion-change";
 const REDUCE_QUERY = "(prefers-reduced-motion: reduce)";
 
-/**
- * Inline <head> script. Must stay tiny and must not throw. Before first paint it sets:
- * - html[data-motion]: reduce | paused | full (the server renders "static", kept without JS);
- * - html[data-tier]: full | lite, from the same pre-paint tests as getMotionTier()
- *   (Save-Data, device memory < 4 GB, fewer than 4 cores), so CSS before-states can be
- *   scoped to the tier their timelines run on.
- * It also owns the GSAP failure timer (a bundle that fails could not set it): when a page
- * has a GSAP scene ([data-gsap-scene]) or loadGsap() asks for it (window.__rlWatchGsap),
- * and html.rl-gsap-ready has not appeared 3 s later, it adds html.rl-gsap-failed, which
- * voids every CSS before-state so the finished state shows.
- */
-export const MOTION_HEAD_SCRIPT = `(function(){try{var d=document.documentElement,w=window,n=navigator,r=w.matchMedia("${REDUCE_QUERY}").matches,p=false;try{p=localStorage.getItem("${MOTION_STORAGE_KEY}")==="paused"}catch(e){}d.setAttribute("data-motion",r?"reduce":p?"paused":"full");var c=n.connection,l=(c&&c.saveData)||(typeof n.deviceMemory=="number"&&n.deviceMemory<4)||(typeof n.hardwareConcurrency=="number"&&n.hardwareConcurrency<4);d.setAttribute("data-tier",l?"lite":"full");var t=0;w.__rlWatchGsap=function(){if(t||d.classList.contains("rl-gsap-ready"))return;t=setTimeout(function(){t=0;if(!d.classList.contains("rl-gsap-ready"))d.classList.add("rl-gsap-failed")},3000)};w.addEventListener("load",function(){if(document.querySelector("[data-gsap-scene]"))w.__rlWatchGsap()})}catch(e){}})()`;
+/** Inline <head> script. Must stay tiny and must not throw. */
+export const MOTION_HEAD_SCRIPT = `(function(){try{var d=document.documentElement,r=window.matchMedia("${REDUCE_QUERY}").matches,p=false;try{p=localStorage.getItem("${MOTION_STORAGE_KEY}")==="paused"}catch(e){}d.setAttribute("data-motion",r?"reduce":p?"paused":"full")}catch(e){}})()`;
 
 let memoryPaused = false;
 
@@ -101,7 +91,7 @@ export function subscribeMotion(callback: () => void) {
  * Device tier. Decides how heavy the motion may be, independent of the mode.
  * - "full": WebGL hero and pinned scroll scenes allowed.
  * - "lite": no WebGL; pre-rendered video or stills instead. Phones, Save-Data,
- *   low memory or few cores, no WebGL, or WebGL only in software.
+ *   low memory or few cores, or no WebGL.
  */
 export type MotionTier = "lite" | "full";
 
@@ -110,57 +100,21 @@ type NavigatorHints = Navigator & {
   deviceMemory?: number;
 };
 
-/**
- * Hardware WebGL only. failIfMajorPerformanceCaveat makes the browser refuse a context
- * it would run in software (SwiftShader, a blocklisted GPU), so those visitors keep the
- * still (brief §8.2). Known software renderers are refused by name as well. The probe
- * context is released at once.
- */
-const WEBGL_PROBE_ATTRIBUTES: WebGLContextAttributes = { failIfMajorPerformanceCaveat: true };
-
-const SOFTWARE_RENDERER = /swiftshader|llvmpipe|softpipe|software|basic render driver/i;
-
 let cachedWebGL: boolean | undefined;
 function hasWebGL(): boolean {
   if (cachedWebGL !== undefined) return cachedWebGL;
   try {
     const c = document.createElement("canvas");
-    const gl =
-      (c.getContext("webgl2", WEBGL_PROBE_ATTRIBUTES) as WebGL2RenderingContext | null) ??
-      (c.getContext("webgl", WEBGL_PROBE_ATTRIBUTES) as WebGLRenderingContext | null);
-    let hardware = Boolean(gl);
-    if (gl) {
-      // Some browsers (headless Chrome among them) grant a software context despite the
-      // caveat flag, so the renderer's name is checked too.
-      const info = gl.getExtension("WEBGL_debug_renderer_info");
-      const name = String(gl.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : gl.RENDERER) ?? "");
-      if (SOFTWARE_RENDERER.test(name)) hardware = false;
-    }
-    cachedWebGL = hardware;
-    gl?.getExtension("WEBGL_lose_context")?.loseContext();
+    cachedWebGL = Boolean(c.getContext("webgl2") || c.getContext("webgl"));
   } catch {
     cachedWebGL = false;
   }
   return cachedWebGL;
 }
 
-/**
- * QA-only override for the home hero: `?hero=webgl` bypasses the tier tests, the
- * software-renderer caveat (here and in the renderer's context request) and the
- * low-power probe, so the swap can be checked on SwiftShader. Never linked.
- */
-export function heroWebGLForced(): boolean {
-  try {
-    return new URLSearchParams(window.location.search).get("hero") === "webgl";
-  } catch {
-    return false;
-  }
-}
-
 export const FULL_TIER_MIN_WIDTH = 1024;
 
-export function getMotionTier({ forceWebGL = false }: { forceWebGL?: boolean } = {}): MotionTier {
-  if (forceWebGL) return "full";
+export function getMotionTier(): MotionTier {
   const nav = navigator as NavigatorHints;
   if (nav.connection?.saveData) return "lite";
   if (typeof nav.deviceMemory === "number" && nav.deviceMemory < 4) return "lite";

@@ -1,15 +1,13 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { LoopSymbol } from "@/components/blog/LoopStrip";
-import { PostCard } from "@/components/blog/PostCard";
+import { Card } from "@/components/ui/Card";
 import { PageHero } from "@/components/ui/PageHero";
-import { HeroPlate } from "@/components/scenes/HeroPlate";
-import { ServiceEmblem } from "@/components/scenes/ServiceEmblem";
 import { Section } from "@/components/ui/Section";
 import { allPostMeta } from "@/content/posts";
 import { breadcrumbSchema, graph, type Crumb } from "@/lib/schema";
+import { formatDate } from "@/lib/date";
 import { pageMetadata } from "@/lib/seo";
-import { PageBody } from "@/components/motion/PageBody";
 
 export const metadata: Metadata = pageMetadata({
   title: "Guides for Home Care Owners | ReplyLoop Blog",
@@ -24,12 +22,6 @@ const crumbs: Crumb[] = [
   { name: "Blog", path: "/blog" },
 ];
 
-/**
- * /blog (brief §8.10). Hero: the quiet loop emblem on desktop (as /faq and /contact), the blog
- * HeroPlate on phones. Below it, one reading band of guide cards: each card is a whole-card link
- * with its own loop crop in a 120px header strip (one shared <symbol> per page). The first
- * guide leads as a full-width feature card, two columns at lg; the rest sit two-up from md.
- */
 export default function BlogIndex() {
   return (
     <>
@@ -39,19 +31,27 @@ export default function BlogIndex() {
         title="Guides for home care owners"
         intro="Plain answers about Google reviews, your Google Business Profile, and local search."
         showButton={false}
-        backdrop={<ServiceEmblem variant="loop" />}
-        plate={<HeroPlate variant="blog" />}
       />
-      <PageBody>
-        <Section rhythm="tight">
-          <LoopSymbol />
-          <ul className="grid gap-6 md:grid-cols-2 lg:gap-8">
-            {allPostMeta.map((p, i) => (
-              <PostCard key={p.slug} post={p} index={i} strip feature={i === 0} className={i === 0 ? "md:col-span-2" : undefined} />
-            ))}
-          </ul>
-        </Section>
-      </PageBody>
+      <Section reveal={false}>
+        <ul className="grid gap-6 md:grid-cols-3">
+          {allPostMeta.map((p) => (
+            <Card as="li" key={p.slug} className="flex flex-col">
+              <p className="text-sm text-slate">
+                <time dateTime={p.date}>{formatDate(p.date)}</time>
+              </p>
+              <h2 className="mt-3 font-serif text-2xl font-medium leading-snug">
+                <Link
+                  href={`/blog/${p.slug}`}
+                  className="underline decoration-brass decoration-1 underline-offset-4 hover:decoration-2"
+                >
+                  {p.title}
+                </Link>
+              </h2>
+              <p className="mt-3 text-slate">{p.description}</p>
+            </Card>
+          ))}
+        </ul>
+      </Section>
       <JsonLd data={graph(breadcrumbSchema(crumbs))} />
     </>
   );

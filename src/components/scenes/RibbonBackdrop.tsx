@@ -1,49 +1,43 @@
-import { INK } from "@/lib/illustration/tokens";
-import { LOOP_PATH_COMPACT } from "@/lib/loop/compact";
-
 /**
- * Hero art for /home-care-agencies on desktop (brief §8.6): the brand ribbon, drawn.
- * Owner decision 2026-11-28: the kit's raster ribbon (06-og-link-preview) crops the band
- * at its right edge, so the whole loop could never read; the hero uses the same drawn
- * ribbon language as the phone HeroPlate instead, with the whole loop in view.
+ * Hero backdrop for /home-care-agencies: the ribbon loop from the brand kit
+ * (06-og-link-preview, cropped by `npm run brand:derive`).
  *
- * One undistorted LOOP_PATH_COMPACT (rule 1), turned 8 degrees, as a broad charcoal band
- * with a brass underside: a brass stroke offset down/right under a wider charcoal stroke,
- * both non-scaling, flat colours, no filter, no raster. The viewBox leaves about 10% clear
- * paper around the band (the brief's 8% margin). Static: no motion and no before-state.
- *
- * Inline <svg>, so it is never a Largest Contentful Paint candidate: the H1 stays LCP at
- * every width. Desktop only (lg and up), in the same art column as the service emblems;
- * phones and tablets get the HeroPlate through PageHero's plate slot. aria-hidden.
+ * Desktop only. The <source> media queries mean phones and tablets never
+ * download it; the fallback <img> src is an empty data URI. The art sits to
+ * the right of the text column and fades into the ivory, so no text ever
+ * sits on it. Static for reduced motion; a slow drift otherwise (CSS only,
+ * and only while it is on screen).
  */
-const BOX =
-  "reveal-art pointer-events-none absolute top-1/2 right-[max(2rem,calc((100%-72rem)/2+2rem))] hidden w-[23rem] -translate-y-1/2 lg:block xl:w-[27rem]";
+import { InView } from "@/components/motion/InView";
 
-/** Band strokes in screen px (non-scaling) and the brass offset in viewBox units. */
-const BAND = 20;
-const UNDER = 16;
-const LOOP = "rotate(-8)";
-const UNDER_LOOP = "translate(3.5 2.5) rotate(-8)";
+const EMPTY = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+const DESKTOP = "(min-width: 1024px)";
 
 export function RibbonBackdrop() {
   return (
-    <div aria-hidden="true" className={BOX}>
-      <svg viewBox="-125 -75 250 150" className="block h-auto w-full" focusable="false" fill="none" strokeLinejoin="round">
-        <path
-          d={LOOP_PATH_COMPACT}
-          transform={UNDER_LOOP}
-          stroke={INK.brass}
-          strokeWidth={UNDER}
-          vectorEffect="non-scaling-stroke"
+    <InView className="ribbon-backdrop pointer-events-none absolute inset-y-0 right-0 hidden w-[44%] max-w-[46rem] lg:block">
+      <picture>
+        <source
+          media={DESKTOP}
+          type="image/avif"
+          srcSet="/brand/hca-ribbon-560.avif 560w, /brand/hca-ribbon-774.avif 774w"
+          sizes="min(44vw, 46rem)"
         />
-        <path
-          d={LOOP_PATH_COMPACT}
-          transform={LOOP}
-          stroke={INK.charcoal}
-          strokeWidth={BAND}
-          vectorEffect="non-scaling-stroke"
+        <source
+          media={DESKTOP}
+          type="image/webp"
+          srcSet="/brand/hca-ribbon-560.webp 560w, /brand/hca-ribbon-774.webp 774w"
+          sizes="min(44vw, 46rem)"
         />
-      </svg>
-    </div>
+        <img
+          src={EMPTY}
+          alt=""
+          width={774}
+          height={907}
+          decoding="async"
+          className="size-full object-cover object-left [mask-image:linear-gradient(to_right,transparent,black_38%)]"
+        />
+      </picture>
+    </InView>
   );
 }

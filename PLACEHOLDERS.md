@@ -40,11 +40,9 @@ The cinematic scenes use code-built stand-ins until the stills in `ASSET_BRIEF.m
 
 | Stand-in | Where | Replaced by (`ASSET_BRIEF.md`) |
 |---|---|---|
-| Seeded noise tile `public/brand/textures/paper-128.png` (lossless palette PNG, 128 px; `.paper`, from `scripts/brand/textures.mjs`); static SVG-noise grain (`.film-grain`) on the hero visual | Ivory bands, `src/app/globals.css`; hero visual, `src/components/hero/HeroVisual.tsx` | 1. Ivory paper texture |
-| Flat SVG window-light plate (paper-shade pool, paper-light panes) | The four journey vignettes, `src/components/scenes/vignettes/*.tsx`; the brand film's opening plate, `video/src/Film.tsx` | 2. Golden-hour window light |
-| Seeded noise tile `public/brand/textures/felt-128.png` (lossless palette PNG, 128 px; `.felt`, from `scripts/brand/textures.mjs`) | Charcoal bands and the CTA band | 3. Charcoal felt texture |
-| Procedural brushed brass (anisotropic `MeshPhysicalMaterial`), lit by a light map built at runtime from emissive cards (PMREM; no EXR file) | `src/components/hero/LoopScene.tsx` | 4. Brushed brass swatch |
-| Code-drawn notecards (`Notecard`, `src/components/scenes/illustration/parts.tsx`) in the problem scene; `ServiceEmblem` `loop` variant on the `/contact` hero | `src/components/scenes/ProblemArt*.tsx`, `src/app/contact/page.tsx` | 6. Letterpress notecard |
-| `ServiceEmblem` `about` variant (two notecards joined by a `LoopThread`) | `/about` hero, `src/app/about/page.tsx` | 7. Brushed-brass loop object |
+| Static SVG-noise grain (`.film-grain`) | Hero visual, `src/app/globals.css` | 1. Ivory paper texture |
+| Window pane and warm glow gradients | `src/components/scenes/vignettes/VignetteGoLive.tsx` | 2. Golden-hour window light |
+| Flat charcoal (no texture) | Charcoal sections | 3. Charcoal felt texture |
+| Procedural brushed brass (anisotropic `MeshPhysicalMaterial`) | `src/components/hero/LoopScene.tsx` | 4. Brushed brass swatch |
 
-The brand film (Phase 8 re-cut) is drawn in vector inside `video/src`: the window-light plate is a code stand-in for ASSET_BRIEF #2 (golden-hour window light). Re-render with `cd video && npm run render` after any change to `video/src`.
+Brand film plates come from the kit (`07-video-thumbnail`), not from stand-ins. Re-render with `cd video && npm run render` after any change to `video/src`.

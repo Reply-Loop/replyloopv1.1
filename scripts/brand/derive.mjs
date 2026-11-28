@@ -13,10 +13,8 @@ const root = fileURLToPath(new URL("../..", import.meta.url));
 const out = join(root, "public/brand");
 mkdirSync(out, { recursive: true });
 
-// 06-og-link-preview (1734 x 907): the ribbon loop on the right. Kept as the pattern for
-// installing ASSET_BRIEF stills (crop, colour-match to ivory, AVIF only). Its output is not
-// wired any more: since 2026-11-28 the /home-care-agencies hero draws its ribbon in SVG
-// (RibbonBackdrop.tsx), because this raster crops the band at its right edge.
+// 06-og-link-preview (1734 x 907): the ribbon loop on the right, cropped for the
+// /home-care-agencies hero backdrop. Decorative, alt="", desktop only.
 const src = join(root, "assets/social-kit/backgrounds/06-og-link-preview.png");
 const crop = { left: 960, top: 0, width: 774, height: 907 };
 // The kit paper is a touch pinker than the page ivory (#F8F5EF). Scale each
@@ -32,10 +30,9 @@ const paper = [0, 1, 2].map((c) => {
 const gain = IVORY.map((t, c) => t / paper[c]);
 console.log("paper median", paper, "gain", gain.map((g) => g.toFixed(3)));
 
-// AVIF only, at the crop's native width (never upscaled): brief §1.2, decorative stills.
-{
-  const w = 774;
+for (const w of [560, 774]) { // 774 = the crop's native width; never upscale
   const base = sharp(src).extract(crop).removeAlpha().linear(gain, [0, 0, 0]).resize({ width: w });
-  await base.avif({ quality: 50, effort: 6 }).toFile(join(out, `hca-ribbon-${w}.avif`));
+  await base.clone().avif({ quality: 50, effort: 6 }).toFile(join(out, `hca-ribbon-${w}.avif`));
+  await base.clone().webp({ quality: 72 }).toFile(join(out, `hca-ribbon-${w}.webp`));
 }
-console.log("public/brand: hca-ribbon-774.avif");
+console.log("public/brand: hca-ribbon-{560,774}.{avif,webp}");

@@ -4,8 +4,7 @@ import { LOOP_CROSSING_PATH, LOOP_PATH, LOOP_STROKE, LOOP_VIEWBOX } from "@/lib/
 
 /**
  * Sculpted still of the hero loop in SVG: brushed-brass gradient, a soft top
- * highlight and the ivory enamel crossing. Its contact shadow is a CSS gradient in
- * HeroVisual's box, shared with the 3D canvas, so it stays put through the swap. It is the first paint
+ * highlight, a cast shadow and the ivory enamel crossing. It is the first paint
  * on every device, and the final image on phones, Save-Data, and reduced motion.
  * Vector shapes are not LCP candidates, so the H1 stays the LCP element.
  */
@@ -31,7 +30,13 @@ export function LoopStill({ className }: { className?: string }) {
           <stop offset="0" stopColor="#FFFDF8" />
           <stop offset="1" stopColor="#E6DCCB" />
         </linearGradient>
+        <filter id={`${id}-shadow`} x="-30%" y="-60%" width="160%" height="240%">
+          <feGaussianBlur stdDeviation="7" />
+        </filter>
       </defs>
+      <g transform="translate(4 16)" opacity="0.22" filter={`url(#${id}-shadow)`}>
+        <path d={LOOP_PATH} fill="none" stroke="#1B1F23" strokeWidth={LOOP_STROKE} />
+      </g>
       <path d={LOOP_PATH} fill="none" stroke={`url(#${id}-brass)`} strokeWidth={LOOP_STROKE} strokeLinejoin="round" />
       <path
         d={LOOP_PATH}

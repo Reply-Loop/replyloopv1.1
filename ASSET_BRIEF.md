@@ -2,7 +2,7 @@
 
 Each prompt uses the same structure and exclusions as the social kit's own prompts (`assets/templates/07-trust-loop-neutral.prompt.txt`, `assets/backgrounds/06-og-link-preview.prompt.txt`). Generated imagery shows only objects, light, textures and environments: **never people, faces, hands, clients, patients, care scenes, devices, screens, reviews, stars or ratings.**
 
-Until an asset exists, the site uses the code-built stand-in listed with it (also tracked in `PLACEHOLDERS.md`). To install an asset: export at the exact size, save the original under `assets/brief/`, add a step for it to `scripts/brand/derive.mjs` (the 06 ribbon step there is the pattern: crop, colour-match to ivory, AVIF only for decorative stills, brief §1.2), run `npm run brand:derive`, wire the derivative in, then remove the stand-in note.
+Until an asset exists, the site uses the code-built stand-in listed with it (also tracked in `PLACEHOLDERS.md`). To install an asset: export at the exact size, save the original under `assets/brief/`, add a step for it to `scripts/brand/derive.mjs` (the 06 ribbon step there is the pattern: crop, colour-match to ivory, AVIF and WebP), run `npm run brand:derive`, wire the derivative in, then remove the stand-in note.
 
 Palette for every prompt: charcoal `#1B1F23`, warm ivory `#F8F5EF`, deep brass `#8A5F1C`. Brass is warm, deep and brushed, never shiny yellow gold.
 
@@ -12,8 +12,8 @@ Palette for every prompt: charcoal `#1B1F23`, warm ivory `#F8F5EF`, deep brass `
 
 - **File:** `assets/brief/ivory-paper-2048.png` → `public/brand/textures/ivory-paper.avif` / `.webp`
 - **Size:** 2048 × 2048 px, seamlessly tileable on all four edges
-- **Use:** fine paper grain under ivory sections, the problem-card scene and the how-it-works vignettes (derived into a 256px tile with the grain baked in at about 6% strength, painted as the band's own background beneath the content; no blend mode, no overlay above text)
-- **Stand-in:** a seeded noise tile, `public/brand/textures/paper-128.png` (lossless palette PNG, 128 px, from `scripts/brand/textures.mjs`), on ivory bands; the static SVG-noise `.film-grain` layer on the hero visual. The problem scene and vignettes get the grain with their redraw.
+- **Use:** fine paper grain under ivory sections, the problem-card scene and the how-it-works vignettes (`mix-blend-mode: multiply`, about 6% opacity)
+- **Stand-in:** the static SVG-noise `.film-grain` layer (`src/app/globals.css`), used on the hero visual only. The problem scene and vignettes have no grain yet.
 
 ```
 Use case: texture-material
@@ -34,7 +34,7 @@ Avoid: visible tiling seams, strong grain, yellowing, blue or grey cast, vignett
 - **File:** `assets/brief/window-light-2400x1350.png` → `public/brand/plates/window-light.avif` / `.webp`
 - **Size:** 2400 × 1350 px (16:9)
 - **Use:** backdrop for chapter 04 "Go live, in the open" in the how-it-works sequence, and the warm light pass in the hero
-- **Stand-in:** the flat SVG window-light plate (a paper-shade pool and paper-light panes, no gradients) in the four journey vignettes, `src/components/scenes/vignettes/`; the brand film's opening window-light plate, drawn in vector in `video/src/Film.tsx` (Phase 8 re-cut); the hero's light pass is the moving key light in `src/components/hero/LoopScene.tsx`.
+- **Stand-in:** the window pane and warm glow gradients drawn in `src/components/scenes/vignettes/VignetteGoLive.tsx`; the hero's light pass is the moving key light in `src/components/hero/LoopScene.tsx`.
 
 ```
 Use case: background-plate
@@ -55,7 +55,7 @@ Avoid: harsh hard-edged shadows, blown highlights, lens flare, blue light, dust 
 - **File:** `assets/brief/charcoal-felt-1024.png` → `public/brand/textures/charcoal-felt.avif` / `.webp`
 - **Size:** 1024 × 1024 px, seamlessly tileable
 - **Use:** a barely visible surface under charcoal bands (health section, film frame, CTA band) at about 5% opacity
-- **Stand-in:** a seeded noise tile, `public/brand/textures/felt-128.png` (lossless palette PNG, 128 px, from `scripts/brand/textures.mjs`), on charcoal bands and the CTA band.
+- **Stand-in:** none. Charcoal bands are flat `#1B1F23` until this exists.
 
 ```
 Use case: texture-material
@@ -92,52 +92,6 @@ Constraints: No text, no letters, no numbers, no logos, no stamp marks, no water
 Avoid: mirror polish, chrome, shiny yellow gold, rainbow sheen, visible reflections, lens flare, vignetting, tiling seams.
 ```
 
-## 6. Letterpress notecard
-
-- **File:** `assets/brief/letterpress-notecard-2400x1350.png` → `public/brand/plates/letterpress-notecard.avif` (AVIF only, no WebP twin)
-- **Size:** 2400 × 1350 px (16:9); derive a portrait phone crop from the same file
-- **Use:** an option for the mobile problem scene, and the `/contact` hero. Not for OG images: OG cards stay flat vector.
-- **Caps:** decorative still, AVIF only, ≤ 40 KB per derivative; lazy-load below the fold. Never put text in the raster.
-- **Loop:** the debossed double loop must match the option-B geometry (the site's `LOOP_PATH`, `src/lib/loop/geometry.generated.ts`). A generated loop is reference only; the code `LOOP_PATH` stays canonical, and any loop the page shows over the still is drawn in code.
-- **Stand-in:** the code-drawn notecards (`Notecard` in `src/components/scenes/illustration/parts.tsx`) in the problem scene, and the `ServiceEmblem` `loop` variant on the `/contact` hero (`src/components/scenes/ServiceEmblem.tsx`).
-
-```
-Use case: product-still
-Asset type: landscape still, exactly 16:9, 2400 by 1350 pixels, with a portrait crop possible from the centre right
-Primary request: An ivory cotton letterpress notecard with a blind-debossed double loop, on ivory paper in soft upper-left window light.
-Scene/backdrop: a plain warm ivory paper surface seen from slightly above; nothing else in the frame.
-Subject: one rectangular ivory cotton notecard with softly rounded corners, lying flat, slightly rotated; a blind-debossed double loop (two lobes crossing once at the centre, like a figure eight lying on its side) pressed into the card with no ink, readable only by light and shadow in the impression. The loop matches the supplied double-loop reference exactly: same lobe proportions, same single crossing, no extra curls.
-Style/medium: photoreal, quiet editorial still-life photography, fine cotton fibre visible on the card.
-Composition/framing: the card sits in the right half of the frame; the left 50 percent stays a smooth, open ivory field; generous empty space on every side; the card is never cropped.
-Lighting/mood: soft window light from the upper left, low contrast, a gentle contact shadow to the lower right; calm and warm.
-Color palette: warm ivory #F8F5EF paper and card, shadows tending toward charcoal #1B1F23 at low opacity, a faint deep brass #8A5F1C warmth in the light; no other hues.
-Constraints: No text, no letters, no numbers, no logos, no watermark, no people, no faces, no hands, no devices, no screens, no reviews, no stars, no ratings, no ink, no foil, no envelope, no pen, no other objects.
-Avoid: shiny yellow gold, metallic foil, a loop that differs from the reference, extra flourishes, harsh hard-edged shadows, blown highlights, blue or grey cast, lens flare, bokeh, busy backgrounds, any recognizable room.
-```
-
-## 7. Brushed-brass loop object
-
-- **File:** `assets/brief/brass-loop-object-2400x1350.png` → `public/brand/plates/brass-loop-object.avif` (AVIF only, no WebP twin)
-- **Size:** 2400 × 1350 px (16:9); derive a portrait phone crop from the same file
-- **Use:** the `/about` hero. Never the home hero: the home hero carries no raster (the H1 stays the LCP element and the 3D loop takes over from an SVG still).
-- **Caps:** decorative still, AVIF only, ≤ 40 KB per derivative. Never put text in the raster.
-- **Loop:** the object's double loop must match the option-B geometry (the site's `LOOP_PATH`, `src/lib/loop/geometry.generated.ts`). A generated loop is reference only; the code `LOOP_PATH` stays canonical.
-- **Stand-in:** the `ServiceEmblem` `about` variant (two notecards joined by a `LoopThread`) on the `/about` hero (`src/components/scenes/ServiceEmblem.tsx`).
-
-```
-Use case: product-still
-Asset type: landscape still, exactly 16:9, 2400 by 1350 pixels, with a portrait crop possible from the centre right
-Primary request: A brushed deep-brass double-loop object resting on ivory paper, soft upper-left light.
-Scene/backdrop: a plain warm ivory paper surface seen from slightly above; nothing else in the frame.
-Subject: one solid double-loop object in brushed deep brass, a round tube bent into two lobes that cross once at the centre, like a figure eight lying on its side, resting flat on the paper. The loop matches the supplied double-loop reference exactly: same lobe proportions, same single crossing, uniform tube thickness, no extra curls, no base, no stand.
-Style/medium: photoreal, quiet editorial still-life photography; satin brushed metal with soft anisotropic sheen.
-Composition/framing: the object sits in the right half of the frame; the left 50 percent stays a smooth, open ivory field; generous empty space on every side; the object is never cropped.
-Lighting/mood: soft light from the upper left, broad and even; satin highlights only; a gentle contact shadow on the paper to the lower right; calm and warm.
-Color palette: deep brass family around #8A5F1C, warm and slightly brown, with shaded sides near #5C3E12; warm ivory #F8F5EF paper; shadows tending toward charcoal #1B1F23 at low opacity.
-Constraints: No text, no letters, no numbers, no logos, no engraving, no stamp marks, no watermark, no people, no faces, no hands, no devices, no screens, no reviews, no stars, no ratings, no other objects.
-Avoid: shiny yellow gold, mirror polish, chrome, copper-pink, rainbow sheen, reflections of a room or camera, hot spots, a loop that differs from the reference, harsh hard-edged shadows, blue or grey cast, lens flare, bokeh, busy backgrounds.
-```
-
 ---
 
 ## Open items
@@ -146,8 +100,6 @@ Avoid: shiny yellow gold, mirror polish, chrome, copper-pink, rainbow sheen, ref
 |---|---|---|
 | 1 | Ivory paper texture | Not generated. Stand-in live. |
 | 2 | Golden-hour window light | Not generated. Stand-in live. |
-| 3 | Charcoal felt texture | Not generated. Stand-in live (seeded noise tile). |
+| 3 | Charcoal felt texture | Not generated. No stand-in (flat charcoal). |
 | 4 | Brushed brass swatch | Not generated. Procedural material live. |
-| 5 | Ribbon plate at 2x | **Not needed (owner decision 2026-11-28).** The kit ribbon crops the band at its right edge, so the `/home-care-agencies` hero now uses a drawn ribbon (`RibbonBackdrop.tsx`, the same language as the phone `HeroPlate`) that shows the whole loop. The derive step for the raster ribbon stays in `scripts/brand/derive.mjs` as the pattern for installing other stills; its output is no longer wired. |
-| 6 | Letterpress notecard | Not generated. Stand-in live: the code notecards in the problem scene and the `ServiceEmblem` `loop` variant on `/contact`. |
-| 7 | Brushed-brass loop object | Not generated. Stand-in live: the `ServiceEmblem` `about` variant on `/about`. |
+| 5 | Ribbon plate at 2x | The `/home-care-agencies` backdrop crops the kit's `06-og-link-preview` (1734 × 907), leaving 774 px for a slot up to 736 CSS px wide, so it is slightly soft on Retina screens. A 3468 × 1814 export of the same plate (same prompt as `06-og-link-preview.prompt.txt`) would fix it: point `scripts/brand/derive.mjs` at it, double the crop box, add 1472 to its widths, and add the 1472w file to the `srcSet` in `RibbonBackdrop.tsx`. |

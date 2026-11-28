@@ -4,7 +4,7 @@ Main marketing site for ReplyLoop. *Keep the thank you alive.*
 
 Stack: Next.js 16 (App Router, Cache Components), TypeScript, Tailwind CSS 4. Deploy target: Vercel.
 
-> Build status: **premium redesign Phases 1-9 complete on `claude/new-session-w7lhf7`; deploy waits for owner approval.** See QA results below and `PLACEHOLDERS.md` for what still needs real content.
+> Build status: **all six phases complete.** See QA results below and `PLACEHOLDERS.md` for what still needs real content.
 
 ## Setup
 
@@ -62,33 +62,8 @@ Locked values live in `src/app/globals.css` under `@theme`:
 | `slate` | `#4A4F55` | Secondary text on ivory (derived) |
 | `mist` | `#C9C4BA` | Secondary text on charcoal (derived) |
 | `rule` | `#E2DBCF` | Decorative borders on ivory (derived) |
-| `ink-2` | `#262B30` | Raised surface on charcoal (derived) |
 
-Tints of the locked palette (no new hues), added in the premium redesign:
-
-| Token | Hex | Use |
-|---|---|---|
-| `ivory-2` | `#F2EDE4` | Alternate light band, blockquote and inset surfaces |
-| `paper` | `#FBFAF6` | Raised card surface on ivory |
-| `paper-shade` | `#EFE6D6` | Illustration paper shade, tone-on-tone deboss (brass on it: large text and UI only) |
-| `ink-3` | `#2F353B` | Hover surface on charcoal (rare) |
-| `brass-shadow` | `#5C3E12` | Illustration only: shaded side of brass objects |
-| `brass-light` | `#C49A5A` | Illustration only: one highlight on brass objects, never text |
-| `hairline-dark` | `rgb(201 196 186 / .12)` | Full-bleed rules on charcoal |
-
-The same `@theme` block holds the rest of the design system (source of truth: `docs/REDESIGN_PROMPT.md` §6–7):
-
-- **Type scale** (fluid, rem intercepts): `text-display`, `text-h1`, `text-h2`, `text-h2-compact`, `text-h3-lg`, `text-h3`, `text-numeral`, `text-lede`, `text-body`, `text-prose`, `text-small`, `text-eyebrow`. No token renders larger than `text-h1` at any width. Fraunces 500 for headings, 400 for statement display from 3.5rem; Inter 400 and 600 only. Nothing visible under 14px.
-- **Measures:** `max-w-measure` (65ch), `max-w-lede` (34rem), `max-w-reading` (66ch).
-- **Spacing scale** (px): 4, 8, 12, 16, 20, 24, 28, 32, 48, 64, 72, 80, 96, 128, 160 for gaps, margins and padding. `npm run check:tokens` (part of `npm run check`) fails on off-scale spacing and on text under 14px.
-- **Section rhythm:** `<Section rhythm="loose | default | tight">`, 96/128/160, 80/96/128 and 64/80/96 px (mobile/sm/lg).
-- **Heading variants:** `<SectionHeading variant="statement | split | default | compact">`.
-- **Radii:** `rounded-xs` 2, `rounded-sm` 8, `rounded-md` 12, `rounded-card` 20, `rounded-xl` 28, `rounded-pill`.
-- **Shadows** (one light at 315°, warm): `shadow-hair` (paper top edge), `shadow-1`, `shadow-2` (resting card), `shadow-3` (hover, film frame), `shadow-object`, `shadow-header`.
-- **Easing** (matches the brand film, `video/src/theme.ts`): `ease-out`, `ease-in`, `ease-inout`, `ease-draw`, plus the site-only `ease-soft` (the default transition curve, 240ms) and `ease-standard`. Durations are CSS variables `--dur-*`.
-- **Header height:** `--header-h` (4rem, 4.5rem from lg), reused by scroll margins and the journey stage.
-
-Fonts: Fraunces (headlines, `opsz` and `wght` axes) and Inter (body and UI, `wght`), self-hosted with `next/font/local` from `src/app/fonts/`. Only the Latin subsets ship; the site renders no other script, and the other subsets were 249,744 B of files no page requested. The files are the ones `next/font/google` produced before the switch. Licences: `assets/fonts/*-OFL.txt`. Fraunces' `SOFT` axis was measured and not shipped: the Latin file grows from 67,304 B to 120,788 B, against a 20 KB budget.
+Fonts: Fraunces (headlines, `opsz` axis) and Inter (body/UI), both via `next/font/google`, self-hosted at build time.
 
 ## Contrast decision
 
@@ -109,8 +84,7 @@ Brass on charcoal fails as text, and darkening brass would only lower that ratio
 The site is fully static, so it also ships as plain files (`npm run build:static` writes `out/`). Next 16 cannot export with Cache Components on, so that build turns it off and swaps the one `"use cache"` helper (`src/lib/og-fonts.ts`) for an uncached twin. The normal build is unchanged.
 
 - **Worker (live):** `npm run deploy:worker` bundles `out/` into the `reply-loop-website` Worker (`worker/index.js` serves it like Pages: clean URLs, 404s, `_headers`, byte ranges) and deploys it to https://reply-loop-website.reply-loop-site.workers.dev. This path works from sandboxes whose proxy injects a Cloudflare credential.
-- **Pages, automatic:** `.github/workflows/deploy-pages.yml` runs on every push to GitHub. It builds with `npm run build:static` (compliance scan included; a failure stops the deploy) and deploys `out/` with wrangler. A push to `main` goes to production (https://reply-loop-staging.pages.dev); a push to any other branch gets a preview at `https://<branch>.reply-loop-staging.pages.dev`, with slashes turned into dashes. One-time setup, in GitHub under Settings > Secrets and variables > Actions: a `CLOUDFLARE_API_TOKEN` secret (Cloudflare token with Account > Cloudflare Pages > Edit) and `CLOUDFLARE_ACCOUNT_ID` (secret or variable). Without them the build still runs and the deploy is skipped with a warning.
-- **Pages, by hand:** `npm run deploy:pages` deploys `out/` to the `reply-loop-staging` Pages project. Run it from a normal machine after `npx wrangler login`; Pages uploads need their own upload token, which an injecting proxy overwrites.
+- **Pages:** `npm run deploy:pages` deploys `out/` to the `reply-loop-staging` Pages project. Run it from a normal machine after `npx wrangler login`; Pages uploads need their own upload token, which an injecting proxy overwrites.
 - **Domain:** when `reply-loop.com` points at either one, add the www-to-apex redirect as a Cloudflare Redirect Rule. Canonical and Open Graph URLs already use `https://reply-loop.com` (`NEXT_PUBLIC_SITE_URL`).
 
 ## Deploy to Vercel
@@ -145,47 +119,13 @@ Every page ends with the same CTA band. The only conversion paths are the cal.co
 
 ## Foundations
 
-- Root layout: skip link, a solid ivory sticky header (centred nav; a hairline and soft shadow fade in once the page scrolls, set by an IntersectionObserver on a 1px sentinel) with the booking button (md and up), the small-screen menu, the small-screen bottom bar, the CTA band on every page, and the footer with phone, email, and service area. No street address.
-- Small-screen bar (Call and Book): it slides in only after the hero's booking button has scrolled out of view, steps aside while the CTA band or the footer is on screen and while the menu is open, and never shows on `/contact`. Visitors without JavaScript get no bar, on purpose: the hero button and the CTA band remain.
-- Small-screen menu: the panel stays in the page, inert while closed. Without JavaScript it cannot open; those visitors use the footer links, which list every page.
-- Surfaces: ivory bands carry a faint paper grain (`.paper`), charcoal bands a felt grain (`.felt`); both are 128px lossless palette PNG tiles (about 5 KB each) painted beneath the content (`scripts/brand/textures.mjs`). Cards are raised paper on light bands and ink-2 on charcoal (`<Card tone>`). At most two dark bands per page, plus the footer.
-- Repeated decorative art (the CTA card's loop drawing, the footer's wordmark sign-off) comes from one cached sprite, `public/brand/sprite.svg`, built by `scripts/brand/build-sprite.py` (needs `pip install fonttools uharfbuzz brotli`).
+- Root layout: skip link, sticky header with the booking button (md and up), small-screen menu, sticky bottom bar with Call and Book on small screens, the CTA band on every page, footer with phone, email, and service area. No street address.
 - Components (`src/components/ui`): Button, BookButton, PhoneLink, EmailLink, TextLink, Card, Section, Container, Eyebrow, Rule, SectionHeading, LoopDivider, FAQ (native `<details>`), PillarCard, StepList, PromiseList, ProofSlot, CTABand, HealthHandling, Logo, Icon.
 - Content sources: `src/lib/site.ts` (business facts), `src/content/promises.ts` (seven red lines, customer-facing), `src/content/health.ts` (health review handling).
-- Motion: see "Cinematic layer" below. The scroll-driven rise (`.reveal`) is CSS only, moves text by transform only (text never fades), and runs only with motion on: not without JavaScript, not under `prefers-reduced-motion`.
+- Motion: see "Cinematic layer" below. The scroll-driven fade (`.reveal`) is CSS only and off under `prefers-reduced-motion`.
 - Logo: option B (chosen 2026-11-26), the flat brass double loop traced from the kit's loop mark, with an ivory crossing on dark and a charcoal crossing on light, plus the Fraunces wordmark.
 - SEO: per-page metadata helper (`src/lib/seo.ts`), JSON-LD graph of Organization, WebSite, and ProfessionalService on every page (no street address, no geo, no rating), `sitemap.xml` from `src/lib/routes.ts`, `robots.txt`, `llms.txt`, www-to-apex redirect, trailing-slash redirect, Search Console meta from `NEXT_PUBLIC_GSC_VERIFICATION`.
 - Tracking hooks: conversion links carry `data-track` (`cta_click_book_call`, `phone_click`, `email_click`), sent to GA4 only after consent.
-
-## Illustration system
-
-"Paper and Brass, set like letterpress" (brief §9). Tokens live in `src/lib/illustration/tokens.ts` (`STROKE`, `INK`, `RADIUS`, `SHADOW`, `WRITING`; hex values mirror `@theme`).
-
-1. Every loop is the mark's loop: `LOOP_PATH`, or in inline art `LOOP_PATH_COMPACT` (`src/lib/loop/compact.ts`, 16 cubics, 457 chars, max 0.06 units off; regenerate with `node scripts/loop/compact-loop.mjs`). One undistorted, uniformly scaled instance per thread. No freehand curls, ovals or rings.
-2. Flat fills only (ivory, paper, paper-shade, rule, slate, charcoal, brass; brass-shadow and brass-light on brass objects only). No gradients in paper.
-3. Three strokes in screen px with `vector-effect="non-scaling-stroke"`: hair 1.25, thread 2, rule 1.
-4. Two shadows, light from 315°: contact and ambient, pre-baked shapes. No `<filter>` in illustration SVGs.
-5. Radii in screen px: cards 16, notecards 8, proof sheets 2.
-6. Layers per scene: plate, then one hero object, then the brass thread; reveal in that order.
-7. At most 12 shapes per object and one highlight; no dark outlines.
-8. No chat bubbles or grey bars: "writing" is 3 slate hairlines (opacity .28, 92/78/54%) plus a brass initial. No glyphs, stars or review text.
-9. Every template has a portrait mobile composition. All art is `aria-hidden`; meaning lives in HTML.
-
-`<LoopThread>` (`src/components/scenes/LoopThread.tsx`, server-safe) returns a `<g>` for an existing `<svg>`: a lead-in, the loop and a lead-out, joined tangentially at the crossing. With `drawFrom="crossing"` (default) every path starts at the crossing, so a draw grows outward and a half-drawn state reads as a forming loop; `drawFrom="start"` emits one merged path. `loopThreadParts()` returns the same geometry as strings.
-
-```tsx
-<svg viewBox="0 0 400 220" aria-hidden="true" className="text-brass">
-  <LoopThread from={[20, 180]} to={[380, 40]} loopAt={[200, 110]} loopScale={0.3}
-    rotation={-12} partProps={{ "data-v-draw": "true", pathLength: "1" }} />
-</svg>
-```
-
-Parts (`src/components/scenes/illustration/parts.tsx`; geometry in viewBox units, `unit` = viewBox units per screen px):
-- `<SoftShadow kind="contact" | "ambient">`: 4-5 stacked charcoal rects approximating the blur.
-- `<Writing>`: the three hairlines and the brass initial (4 strokes).
-- `<Notecard>`: shadows, an 8px paper card with a 1.25px rule edge, optional blind-debossed loop, writing (7 shapes). With several debossed cards in one SVG, put `<LoopDef id>` in `<defs>` and pass `debossHref`.
-
-Byte caps: each inline SVG instance ≤ 6 KB raw (it ships in the HTML and again in the RSC `.txt` files). Measured: `LoopThread` about 1.0 KB, plain `Notecard` 1.4 KB, debossed 2.7 KB inline or 1.6 KB with `debossHref`. No rasters, no filters, no new dependencies.
 
 ## Analytics and consent
 
@@ -257,117 +197,23 @@ Calm, warm motion built in code from the brand kit (`assets/social-kit`, provena
 - The header "Pause motion" toggle (`aria-pressed`) stops all ambient motion and is remembered. Scroll-linked scenes still follow the visitor's scroll while paused.
 - Device tier: phones, Save-Data, low memory or few cores, and no WebGL get the light version (SVG stills, no 3D).
 - Everything pauses off screen and when a route is hidden by `<Activity>`.
-- The head script also sets `html[data-tier]` (`full` or `lite`: Save-Data, under 4 GB memory or under 4 cores give `lite`) and owns a GSAP failure timer: on a page with a scene (`[data-gsap-scene]`), if GSAP has not loaded 3 s after `load`, it adds `html.rl-gsap-failed` and every scene shows its finished state.
-- One motion gate (`useGsapScene`): scenes build inside `gsap.matchMedia()`, rebuild when `data-motion` changes, build nothing after `rl-gsap-failed`, and can be limited to the full tier. Easing is the brand film's (`rl.out`, `rl.soft`, `rl.in`, `rl.inOut`, `rl.draw` in GSAP; `--ease-*` in CSS). DrawSVG and MotionPath load lazily, only where a scene asks for them.
-- Scroll reveals are CSS scroll-driven animations, per block, never per section: `.reveal` slides text 10px and never fades it; `.reveal-art` may fade and unclip decoration; `.reveal-rule` draws a hairline. Stagger with `--i`. They run only with motion on and where `animation-timeline` and `animation-range` are both supported; nothing is hidden outside that.
-- Scroll-drawn strokes (dividers, the problem thread) and the problem scene's reply start hidden in CSS from first paint, scoped to exactly when their timelines run, so nothing draws and then erases.
-- Micro-interactions: drawn nav underline, button colour and arrow feedback, smooth FAQ open (Chromium; others open instantly), card lift. Route transitions: each page's content below the hero is one React `<ViewTransition>` (`PageBody`); the header and the mobile bar hold still, the browser's whole-page cross-fade is off, and the home hero never animates. Off under reduced motion and Pause motion.
 
 **Scenes**
 
 | Scene | Where | Built with |
 |---|---|---|
-| Brass loop (3D) | `/` hero | three.js + R3F `createRoot` (`src/components/hero`). The SVG still paints first, in a box the canvas shares, and the H1 stays the LCP element. On a capable desktop with motion fully on, the 3D arms on a trusted pointer or key gesture (never wheel or touch, which are scrolling) or after 7 s idle, and only while the hero is still mostly in view. Software renderers are refused (`failIfMajorPerformanceCaveat`), so three.js never loads there. Init is split across idle callbacks; the brass is lit by a light map built at runtime from emissive cards (PMREM, no EXR file). The canvas fades in over the still and the still fades out only after that, so the two are never partly visible together; a low frame rate brings the still back for the session. `?hero=webgl` is a QA override. |
-| Waiting review, arriving reply | `/` problem section | Two code-drawn notecards and a brass thread, scrubbed by GSAP ScrollTrigger (`ProblemScene`); a portrait drawing on phones (`ProblemArtPortrait`) |
-| Journey along the loop | `/` how it works | CSS sticky stage (no JS pin, CLS 0) with scrubbed chapter fades and a camera along the loop (`HowItWorksJourney`); four vignettes in the illustration system, each on the flat window-light plate; stacked on phones, short screens, large text and reduced motion |
-| Brass thread | One loop divider per page (`/`, `/home-care-agencies`) | SVG stroke drawn with scroll (`LoopDivider`, `Thread`) |
-| Brand film | `/` (its own band after How it works) and `/services` | Remotion (`/video`), Phase 8 re-cut: 16 s seamless loop, 1280×720, vector window-light opening plate. MP4 299,419 B, WebM 242,230 B, AVIF/WebP poster. The caption beside it is the film's on-screen words as HTML (`FilmFeature`). Starts on screen with motion on; "Pause film" control; reduced motion and no JS get the poster only. Save-Data starts paused. |
-| Hero plates | Subpage heroes (not `/`) | Drawn inline SVG (`HeroPlate`): the kit ribbon language redrawn, `LOOP_PATH` as a charcoal band with a brass underside, per-route crop; static. Shown below `lg` (phones and tablets) in place of the desktop emblem or ribbon. |
-| Ribbon backdrop | `/home-care-agencies` hero | Drawn ribbon (inline SVG: the loop as a charcoal band with a brass underside), desktop only; phones get the HeroPlate. Replaced the kit raster on 2026-11-28 (owner decision); no raster ships in this hero. |
-| Service emblems | `/services/*`, `/about`, `/faq`, `/contact`, `/blog` heroes | `ServiceEmblem`: on service pages a bespoke 64 px object on the loop's right lobe, with a CSS brass comet on the loop; `about` is two notecards joined by a `LoopThread`; FAQ, contact and blog use the loop and comet only |
-| Trust loop | `/services/review-replies` | SVG loop with a bead that travels to each HTML step (Ask, Review, Reply, Learn) and dwells there: 2.6 s travel, 1.4 s dwell, a 16 s lap (`TrustLoop`) |
-
-All inline art follows the illustration system below (`LoopThread`, flat fills, non-scaling strokes, no filters).
+| Brass loop (3D) | `/` hero | three.js + R3F `createRoot` (`src/components/hero`). The SVG still paints first; the 3D loads after the first interaction (or 7 s) on capable desktops and falls back to the still on a low frame rate. The H1 stays the LCP element. |
+| Waiting review, arriving reply | `/` problem section | Layered SVG, scrubbed by GSAP ScrollTrigger (`ProblemScene`) |
+| Journey along the loop | `/` how it works | CSS sticky stage (no JS pin, CLS 0) with scrubbed chapter fades and a camera along the loop (`HowItWorksJourney`); stacked on phones, short screens, large text and reduced motion |
+| Brass thread | Loop dividers | SVG stroke drawn with scroll (`Thread`) |
+| Brand film | `/` and `/services` | Remotion (`/video`), 16 s seamless loop, 1280×720. MP4 and WebM about 400 KB each, AVIF/WebP poster. Starts on screen with motion on; "Pause film" control; reduced motion and no JS get the poster only. Save-Data starts paused. |
+| Ribbon backdrop | `/home-care-agencies` hero | Kit `06-og-link-preview`, cropped and colour-matched; desktop only, phones never download it |
+| Service emblems | `/services/*`, `/about` heroes | SVG loop with a travelling brass stroke (CSS) |
+| Trust loop | `/services/review-replies` | SVG loop with a bead that lights each HTML step (Ask, Review, Reply, Learn) |
 
 **Remotion licence.** Remotion is free for individuals and companies of up to 3 people; companies of 4 or more need a Company License (see remotion.dev/license). ReplyLoop has 2 people, so the free licence applies today. Only pre-rendered video ships, so the site carries no Remotion runtime. Re-check when the team grows.
 
-**Photoreal assets.** `ASSET_BRIEF.md` has prompts for six stills the code cannot make (1 paper, 2 window light, 3 felt, 4 brushed brass, 6 letterpress notecard, 7 brass loop object); #5, the ribbon raster, is no longer needed. None is generated yet, so the code stand-ins listed in `PLACEHOLDERS.md` are live.
-
-## QA results, premium redesign Phases 4-9 (2026-11-28)
-
-Measured on the static export (`out/`), locally. Phases 4 to 8 changed code; Phase 9 is documentation only, because no brief still exists yet.
-
-| Measure | Budget or gate | Before the redesign | Now |
-|---|---|---|---|
-| Worker bundle (`tar czf` of `out/`) | ≤ 2,900,000 B | 2,830,193 B | 2,303,714 B |
-| JS on `/` (gzip, load plus full scroll, lazy chunks, without the desktop 3D chunk) | ≤ +15 KB over baseline | 209,596 B | 221,775 B (+12.2 KB) |
-| Desktop WebGL chunk (hardware GPUs only, gzip) | not counted in the JS budget | 208,440 B (with EXRLoader) | 187,264 B (-21 KB; EXRLoader removed) |
-| OG images | ≤ 70 KB each, ≤ 450 KB total | 7 files, 418,698 B | 12 files, 252,212 B (15.9 to 23.7 KB each) |
-| Film and posters | ≤ 859,457 B total | 859,457 B | 548,058 B (MP4 299,419, WebM 242,230, posters 2,187 AVIF + 4,222 WebP) |
-| Lighthouse mobile, median of 3 | | | performance 99 to 100, accessibility 100, best practices 100, SEO 100; LCP 0.9 s, CLS 0, TBT 51 to 92 ms |
-| Lighthouse desktop | | | 100 on `/`, `/services/review-replies`, `/home-care-agencies` (LCP 0.24 s) |
-
-Worker bundle by phase: P3 2,722,650; P4 2,754,892; P5 2,625,830 (EXR light map dropped, -131 KB); P6 2,678,639; P7 2,636,812, then 2,623,760 after the owner decisions (raster ribbon removed); P8 2,303,714 (film re-cut).
-
-Lighthouse mobile ran on `/`, `/services`, `/services/review-replies`, `/home-care-agencies`, `/about`, `/blog`, `/faq`, `/contact` and `/blog/respond-to-google-reviews-without-sharing-private-details`. The LCP element at 390×844 and 1440×900 is the page H1 on every page tested, except `/about` (its intro paragraph) and blog posts (the lede paragraph); neither has a raster.
-
-Hero 3D: framing matches the SVG still within ±3 px (p95) at 1024, 1440 and 1920; brass mean saturation 0.566 against 0.559 for the still, top decile 0.30; the swap has 0 frames where both layers are partly visible; software WebGL never loads three.js. The long task during the first draw on SwiftShader (software) is about 1.2 s.
-
-Checks run, all passing: `npm run check`; `npm run build:verify` (compliance: 0 problems); `npm run qa` (17 pages); axe through Lighthouse (100); journey opacity table (0 overlapping rows) and desync test (0 difference); first-paint stroke log (0 leaking frames); double failure, with GSAP blocked and the reveals off (all text visible); client navigation into `/` (the H1 stays at opacity 1); no visible text under 14px; one H1 per page.
-
-Owner decisions (2026-11-28): the `/home-care-agencies` hero uses a drawn ribbon (ASSET_BRIEF #5 not needed); "More on Owner Q&A videos" casing; the proof row "You approve each month's posts before they go out." stays; the 816 px phone footer is accepted.
-
-Commits on `claude/new-session-w7lhf7`: P1 tokens and type; P2 surfaces and chrome; P3 motion foundation (29111bd); P4 home scenes (712b069, 429c9aa); P5 hero 3D (28da9ff, 1ea6ad0); P6 illustration system (d28bb77); P7 subpages and OG (2ac39e1, 9daf272, 28ab00f); P8 film (0d36051).
-
-Open items:
-
-- **Hardware long-task check: not measured.** Only a software renderer was available here. On a desktop with a hardware GPU, open `/` in Chrome, paste this into the DevTools console before moving the pointer, then move the pointer over the hero and wait 15 s. It prints the `rl-hero:*` init marks and every long task:
-
-  ```js
-  const lt = [];
-  new PerformanceObserver((l) => lt.push(...l.getEntries())).observe({ type: "longtask", buffered: true });
-  setTimeout(() => {
-    console.table(performance.getEntriesByType("mark").filter((m) => m.name.startsWith("rl-hero:")).map((m) => ({ mark: m.name, ms: Math.round(m.startTime) })));
-    console.table(lt.map((e) => ({ start: Math.round(e.startTime), ms: Math.round(e.duration) })));
-  }, 15000);
-  ```
-
-- **ASSET_BRIEF stills 1-4, 6 and 7: not generated.** The code stand-ins are live (`PLACEHOLDERS.md`).
-- **Deploy: pending owner approval.** `npm run deploy:worker` and a smoke test of the live URL run only after the owner approves the final report.
-
-## QA results, premium redesign Phase 3: motion foundation (2026-11-27)
-
-`npm run check`, `npm run build:verify` (compliance: 0 problems) and `npm run qa` (17 pages, axe at 390 and 1280) pass. Lighthouse, median of 3 warm runs on `npm start`: mobile performance 95 on `/` and 99 or 100 on `/services`, `/services/review-replies`, `/home-care-agencies`, `/about` and the blog post; accessibility 100 on all six; LCP 0.90 to 0.91 s; CLS 0; desktop performance and accessibility 100 on `/`, `/services/review-replies` and `/home-care-agencies`. The LCP element on `/` is `h1#hero-title`.
-
-Scripted checks, at 390 and 1440, on the production server and on the static export: strokes are hidden at first paint and drawn after a scroll-through (no draw-then-erase); with the GSAP chunks blocked and the scroll reveals switched off, the page shows its finished state, every heading and paragraph is visible, and the journey falls back to the stacked layout; a no-scroll full-page capture has no faded text; on a client navigation from `/services` to `/` the H1 stays at opacity 1 on every frame, the page transition runs with motion on and does not run under reduced motion or Pause motion; the lite tier shows the finished art; the FAQ opens smoothly and its answer settles at opacity 1.
-
-Static export: Worker bundle 2,722,650 B (gate 2,900,000 B). JS fetched on `/` is 220,670 B gzip, 11.1 KB over the pre-redesign baseline (budget: 15 KB).
-
-## QA results, premium redesign Phase 2: surfaces and chrome (2026-11-27)
-
-`npm run check`, `npm run build:verify` (compliance: 0 problems) and `npm run qa` (17 pages, axe at 390 and 1280) pass. Lighthouse, median of 3 warm runs on `npm start` (`/` mobile: median of 5):
-
-| Page | Mobile perf | A11y | LCP | CLS | Desktop perf / a11y |
-|---|---|---|---|---|---|
-| `/` | 95 | 100 | 0.90 s | 0 | 100 / 100 |
-| `/services` | 99 | 100 | 0.90 s | 0 | |
-| `/services/review-replies` | 99 | 100 | 0.90 s | 0 | 100 / 100 |
-| `/home-care-agencies` | 99 | 100 | 0.91 s | 0 | 100 / 100 |
-| `/about` | 99 | 100 | 0.91 s | 0 | |
-| `/blog/respond-to-google-reviews-without-sharing-private-details` | 99 | 100 | 0.90 s | 0 | |
-
-The LCP element on `/` is still `h1#hero-title` (mobile and desktop). Scripted checks: the header pixel over a charcoal band is `#F8F5EF`; the nav is centred within 0.1px at 1280, 1440 and 1920; at 390×844 the first screen shows one booking button, the bar appears only after the hero button scrolls away, hides over the CTA band, the footer and the open menu, and is absent on `/contact`; the menu is inert while closed, takes focus on open, locks scroll, closes on Escape and returns focus. The grain tiles are seamless (rendered edge step equals the interior step).
-
-Static export: Worker bundle 2,675,580 B (gate 2,900,000 B; +85 KB, mostly the chrome markup that ships in every page's HTML and RSC payload). JS fetched on `/` grew 2.9 KB gzip.
-
-Open item: the footer is 816px tall at 390px wide against a 700px target. Its content is locked (ten links, the area sentence, the not-affiliated line, the legal row), and the rows keep at least 24px targets with spacing (WCAG 2.5.8).
-
-## QA results, premium redesign Phase 1: tokens and type (2026-11-27)
-
-`npm run check` (typecheck, lint, contrast, tokens), `npm run build:verify` (compliance: 0 problems) and `npm run qa` (17 pages, axe at 390 and 1280) pass. Lighthouse, median of 3 warm runs on the production server (`npm start`):
-
-| Page | Mobile perf | A11y | LCP | CLS | LCP element (mobile) | Desktop perf / a11y |
-|---|---|---|---|---|---|---|
-| `/` | 96 | 100 | 0.91 s | 0 | `h1#hero-title` (also on desktop) | 100 / 100 |
-| `/services` | 99 | 100 | 0.90 s | 0 | page H1 | |
-| `/services/review-replies` | 99 | 100 | 0.91 s | 0 | page H1 | 100 / 100 |
-| `/home-care-agencies` | 99 | 100 | 0.91 s | 0 | page H1 | 100 / 100 |
-| `/about` | 99 | 100 | 0.76 s | 0 | intro paragraph (as before) | |
-| `/blog/respond-to-google-reviews-without-sharing-private-details` | 99 | 100 | 0.90 s | 0 | page H1 | |
-
-Accessibility is now 100 on every page tested (it was 96 on `/services` and `/services/review-replies`): the scroll reveal no longer fades text. The open item from Phase 3 is closed: on `/home-care-agencies` the H1 is now the LCP element at every width (Phase 7).
-
-Static export (`npm run build:static`): Worker bundle `tar czf - -C out . | wc -c` went from 2,831,842 B to 2,590,136 B (gate: 2,900,000 B). Fonts went from 10 files (365,564 B) to 2 (115,820 B). HTML and RSC payloads grew by under 4 KB gzip in total. JS is unchanged: no new script in this phase. OG images and the film are unchanged. No visible text is under 14px on any page, with or without JavaScript, or under reduced motion.
+**Photoreal assets.** `ASSET_BRIEF.md` has prompts for four stills the code cannot make (paper, window light, felt, brushed brass). Stand-ins are listed in `PLACEHOLDERS.md`.
 
 ## QA results, cinematic overhaul (2026-11-26, local production build)
 
@@ -383,7 +229,7 @@ QA (`npm run qa`, 17 pages) and the compliance scan pass. Lighthouse mobile, med
 
 Desktop Lighthouse scores 100 for performance on `/`, `/services/review-replies` and `/home-care-agencies`.
 
-The accessibility 96s were the CSS scroll fade (`.reveal`): a section that straddled the fold on load was partly transparent, and axe measured its text mid-fade. Fixed in the premium redesign, Phase 1: the reveal now slides text without fading it (see the Phase 1 QA table).
+The accessibility 96s are the CSS scroll fade (`.reveal`): a section that straddles the fold on load is partly transparent, and axe measures its text mid-fade. Visitors see the text fully opaque once it is in view.
 
 ## QA results (2026-11-23, local production build)
 
