@@ -1,0 +1,59 @@
+{
+  "name": "replyloop-site",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "check:contrast": "node scripts/contrast.mjs",
+    "check": "npm run typecheck && npm run lint && npm run check:contrast",
+    "check:compliance": "node scripts/compliance.mjs",
+    "build:verify": "next build && node scripts/compliance.mjs",
+    "qa": "NODE_PATH=$(npm root -g) node scripts/qa.cjs",
+    "lighthouse": "CHROME_PATH=${CHROME_PATH:-/opt/pw-browsers/chromium} lighthouse ${QA_BASE:-http://localhost:3000} --form-factor=mobile --chrome-flags=\"--headless=new --no-sandbox\" --view=false",
+    "perf": "node scripts/perf.mjs",
+    "loop:fit": "python3 -I scripts/loop/fit-loop.py && node scripts/loop/build-loop.mjs",
+    "brand:derive": "node scripts/brand/derive.mjs",
+    "build:static": "STATIC_EXPORT=1 next build && node scripts/static-finish.mjs && node scripts/compliance.mjs --out",
+    "deploy:pages": "npm run build:static && wrangler pages deploy out --project-name=reply-loop-staging --branch=main",
+    "build:worker": "npm run build:static && node scripts/build-worker.mjs",
+    "deploy:worker": "npm run build:worker && wrangler deploy -c worker/wrangler.toml"
+  },
+  "dependencies": {
+    "@gsap/react": "^2.1.2",
+    "@mdx-js/loader": "^3.1.1",
+    "@mdx-js/react": "^3.1.1",
+    "@next/mdx": "^16.4.6",
+    "@react-three/fiber": "^9.8.2",
+    "gsap": "^3.15.1",
+    "next": "16.4.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-mdx-frontmatter": "^6.0.0",
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@tailwindcss/turbopack": "4.3.3",
+    "@types/mdx": "^2.0.14",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/three": "^0.187.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.6",
+    "lighthouse": "^13.6.0",
+    "sharp": "^0.35.5",
+    "tailwindcss": "4.3.3",
+    "typescript": "^5",
+    "wrangler": "^4.163.0"
+  },
+  "engines": {
+    "node": ">=20.9"
+  }
+}
