@@ -3,6 +3,7 @@
 @import "../styles/problem.css";
 @import "../styles/journey.css";
 @import "../styles/home.css";
+@import "../styles/hca.css";
 
 /*
  * ReplyLoop brand tokens. Locked 2026-11-13, confirmed 2026-11-20.
@@ -367,24 +368,8 @@
     }
   }
 
-  /* /home-care-agencies ribbon: a slow drift, only with motion fully on (stops when paused). */
-  .ribbon-backdrop img {
-    animation: rl-drift 28s ease-in-out infinite alternate paused;
-    transform-origin: 70% 50%;
-  }
-  :root[data-motion="full"] .ribbon-backdrop[data-inview] img {
-    animation-play-state: running;
-  }
-  :root[data-motion="reduce"] :is(.loop-comet, .ribbon-backdrop img) {
+  :root[data-motion="reduce"] .loop-comet {
     animation: none;
-  }
-  @keyframes rl-drift {
-    from {
-      transform: scale(1) translate3d(0, 0, 0);
-    }
-    to {
-      transform: scale(1.035) translate3d(-0.6%, 0.8%, 0);
-    }
   }
 
   /* Brand film: hide any platform play glyph drawn over a video without controls (iOS Low Power Mode). */
@@ -418,10 +403,14 @@
    * never transitions. Only where a real pointer can hover; focus-visible gets the
    * same lift, and the focus ring itself stays instant.
    */
+  /*
+   * The lift uses the translate property, not transform: a finished scroll reveal
+   * (.reveal) holds its own transform, which would otherwise override the lift.
+   */
   .card-lift {
     position: relative;
     isolation: isolate;
-    transition: transform 280ms var(--ease-soft);
+    transition: translate 280ms var(--ease-soft);
   }
   .card-lift::after {
     content: "";
@@ -436,14 +425,14 @@
   }
   @media (hover: hover) {
     .card-lift:hover {
-      transform: translateY(-2px);
+      translate: 0 -2px;
     }
     .card-lift:hover::after {
       opacity: 1;
     }
   }
   .card-lift:has(:focus-visible) {
-    transform: translateY(-2px);
+    translate: 0 -2px;
   }
   .card-lift:has(:focus-visible)::after {
     opacity: 1;

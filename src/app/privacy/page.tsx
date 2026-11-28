@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { DraftNotice } from "@/components/ui/DraftNotice";
-import { PageHero } from "@/components/ui/PageHero";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+import { Container } from "@/components/ui/Container";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Prose } from "@/components/ui/Prose";
 import { Section } from "@/components/ui/Section";
 import { pageMetadata } from "@/lib/seo";
@@ -17,21 +19,31 @@ export const metadata: Metadata = pageMetadata({
   noindex: true,
 });
 
+const CRUMBS = [
+  { name: "Home", path: "/" },
+  { name: "Privacy", path: "/privacy" },
+];
+
 export default function PrivacyPage() {
   return (
     <>
-      <PageHero
-        crumbs={[
-          { name: "Home", path: "/" },
-          { name: "Privacy", path: "/privacy" },
-        ]}
-        eyebrow="Legal"
-        title="Privacy policy"
-        intro="How this website handles information."
-        showButton={false}
-      />
+      {/*
+        * Compact reading header (brief §8.14): exempt from the 7/5 hero art rule, so no art.
+        * One reading column shared with the body below, the H1 at the h2 size (as on a blog
+        * post) over h2-compact section heads in the prose. Never inside the route transition.
+        */}
+      <section aria-labelledby="page-title" className="border-b border-rule pt-8 pb-12 sm:pt-12 sm:pb-16">
+        <Container size="prose">
+          <Breadcrumbs crumbs={CRUMBS} />
+          <Eyebrow className="mt-12">Legal</Eyebrow>
+          <h1 id="page-title" className="mt-6 font-serif text-h2 font-medium lg:mt-5">
+            Privacy policy
+          </h1>
+          <p className="mt-5 max-w-lede text-lede text-slate">How this website handles information.</p>
+        </Container>
+      </section>
       <PageBody>
-        {/* Same ivory paper band as every content page; padding unchanged (tight rhythm). */}
+        {/* Ivory paper band, tight (reading) rhythm; body in the prose token at a 66ch measure. */}
         <Section rhythm="tight" containerSize="prose">
           <DraftNotice />
           <Prose>

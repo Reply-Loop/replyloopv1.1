@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { TextLink } from "@/components/ui/Button";
@@ -136,16 +137,22 @@ export function ServicePageView({ page }: { page: ServicePage }) {
         <Section labelledBy="other-services-title">
           <SectionHeading variant="compact" id="other-services-title" eyebrow="Services" title="Other services" />
           <ul className="mt-12 grid gap-6 sm:grid-cols-2">
+            {/*
+              The reveal sits on the <li>, not the card: a finished .reveal animation holds
+              transform: none, which would override the card's 2px hover lift.
+            */}
             {others.map((p, i) => (
-              <Card as="li" key={p.slug} interactive reveal={i}>
-                <Link href={`/services/${p.slug}`} className={cn("flex items-center justify-between gap-4", cardLinkOverlay)}>
-                  <span className="flex items-center gap-3 font-serif text-h3 font-medium">
-                    <Icon name={p.icon} className="size-5 shrink-0 text-brass" />
-                    {p.name}
-                  </span>
-                  <Icon name="arrow" className="size-4 shrink-0" />
-                </Link>
-              </Card>
+              <li key={p.slug} className="reveal" style={{ "--i": Math.min(i, 4) } as CSSProperties}>
+                <Card interactive className="h-full">
+                  <Link href={`/services/${p.slug}`} className={cn("flex items-center justify-between gap-4", cardLinkOverlay)}>
+                    <span className="flex items-center gap-3 font-serif text-h3 font-medium">
+                      <Icon name={p.icon} className="size-5 shrink-0 text-brass" />
+                      {p.name}
+                    </span>
+                    <Icon name="arrow" className="size-4 shrink-0" />
+                  </Link>
+                </Card>
+              </li>
             ))}
           </ul>
         </Section>

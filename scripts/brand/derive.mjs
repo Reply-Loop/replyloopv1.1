@@ -30,9 +30,10 @@ const paper = [0, 1, 2].map((c) => {
 const gain = IVORY.map((t, c) => t / paper[c]);
 console.log("paper median", paper, "gain", gain.map((g) => g.toFixed(3)));
 
-for (const w of [560, 774]) { // 774 = the crop's native width; never upscale
+// AVIF only, at the crop's native width (never upscaled): brief §1.2, decorative stills.
+{
+  const w = 774;
   const base = sharp(src).extract(crop).removeAlpha().linear(gain, [0, 0, 0]).resize({ width: w });
-  await base.clone().avif({ quality: 50, effort: 6 }).toFile(join(out, `hca-ribbon-${w}.avif`));
-  await base.clone().webp({ quality: 72 }).toFile(join(out, `hca-ribbon-${w}.webp`));
+  await base.avif({ quality: 50, effort: 6 }).toFile(join(out, `hca-ribbon-${w}.avif`));
 }
-console.log("public/brand: hca-ribbon-{560,774}.{avif,webp}");
+console.log("public/brand: hca-ribbon-774.avif");

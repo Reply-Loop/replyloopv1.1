@@ -31,7 +31,8 @@ export function FAQ({
               </span>
             </span>
           </summary>
-          <div className="faq-answer max-w-3xl pb-6 pr-12 text-slate on-dark:text-mist">
+          {/* Answers keep the body measure (65ch, §6.2) wherever the accordion sits. */}
+          <div className="faq-answer max-w-measure pb-6 pr-12 text-slate on-dark:text-mist">
             <Answer text={item.answer} />
           </div>
         </details>

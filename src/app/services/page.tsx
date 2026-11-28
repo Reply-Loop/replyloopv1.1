@@ -1,13 +1,14 @@
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BrandFilm } from "@/components/film/BrandFilm";
+import { FilmFeature } from "@/components/film/FilmFeature";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { TextLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { PageHero } from "@/components/ui/PageHero";
 import { HeroPlate } from "@/components/scenes/HeroPlate";
-import { PillarCard } from "@/components/ui/PillarCard";
+import { BundleEmblem } from "@/components/services/BundleEmblem";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { bundlePillars } from "@/content/services";
@@ -46,10 +47,16 @@ export default function ServicesPage() {
         eyebrow="Services"
         title="Local SEO and review replies for health practices"
         intro="One monthly bundle, built around your Google reviews: replies in your voice, 16 new pieces of content a month, care for your Google Business Profile, and a growth workbook."
+        backdrop={<BundleEmblem />}
         plate={<HeroPlate variant="services" />}
       />
       <PageBody>
 
+        {/*
+          The bundle as a spec sheet (brief §8.4), not home's card grid: full-width ruled rows on
+          ivory. At lg: pillar name in cols 1-4, what we do in cols 5-9, the owner's need and the
+          link in cols 10-12. Each row rises on its own (.reveal, stagger capped at 4).
+        */}
         <Section labelledBy="bundle-title">
           <SectionHeading
             variant="split"
@@ -58,12 +65,39 @@ export default function ServicesPage() {
             title="What the bundle includes"
             intro="Setup includes your voice interview, a one-time audit of your online presence, and replies to the Google reviews already waiting."
           />
-          <BrandFilm className="mt-12" />
-          <ul className="mt-12 grid gap-6 md:grid-cols-2">
+          <ul className="mt-12 border-b border-rule lg:mt-16">
             {bundlePillars.map((pillar, i) => (
-              <PillarCard key={pillar.title} pillar={pillar} reveal={i} />
+              <li
+                key={pillar.title}
+                className="reveal grid gap-y-4 border-t border-rule py-8 lg:grid-cols-12 lg:gap-x-8 lg:py-12"
+                style={{ "--i": Math.min(i, 4) } as CSSProperties}
+              >
+                <div className="flex items-center gap-4 lg:col-span-4 lg:items-start">
+                  <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-md border border-rule text-brass">
+                    <Icon name={pillar.icon} className="size-5" />
+                  </span>
+                  <h3 className="font-serif text-h3-lg font-medium lg:pt-[0.2em]">{pillar.title}</h3>
+                </div>
+                <p className="max-w-measure text-charcoal lg:col-span-5 lg:pt-3">{pillar.what}</p>
+                <div className="lg:col-span-3 lg:pt-4">
+                  <p className="text-small text-slate">{pillar.need}</p>
+                  {pillar.href ? (
+                    <div className="mt-1">
+                      {/* 44px tap target (min-h-11); the 4px margin plus the centred line reads as the 16px gap. */}
+                      <TextLink href={pillar.href} className="min-h-11 text-small">
+                        {pillar.linkLabel ?? `More on ${pillar.title.toLowerCase()}`}
+                      </TextLink>
+                    </div>
+                  ) : null}
+                </div>
+              </li>
             ))}
           </ul>
+        </Section>
+
+        {/* The brand film in its own ivory-2 band: film frame and HTML caption split (§8.3.3, §8.4). */}
+        <Section tone="ivory-2" id="film">
+          <FilmFeature />
         </Section>
 
         <Section tone="charcoal" labelledBy="one-time-title">
@@ -103,17 +137,28 @@ export default function ServicesPage() {
             title="Home care first, and local health practices"
             intro="Every health business gets the same rule: a public reply never confirms someone is a patient, and never mentions care."
           />
-          <ul className="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+          {/*
+            A borderless ruled list (brief §8.4), not cards: four columns at xl, each under a 1px
+            rule, so the one link stays on a single line at 1440.
+          */}
+          <ul className="mt-12 grid gap-x-8 gap-y-12 sm:grid-cols-2 xl:grid-cols-4">
             {audiences.map((a, i) => (
-              <Card as="li" key={a.title} size="md" reveal={i}>
+              <li
+                key={a.title}
+                className="reveal flex flex-col border-t border-rule pt-6"
+                style={{ "--i": Math.min(i, 4) } as CSSProperties}
+              >
                 <h3 className="font-serif text-h3 font-medium">{a.title}</h3>
                 <p className="mt-3 text-slate">{a.body}</p>
                 {a.href ? (
                   <div className="mt-4">
-                    <TextLink href={a.href}>See the home care page</TextLink>
+                    {/* 44px tap target (min-h-11); 16px plus the centred line reads as the 24px body-to-action gap. */}
+                    <TextLink href={a.href} className="min-h-11">
+                      See the home care page
+                    </TextLink>
                   </div>
                 ) : null}
-              </Card>
+              </li>
             ))}
           </ul>
         </Section>

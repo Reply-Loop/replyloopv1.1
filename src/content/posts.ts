@@ -3,7 +3,7 @@
  * with YAML frontmatter (title, description, date, keyword). Titles and
  * descriptions come from the frontmatter, so there is one source of truth.
  */
-import type { ComponentType } from "react";
+import { mdxReadingMinutes, type MdxContent } from "@/lib/readingTime";
 import Replies, {
   frontmatter as repliesFm,
 } from "./blog/respond-to-google-reviews-without-sharing-private-details.mdx";
@@ -19,14 +19,26 @@ export type PostMeta = {
   description: string;
   date: string;
   keyword: string;
+  /** Whole minutes at 230 words a minute, computed from the MDX body (src/lib/readingTime.ts). */
+  readingMinutes: number;
 };
 
-export type Post = PostMeta & { Content: ComponentType };
+export type Post = PostMeta & { Content: MdxContent };
+
+type Frontmatter = Omit<PostMeta, "slug" | "readingMinutes">;
+
+/** Reading time is never typed: it is counted from the post's own words. */
+const entry = (slug: string, fm: Frontmatter, Content: MdxContent): Post => ({
+  slug,
+  ...fm,
+  readingMinutes: mdxReadingMinutes(Content),
+  Content,
+});
 
 const posts: Post[] = [
-  { slug: "respond-to-google-reviews-without-sharing-private-details", ...repliesFm, Content: Replies },
-  { slug: "utah-home-care-local-seo-checklist", ...checklistFm, Content: Checklist },
-  { slug: "what-families-look-for-on-a-home-care-google-business-profile", ...profileFm, Content: Profile },
+  entry("respond-to-google-reviews-without-sharing-private-details", repliesFm, Replies),
+  entry("utah-home-care-local-seo-checklist", checklistFm, Checklist),
+  entry("what-families-look-for-on-a-home-care-google-business-profile", profileFm, Profile),
 ];
 
 const meta = (p: Post): PostMeta => ({
@@ -36,6 +48,7 @@ const meta = (p: Post): PostMeta => ({
   description: p.description,
   date: p.date,
   keyword: p.keyword,
+  readingMinutes: p.readingMinutes,
 });
 
 export const postIndex = {
