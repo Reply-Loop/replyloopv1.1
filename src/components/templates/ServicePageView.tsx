@@ -7,6 +7,7 @@ import { Icon } from "@/components/ui/Icon";
 import { InsetRule } from "@/components/ui/InsetRule";
 import { PageHero } from "@/components/ui/PageHero";
 import { ServiceEmblem } from "@/components/scenes/ServiceEmblem";
+import { HeroPlate, servicePlateVariant } from "@/components/scenes/HeroPlate";
 import { TrustLoop } from "@/components/scenes/TrustLoop";
 import { ProofSlot } from "@/components/ui/ProofSlot";
 import { Section } from "@/components/ui/Section";
@@ -49,6 +50,7 @@ export function ServicePageView({ page }: { page: ServicePage }) {
         title={page.h1}
         intro={page.intro}
         backdrop={<ServiceEmblem icon={page.icon} />}
+        plate={<HeroPlate variant={servicePlateVariant(page.slug)} />}
       />
       <PageBody>
 
@@ -78,14 +80,6 @@ export function ServicePageView({ page }: { page: ServicePage }) {
                   ) : null}
                 </section>
               ))}
-              {page.slug === "review-replies" ? (
-                <section aria-labelledby="trust-loop-title">
-                  <h2 id="trust-loop-title" className="font-serif text-h2-compact font-medium">
-                    How the loop works
-                  </h2>
-                  <TrustLoop className="mt-6" />
-                </section>
-              ) : null}
               {page.proof ? <ProofSlot kind={page.proof.kind} label={page.proof.label} path={page.proof.path} /> : null}
             </div>
 
@@ -121,6 +115,16 @@ export function ServicePageView({ page }: { page: ServicePage }) {
             </aside>
           </div>
         </Section>
+
+        {/* The trust loop gets the full width for its diagram / list split (brief §8.5). */}
+        {page.slug === "review-replies" ? (
+          <Section labelledBy="trust-loop-title" rhythm="tight" className="pt-0 sm:pt-0 lg:pt-0">
+            <h2 id="trust-loop-title" className="font-serif text-h2-compact font-medium">
+              How the loop works
+            </h2>
+            <TrustLoop className="mt-12" />
+          </Section>
+        ) : null}
 
         <Section labelledBy="service-faq-title" rhythm="tight" className="pt-0 sm:pt-0 lg:pt-0">
           <SectionHeading variant="compact" id="service-faq-title" eyebrow="Questions" title={`Questions about ${page.name.toLowerCase()}`} />

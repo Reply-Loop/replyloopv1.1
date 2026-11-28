@@ -34,7 +34,7 @@ Avoid: visible tiling seams, strong grain, yellowing, blue or grey cast, vignett
 - **File:** `assets/brief/window-light-2400x1350.png` → `public/brand/plates/window-light.avif` / `.webp`
 - **Size:** 2400 × 1350 px (16:9)
 - **Use:** backdrop for chapter 04 "Go live, in the open" in the how-it-works sequence, and the warm light pass in the hero
-- **Stand-in:** the window pane and warm glow gradients drawn in `src/components/scenes/vignettes/VignetteGoLive.tsx`; the hero's light pass is the moving key light in `src/components/hero/LoopScene.tsx`.
+- **Stand-in:** the flat SVG window-light plate (a paper-shade pool and paper-light panes, no gradients) in the four journey vignettes, `src/components/scenes/vignettes/`; the hero's light pass is the moving key light in `src/components/hero/LoopScene.tsx`.
 
 ```
 Use case: background-plate

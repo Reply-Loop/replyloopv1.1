@@ -156,6 +156,36 @@ Every page ends with the same CTA band. The only conversion paths are the cal.co
 - SEO: per-page metadata helper (`src/lib/seo.ts`), JSON-LD graph of Organization, WebSite, and ProfessionalService on every page (no street address, no geo, no rating), `sitemap.xml` from `src/lib/routes.ts`, `robots.txt`, `llms.txt`, www-to-apex redirect, trailing-slash redirect, Search Console meta from `NEXT_PUBLIC_GSC_VERIFICATION`.
 - Tracking hooks: conversion links carry `data-track` (`cta_click_book_call`, `phone_click`, `email_click`), sent to GA4 only after consent.
 
+## Illustration system
+
+"Paper and Brass, set like letterpress" (brief §9). Tokens live in `src/lib/illustration/tokens.ts` (`STROKE`, `INK`, `RADIUS`, `SHADOW`, `WRITING`; hex values mirror `@theme`).
+
+1. Every loop is the mark's loop: `LOOP_PATH`, or in inline art `LOOP_PATH_COMPACT` (`src/lib/loop/compact.ts`, 16 cubics, 457 chars, max 0.06 units off; regenerate with `node scripts/loop/compact-loop.mjs`). One undistorted, uniformly scaled instance per thread. No freehand curls, ovals or rings.
+2. Flat fills only (ivory, paper, paper-shade, rule, slate, charcoal, brass; brass-shadow and brass-light on brass objects only). No gradients in paper.
+3. Three strokes in screen px with `vector-effect="non-scaling-stroke"`: hair 1.25, thread 2, rule 1.
+4. Two shadows, light from 315°: contact and ambient, pre-baked shapes. No `<filter>` in illustration SVGs.
+5. Radii in screen px: cards 16, notecards 8, proof sheets 2.
+6. Layers per scene: plate, then one hero object, then the brass thread; reveal in that order.
+7. At most 12 shapes per object and one highlight; no dark outlines.
+8. No chat bubbles or grey bars: "writing" is 3 slate hairlines (opacity .28, 92/78/54%) plus a brass initial. No glyphs, stars or review text.
+9. Every template has a portrait mobile composition. All art is `aria-hidden`; meaning lives in HTML.
+
+`<LoopThread>` (`src/components/scenes/LoopThread.tsx`, server-safe) returns a `<g>` for an existing `<svg>`: a lead-in, the loop and a lead-out, joined tangentially at the crossing. With `drawFrom="crossing"` (default) every path starts at the crossing, so a draw grows outward and a half-drawn state reads as a forming loop; `drawFrom="start"` emits one merged path. `loopThreadParts()` returns the same geometry as strings.
+
+```tsx
+<svg viewBox="0 0 400 220" aria-hidden="true" className="text-brass">
+  <LoopThread from={[20, 180]} to={[380, 40]} loopAt={[200, 110]} loopScale={0.3}
+    rotation={-12} partProps={{ "data-v-draw": "true", pathLength: "1" }} />
+</svg>
+```
+
+Parts (`src/components/scenes/illustration/parts.tsx`; geometry in viewBox units, `unit` = viewBox units per screen px):
+- `<SoftShadow kind="contact" | "ambient">`: 4-5 stacked charcoal rects approximating the blur.
+- `<Writing>`: the three hairlines and the brass initial (4 strokes).
+- `<Notecard>`: shadows, an 8px paper card with a 1.25px rule edge, optional blind-debossed loop, writing (7 shapes). With several debossed cards in one SVG, put `<LoopDef id>` in `<defs>` and pass `debossHref`.
+
+Byte caps: each inline SVG instance ≤ 6 KB raw (it ships in the HTML and again in the RSC `.txt` files). Measured: `LoopThread` about 1.0 KB, plain `Notecard` 1.4 KB, debossed 2.7 KB inline or 1.6 KB with `debossHref`. No rasters, no filters, no new dependencies.
+
 ## Analytics and consent
 
 `src/components/analytics/Analytics.tsx`, GA4 with Consent Mode v2:

@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import type { Step } from "@/components/ui/StepList";
 import { useGsapScene } from "@/components/motion/useGsapScene";
 import { useMotion } from "@/components/motion/useMotion";
+import { loadDrawSVG } from "@/lib/motion/gsap";
 import { LOOP_PATH, LOOP_POINTS } from "@/lib/loop/geometry.generated";
 
 /** Must match the CSS media query that turns on the sticky stage (src/styles/journey.css). */
@@ -85,6 +86,21 @@ const pad = (n: number) => String(n).padStart(2, "0");
 export function HowItWorksJourneyScene({ steps, vignettes }: { steps: Step[]; vignettes: ReactNode[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const { scroll } = useMotion();
+  // The vignette threads use non-scaling strokes, whose pathLength-normalised dashes Chrome
+  // measures in screen px; DrawSVG measures the real on-screen length instead. If the
+  // plugin cannot load, the scene still builds and the strokes simply show drawn.
+  const [draw, setDraw] = useState<"pending" | "ok" | "none">("pending");
+  useEffect(() => {
+    if (!scroll || draw !== "pending") return;
+    let live = true;
+    loadDrawSVG().then(
+      () => live && setDraw("ok"),
+      () => live && setDraw("none"),
+    );
+    return () => {
+      live = false;
+    };
+  }, [scroll, draw]);
 
   useGsapScene(
     ref,
@@ -144,17 +160,9 @@ export function HowItWorksJourneyScene({ steps, vignettes }: { steps: Step[]; vi
         const headerOffset = () => `top ${getComputedStyle(stage).top}`;
 
         const addDraws = (tl: gsap.core.Timeline, item: HTMLElement, at: number) => {
-          item.querySelectorAll<SVGPathElement>("[data-v-draw]").forEach((d) => {
-            // Plain attributes, not tweened ones: a context revert must not blank pathLength.
-            d.setAttribute("pathLength", "1");
-            d.setAttribute("stroke-dasharray", "1");
-            tl.fromTo(
-              d,
-              { attr: { "stroke-dashoffset": 1 } },
-              { attr: { "stroke-dashoffset": 0 }, duration: 0.35, ease: "rl.draw" },
-              at,
-            );
-          });
+          if (draw !== "ok") return;
+          const paths = item.querySelectorAll<SVGGeometryElement>("[data-v-draw]");
+          if (paths.length) tl.fromTo(paths, { drawSVG: "0%" }, { drawSVG: "100%", duration: 0.35, ease: "rl.draw" }, at);
         };
         const addLayers = (tl: gsap.core.Timeline, item: HTMLElement, at: number) => {
           tl.fromTo(
@@ -245,7 +253,7 @@ export function HowItWorksJourneyScene({ steps, vignettes }: { steps: Step[]; vi
       });
       return () => mm.revert();
     },
-    { enabled: scroll },
+    { enabled: scroll && draw !== "pending", key: draw },
   );
 
   const total = pad(steps.length);

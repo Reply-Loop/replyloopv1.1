@@ -41,7 +41,7 @@ The cinematic scenes use code-built stand-ins until the stills in `ASSET_BRIEF.m
 | Stand-in | Where | Replaced by (`ASSET_BRIEF.md`) |
 |---|---|---|
 | Seeded noise tile `public/brand/textures/paper-256.avif` (`.paper`, from `scripts/brand/textures.mjs`); static SVG-noise grain (`.film-grain`) on the hero visual | Ivory bands, `src/app/globals.css` | 1. Ivory paper texture |
-| Window pane and warm glow gradients | `src/components/scenes/vignettes/VignetteGoLive.tsx` | 2. Golden-hour window light |
+| Flat SVG window-light plate (paper-shade pool, paper-light panes) | `src/components/scenes/vignettes/*.tsx` | 2. Golden-hour window light |
 | Seeded noise tile `public/brand/textures/felt-256.avif` (`.felt`, from `scripts/brand/textures.mjs`) | Charcoal bands and the CTA band | 3. Charcoal felt texture |
 | Procedural brushed brass (anisotropic `MeshPhysicalMaterial`) | `src/components/hero/LoopScene.tsx` | 4. Brushed brass swatch |
 

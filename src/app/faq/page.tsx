@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { FAQ } from "@/components/ui/FAQ";
 import { PageHero } from "@/components/ui/PageHero";
+import { HeroPlate } from "@/components/scenes/HeroPlate";
 import { Section } from "@/components/ui/Section";
 import { faqs } from "@/content/faq";
 import { breadcrumbSchema, faqPageSchema, graph, type Crumb } from "@/lib/schema";
@@ -30,6 +31,7 @@ export default function FaqPage() {
         title="Questions owners ask us"
         intro="Plain answers. If yours is not here, ask it on the intro call."
         showButton={false}
+        plate={<HeroPlate variant="faq" />}
       />
       <PageBody>
         <Section rhythm="tight">

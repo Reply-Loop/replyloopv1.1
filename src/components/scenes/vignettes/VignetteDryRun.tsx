@@ -1,114 +1,126 @@
+import { LoopThread } from "@/components/scenes/LoopThread";
+import { SoftShadow, Writing } from "@/components/scenes/illustration/parts";
+import { INK, RADIUS, STROKE } from "@/lib/illustration/tokens";
+
+/**
+ * Journey vignette 03, dry run (brief §9.3): three proof sheets (2px radius) fanned from one
+ * flat brass clip at the top, hairline writing on the front sheet, and a LoopThread in place
+ * of the old curl. Design size 480px wide (unit 1).
+ *
+ * Journey contract (HowItWorksJourneyScene): five [data-v-layer] groups built in order
+ * plate (shade, light) -> objects (sheets, clip) -> thread. Every drawn stroke carries
+ * data-v-draw, and nothing that belongs to a drawn stroke is left outside the draw set: the
+ * thread has no separate shadow path (the old grey ghost). Each pre-baked shadow sits in its
+ * object's layer. No ids, so idPrefix is unused.
+ */
 type Props = { idPrefix?: string; className?: string };
 
 const anim = { transformBox: "fill-box", transformOrigin: "center" } as const;
 
-const LOWER = "M-70,-92H70V92H-70Z";
-const LIFTED = "M-67,-86H67V82Q24,90 -20,86Q-50,84 -67,88Z";
-const RIBBON =
-  "M138,281C112,288 96,306 74,309C52,312 40,296 48,282C56,269 76,270 78,284C79,293 70,298 63,294";
-const LOW_T = "rotate(-7 200 214) translate(200 214)";
-const LIFT_T = "translate(286 154) rotate(9)";
+/** Thread space: see VignetteIntroCall (keeps each draw path's screen scale below 1). */
+const K = 0.9;
+const k = (x: number, y: number) => [x / K, y / K] as const;
 
-export function VignetteDryRun({ idPrefix = "vdr", className }: Props) {
-  const id = (s: string) => `${idPrefix}-${s}`;
-  const url = (s: string) => `url(#${id(s)})`;
+const POOL = [
+  [214, 152, 0.14],
+  [200, 140, 0.16],
+  [186, 128, 0.18],
+  [172, 116, 0.2],
+] as const;
+
+/** Sheets hang from the clip point and fan out at the bottom: back, middle, front. */
+const PIVOT = [204, 70] as const;
+const SHEET = { w: 152, h: 198 } as const;
+const FAN = [-13, -4, 6] as const;
+const rd = (v: number) => Math.round(v * 10) / 10;
+const sheets = FAN.map((deg) => {
+  const a = (deg * Math.PI) / 180;
+  // The unrotated sheet hangs centred below the pivot, its top edge 8 units above it.
+  const dy = SHEET.h / 2 - 8;
+  const cx = rd(PIVOT[0] - dy * Math.sin(a));
+  const cy = rd(PIVOT[1] + dy * Math.cos(a));
+  return { deg, x: rd(cx - SHEET.w / 2), y: rd(cy - SHEET.h / 2), cx, cy };
+});
+const R = RADIUS.proof;
+
+/** The clip, in the front sheet's frame (origin at the pivot). */
+const CLIP = { w: 46, h: 20 } as const;
+
+export function VignetteDryRun({ className }: Props) {
+  const hair = { strokeWidth: STROKE.hair, vectorEffect: "non-scaling-stroke" as const };
+  const front = sheets[2];
   return (
     <svg viewBox="0 0 480 360" aria-hidden="true" focusable="false" className={className}>
-      <defs>
-        <linearGradient id={id("cone")} x1="40" y1="0" x2="260" y2="260" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#FFE9C4" stopOpacity="0.3" />
-          <stop offset="0.7" stopColor="#FFE9C4" stopOpacity="0.1" />
-          <stop offset="1" stopColor="#FFE9C4" stopOpacity="0" />
-        </linearGradient>
-        <radialGradient id={id("pool")} cx="210" cy="170" r="200" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#FFE9C4" stopOpacity="0.42" />
-          <stop offset="0.6" stopColor="#FFE9C4" stopOpacity="0.1" />
-          <stop offset="1" stopColor="#FFE9C4" stopOpacity="0" />
-        </radialGradient>
-        <linearGradient id={id("low")} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#FAF7F1" />
-          <stop offset="0.6" stopColor="#F3ECE0" />
-          <stop offset="1" stopColor="#E6DCCB" />
-        </linearGradient>
-        <linearGradient id={id("lift")} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#FEFCF8" />
-          <stop offset="0.5" stopColor="#F8F5EF" />
-          <stop offset="1" stopColor="#EFE6D6" />
-        </linearGradient>
-        <linearGradient id={id("sheen")} x1="0" y1="0" x2="1" y2="0.6">
-          <stop offset="0" stopColor="#FFE9C4" stopOpacity="0.5" />
-          <stop offset="0.45" stopColor="#FFE9C4" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient id={id("brass")} x1="44" y1="270" x2="140" y2="312" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#C49A5A" />
-          <stop offset="0.5" stopColor="#8A5F1C" />
-          <stop offset="1" stopColor="#5C3E12" />
-        </linearGradient>
-        <filter id={id("soft")} x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur stdDeviation="14" />
-        </filter>
-        <filter id={id("float")} x="-30%" y="-30%" width="160%" height="160%">
-          <feGaussianBlur stdDeviation="11" />
-        </filter>
-        <filter id={id("cast")} x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="5" />
-        </filter>
-        <filter id={id("contact")} x="-10%" y="-10%" width="120%" height="130%">
-          <feGaussianBlur stdDeviation="1.6" />
-        </filter>
-      </defs>
-
-      <g data-v-layer="1" style={anim}>
-        <path d="M6,-30L76,-30L340,250L120,330Z" fill={url("cone")} filter={url("soft")} />
-        <ellipse cx="210" cy="170" rx="200" ry="160" fill={url("pool")} />
+      <g data-v-layer="1" style={anim} fill={INK.paperShade}>
+        {POOL.map(([rx, ry, o]) => (
+          <ellipse key={rx} cx="236" cy="190" rx={rx} ry={ry} opacity={o} />
+        ))}
       </g>
 
       <g data-v-layer="2" style={anim}>
-        <g transform={LOW_T}>
-          <path d={LOWER} transform="translate(7 9)" fill="#1B1F23" opacity="0.14" filter={url("cast")} />
-          <path d={LOWER} transform="translate(1.2 2)" fill="#1B1F23" opacity="0.12" filter={url("contact")} />
-          <path d={LOWER} transform="translate(0 1.6)" fill="#E6DCCB" />
-          <path d={LOWER} fill={url("low")} stroke="#E6DCCB" strokeWidth="0.8" />
-          <g stroke="#1B1F23" strokeWidth="2.4" strokeLinecap="round" opacity="0.5">
-            <path d="M-52,-64H-10" />
-            <path d="M-52,-34H50" />
-            <path d="M-52,-18H38" />
-            <path d="M-52,-2H12" />
-            <path d="M-52,48H30" />
-            <path d="M-52,64H-4" />
-          </g>
+        <g fill={INK.paper} transform="matrix(1 .16 .62 1 64 40)">
+          <rect width="96" height="160" rx="10" opacity=".5" />
+          <rect x="4" y="4" width="88" height="152" rx="6" opacity=".6" />
+          <rect x="106" width="96" height="160" rx="10" opacity=".5" />
+          <rect x="110" y="4" width="88" height="152" rx="6" opacity=".6" />
         </g>
       </g>
 
       <g data-v-layer="3" style={anim}>
-        <path d={RIBBON} transform="translate(3 4)" fill="none" stroke="#1B1F23" strokeWidth="4.2" strokeLinecap="round" opacity="0.16" filter={url("contact")} data-v-draw="true" />
-        <path d={RIBBON} fill="none" stroke={url("brass")} strokeWidth="4.2" strokeLinecap="round" data-v-draw="true" />
-        <path d={RIBBON} transform="translate(-0.5 -0.8)" fill="none" stroke="#C49A5A" strokeWidth="1" strokeLinecap="round" opacity="0.75" data-v-draw="true" />
+        <SoftShadow kind="ambient" {...sheets[1]} width={SHEET.w} height={SHEET.h} radius={R} unit={1} rotate={sheets[1].deg} />
+        {sheets.map((s, i) => (
+          <g key={s.deg}>
+            <SoftShadow kind="contact" x={s.x} y={s.y} width={SHEET.w} height={SHEET.h} radius={R} unit={1} rotate={s.deg} />
+            <rect
+              x={s.x}
+              y={s.y}
+              width={SHEET.w}
+              height={SHEET.h}
+              rx={R}
+              transform={`rotate(${s.deg} ${s.cx} ${s.cy})`}
+              fill={i === 2 ? INK.paper : INK.ivory}
+              stroke={INK.rule}
+              {...hair}
+            />
+          </g>
+        ))}
+        <g transform={`rotate(${front.deg} ${front.cx} ${front.cy})`}>
+          <Writing x={front.x + 18} y={front.y + 44} width={SHEET.w - 36} unit={1} gap={12} />
+        </g>
       </g>
 
       <g data-v-layer="4" style={anim}>
-        <path d={LIFTED} transform="translate(310 190) rotate(11)" fill="#1B1F23" opacity="0.2" filter={url("float")} />
-        <g data-v-float="true" style={anim}>
-          <g transform={LIFT_T}>
-            <path d={LIFTED} transform="translate(0.6 2.4)" fill="#E6DCCB" />
-            <path d={LIFTED} fill={url("lift")} stroke="#E6DCCB" strokeWidth="0.8" />
-            <path d={LIFTED} fill={url("sheen")} />
-            <path d="M-66.6,87V-85.6H66.6" fill="none" stroke="#FFFDF8" strokeWidth="1" strokeLinejoin="round" opacity="0.9" />
-            <g stroke="#1B1F23" strokeWidth="2.4" strokeLinecap="round" opacity="0.62">
-              <path d="M-49,-56H47" />
-              <path d="M-49,-40H29" />
-              <path d="M-49,-24H-3" />
-            </g>
-            <g stroke="#4A4F55" strokeWidth="2" strokeLinecap="round" opacity="0.4">
-              <path d="M-49,18H37" />
-              <path d="M-49,32H9" />
-            </g>
-          </g>
+        <SoftShadow
+          kind="contact"
+          x={PIVOT[0] - CLIP.w / 2}
+          y={PIVOT[1] - 12}
+          width={CLIP.w}
+          height={CLIP.h}
+          radius={3}
+          unit={1}
+          rotate={front.deg}
+        />
+        <g transform={`translate(${PIVOT[0]} ${PIVOT[1]}) rotate(${front.deg})`}>
+          {/* Wire handle, flat jaw, its shaded lip, one highlight. */}
+          <path d="M-14-12V-25Q-14-30-9-30H9Q14-30 14-25V-12" fill="none" stroke={INK.brass} strokeWidth={STROKE.thread} vectorEffect="non-scaling-stroke" />
+          <rect x={-CLIP.w / 2} y="-12" width={CLIP.w} height={CLIP.h} rx="3" fill={INK.brass} />
+          <rect x={-CLIP.w / 2} y="3" width={CLIP.w} height="5" rx="2" fill={INK.brassShadow} />
+          <path d={`M${-CLIP.w / 2 + 4}-9.5h${CLIP.w - 8}`} stroke={INK.brassLight} {...hair} />
         </g>
       </g>
 
       <g data-v-layer="5" style={anim}>
-        <ellipse cx="139" cy="281" rx="3.2" ry="5" fill="#1B1F23" opacity="0.28" filter={url("contact")} />
+        <g transform={`scale(${K})`}>
+          <LoopThread
+            from={k(226, 232)}
+            to={k(444, 170)}
+            loopAt={k(350, 246)}
+            loopScale={0.46 / K}
+            rotation={-16}
+            stroke={INK.brass}
+            partProps={{ "data-v-draw": "true" }}
+          />
+        </g>
       </g>
     </svg>
   );

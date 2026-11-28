@@ -1,32 +1,37 @@
+import { INK } from "@/lib/illustration/tokens";
+import { LoopThread } from "./LoopThread";
+import { LoopDef, Notecard, Writing } from "./illustration/parts";
+
 type Props = { idPrefix?: string; className?: string };
 
 /*
  * Landscape problem art (640px and up; ProblemArtPortrait draws the phone composition).
  * Hooks for ProblemScene's scrub: data-p = warm-light, card, dust-settled, dust (with
- * data-d particles), cool-light, reply, thread. The markup is the finished state
- * (reply arrived, thread drawn, warm light, no grey wash); src/styles/problem.css hides
- * the dust wherever no timeline runs and sets the before-state where one will.
- * No filter is ever animated: the static drop-shadow blurs sit on paths whose own
- * filter never changes. The thread stroke is non-scaling (2 screen px, §9.1).
+ * data-d particles), cool-light, reply, thread (a <g> around the LoopThread parts). The
+ * markup is the finished state (reply arrived, thread drawn, warm light, no grey wash);
+ * src/styles/problem.css hides the dust wherever no timeline runs and sets the before-state
+ * where one will.
+ * Letterpress system (§9.1): two flat <Notecard>s (8px radius, 1.25px rule edge, blind-
+ * debossed loop sharing one <LoopDef>, hairline writing with a brass initial), pre-baked
+ * shadows, no filters. The thread is one <LoopThread> from the unanswered card's right edge,
+ * through one undistorted loop, to the reply card's left edge; its parts all start at the
+ * crossing, so the scrub grows it outward from the loop. The lights are gradient layers
+ * (light, not paper), faded by opacity only. Design size: 1 unit = 1 screen px (lg).
  */
 
-// Message card with a speech tail (bottom right) and the reply card (tail bottom left).
-const CARD =
-  "M96,128Q96,116 108,116H352Q364,116 364,128V286Q364,298 352,298H330L322,326L300,298H108Q96,298 96,286Z";
-const REPLY =
-  "M650,160Q650,150 660,150H862Q872,150 872,160V276Q872,286 862,286H712L690,312L682,286H660Q650,286 650,276Z";
-const THREAD =
-  "M322,326C370,352 438,356 492,338C546,320 566,284 542,264C518,244 478,258 484,290C490,324 558,344 616,334C652,329 676,322 690,312";
+const U = 1;
+// The unanswered card (centred on the lights, §8.3.2) and the reply card, which sits higher.
+const CARD = { x: 96, y: 124, width: 268, height: 172 } as const;
+const REPLY = { x: 624, y: 88, width: 232, height: 148 } as const;
+// Thread ends exactly on the paper edges: the card's right edge and the reply's left edge.
+const FROM = [CARD.x + CARD.width, 272] as const;
+const TO = [REPLY.x, 172] as const;
+// Writing: a 14px line gap (Writing's 9px default reads as one smudge at this card size).
+const GAP = 14;
 
-// [cx, cy, r, ivory?, opacity]
-const DUST: [number, number, number, number, number][] = [
-  [104, 62, 1.4, 1, 0.6], [122, 88, 0.9, 0, 0.4], [139, 48, 1.8, 1, 0.7], [151, 101, 1.2, 0, 0.5],
-  [168, 70, 2.2, 1, 0.45], [183, 40, 1, 0, 0.35], [196, 92, 1.6, 1, 0.75], [210, 58, 0.8, 0, 0.5],
-  [224, 106, 1.3, 1, 0.55], [238, 76, 2, 0, 0.4], [251, 44, 1.1, 1, 0.65], [262, 96, 1.7, 0, 0.3],
-  [276, 64, 0.9, 1, 0.8], [290, 84, 1.5, 0, 0.5], [303, 50, 2.1, 1, 0.4], [318, 102, 1, 0, 0.6],
-  [331, 72, 1.4, 1, 0.7], [346, 56, 0.8, 0, 0.45], [114, 108, 1.9, 0, 0.35], [132, 74, 1.1, 1, 0.5],
-  [176, 112, 0.9, 1, 0.6], [203, 34, 1.5, 0, 0.3], [231, 52, 1.2, 1, 0.75], [258, 118, 2, 1, 0.4],
-  [284, 38, 1.3, 0, 0.55], [309, 80, 0.8, 1, 0.65], [339, 110, 1.6, 0, 0.5], [356, 86, 1.1, 1, 0.4],
+// Slate motes over the card, r >= 1 unit (the lift fades each one to 0).
+const DUST: [number, number, number][] = [
+  [110, 64, 1.5], [148, 98, 1], [186, 50, 2], [224, 86, 1.2], [262, 106, 1.5], [300, 60, 2], [338, 92, 1.2],
 ];
 
 export function ProblemArt({ idPrefix = "pa", className }: Props) {
@@ -35,119 +40,50 @@ export function ProblemArt({ idPrefix = "pa", className }: Props) {
   return (
     // overflow visible: the cool light (r 260 around the card, §8.3.2) is taller than the
     // 420-unit box; clipped, its faint edges showed as straight lines mid-scrub.
-    <svg
-      viewBox="0 0 960 420"
-      overflow="visible"
-      aria-hidden="true"
-      focusable="false"
-      data-art="landscape"
-      className={className}
-    >
+    <svg viewBox="0 0 960 420" overflow="visible" aria-hidden="true" data-art="landscape" className={className}>
       <defs>
-        <radialGradient id={id("warm")} cx="225" cy="215" r="215" gradientUnits="userSpaceOnUse">
+        {/* Bounding-box gradients: centred on each light's circle, radius = the circle's. */}
+        <radialGradient id={id("warm")}>
           <stop offset="0" stopColor="#FFE9C4" stopOpacity="0.45" />
           <stop offset="0.45" stopColor="#FFE9C4" stopOpacity="0.15" />
           <stop offset="1" stopColor="#FFE9C4" stopOpacity="0" />
         </radialGradient>
-        <linearGradient id={id("paper")} x1="96" y1="116" x2="364" y2="326" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#FFFDF9" />
-          <stop offset="0.55" stopColor="#F8F5EF" />
-          <stop offset="1" stopColor="#E6DCCB" />
-        </linearGradient>
-        <linearGradient id={id("rpaper")} x1="650" y1="150" x2="872" y2="310" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#FEFCF8" />
-          <stop offset="0.6" stopColor="#F6F1E8" />
-          <stop offset="1" stopColor="#E6DCCB" />
-        </linearGradient>
-        <linearGradient id={id("sheen")} x1="0" y1="0" x2="0.9" y2="0.7">
-          <stop offset="0" stopColor="#FFE9C4" stopOpacity="0.55" />
-          <stop offset="0.5" stopColor="#FFE9C4" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient id={id("shade")} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0.6" stopColor="#5C3E12" stopOpacity="0" />
-          <stop offset="1" stopColor="#5C3E12" stopOpacity="0.06" />
-        </linearGradient>
-        <linearGradient id={id("haze")} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#8B857C" stopOpacity="0.32" />
-          <stop offset="1" stopColor="#8B857C" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient id={id("brass")} x1="322" y1="250" x2="680" y2="350" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#C49A5A" />
-          <stop offset="0.5" stopColor="#8A5F1C" />
-          <stop offset="1" stopColor="#5C3E12" />
-        </linearGradient>
-        <filter id={id("cast")} x="-20%" y="-20%" width="140%" height="150%">
-          <feGaussianBlur stdDeviation="9" />
-        </filter>
-        <filter id={id("contact")} x="-10%" y="-10%" width="120%" height="130%">
-          <feGaussianBlur stdDeviation="1.8" />
-        </filter>
-        {/* Cool light: a soft wash centred on the card, faded by opacity only. */}
-        <radialGradient id={id("cool")} cx="230" cy="210" r="260" gradientUnits="userSpaceOnUse">
+        <radialGradient id={id("cool")}>
           <stop offset="0" stopColor="#3A4048" stopOpacity="0.1" />
           <stop offset="1" stopColor="#3A4048" stopOpacity="0" />
         </radialGradient>
-        <clipPath id={id("clip")}>
-          <path d={CARD} />
-        </clipPath>
+        <LoopDef id={id("loop")} />
       </defs>
 
-      <g data-p="warm-light" opacity="0.95">
-        <circle cx="225" cy="215" r="215" fill={url("warm")} />
-      </g>
+      <circle data-p="warm-light" opacity="0.95" cx="225" cy="215" r="215" fill={url("warm")} />
 
       <g data-p="card">
-        <path d={CARD} transform="translate(16 20)" fill="#1B1F23" opacity="0.16" filter={url("cast")} />
-        <path d={CARD} transform="translate(1.5 2.5)" fill="#1B1F23" opacity="0.14" filter={url("contact")} />
-        <path d={CARD} transform="translate(0 2)" fill="#E6DCCB" />
-        <path d={CARD} fill={url("paper")} />
-        <path d={CARD} fill={url("sheen")} opacity="0.4" />
-        <path d={CARD} fill={url("shade")} />
-        <path d={CARD} fill="none" stroke="#E6DCCB" strokeWidth="1" />
-        <path d="M108,117.5H352" stroke="#FFFFFF" strokeOpacity="0.9" strokeWidth="1.2" strokeLinecap="round" />
-        <path d="M130,170H318M130,204H290M130,238H226" stroke="#1B1F23" strokeWidth="4.6" strokeLinecap="round" opacity="0.78" />
+        <Notecard {...CARD} unit={U} deboss debossHref={id("loop")} writing={false} />
+        <Writing x={124} y={184} width={200} unit={U} gap={GAP} />
       </g>
 
-      <g data-p="dust-settled" opacity="0">
-        <g clipPath={url("clip")}>
-          <rect x="96" y="114" width="268" height="58" fill={url("haze")} />
-          <rect x="100" y="112" width="260" height="10" fill="#8B857C" opacity="0.18" filter={url("contact")} />
-        </g>
-      </g>
+      {/* Settled dust: a soft grey haze over the top of the card (the cool wash, fitted to the band). */}
+      <rect data-p="dust-settled" opacity="0" {...CARD} height="64" fill={url("cool")} />
 
-      <g data-p="dust">
-        {DUST.map(([cx, cy, r, iv, o], i) => (
-          <circle key={i} data-d="1" cx={cx} cy={cy} r={r} fill={iv ? "#EFE6D6" : "#9A9184"} stroke={iv ? "#B3A893" : "none"} strokeWidth="0.5" opacity={o} />
+      {/* fill-opacity, not opacity: problem.css sets the group's opacity (1 before the scrub, 0 when finished). */}
+      <g data-p="dust" fill={INK.slate} fillOpacity=".4">
+        {DUST.map(([cx, cy, r]) => (
+          <circle key={cx} data-d="1" cx={cx} cy={cy} r={r} />
         ))}
       </g>
 
-      <g data-p="cool-light" opacity="0">
-        <circle cx="230" cy="210" r="260" fill={url("cool")} />
-      </g>
+      {/* Cool light: a soft wash centred on the card (cx 230, cy 210, r 260), opacity only. */}
+      <circle data-p="cool-light" opacity="0" cx="230" cy="210" r="260" fill={url("cool")} />
 
       <g data-p="reply">
-        <path d={REPLY} transform="translate(13 16)" fill="#1B1F23" opacity="0.15" filter={url("cast")} />
-        <path d={REPLY} transform="translate(1.2 2)" fill="#1B1F23" opacity="0.13" filter={url("contact")} />
-        <path d={REPLY} transform="translate(0 1.6)" fill="#E6DCCB" />
-        <path d={REPLY} fill={url("rpaper")} />
-        <path d={REPLY} fill={url("sheen")} opacity="0.35" />
-        <path d={REPLY} fill={url("shade")} />
-        <path d={REPLY} fill="none" stroke="#8A5F1C" strokeWidth="1" strokeOpacity="0.85" />
-        <path d="M662,151.5H860" stroke="#C49A5A" strokeOpacity="0.7" strokeWidth="0.8" strokeLinecap="round" />
-        <path d="M680,196H836M680,228H778" stroke="#1B1F23" strokeWidth="4.2" strokeLinecap="round" opacity="0.72" />
+        <Notecard {...REPLY} unit={U} deboss debossHref={id("loop")} writing={false} />
+        <Writing x={648} y={140} width={170} unit={U} gap={GAP} />
       </g>
 
-      {/* Drawn by DrawSVG from the card's tail; no pathLength (DrawSVG measures the real length). */}
-      <path
-        data-p="thread"
-        d={THREAD}
-        fill="none"
-        stroke={url("brass")}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        vectorEffect="non-scaling-stroke"
-      />
+      {/* Drawn by DrawSVG, every part '0%' -> '100%' together, outward from the crossing. */}
+      <g data-p="thread">
+        <LoopThread from={FROM} to={TO} loopAt={[494, 222]} loopScale={0.55} rotation={4} stroke={INK.brass} />
+      </g>
     </svg>
   );
 }

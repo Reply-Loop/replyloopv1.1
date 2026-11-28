@@ -15,6 +15,7 @@ export function PageHero({
   intro,
   showButton = true,
   backdrop,
+  plate,
 }: {
   crumbs: Crumb[];
   eyebrow: string;
@@ -25,6 +26,11 @@ export function PageHero({
   showButton?: boolean;
   /** Decorative art behind the hero (aria-hidden). Text stays on plain ivory. */
   backdrop?: ReactNode;
+  /**
+   * Phone and tablet hero art (a <HeroPlate>, aria-hidden), shown below lg only: under the
+   * booking button, or under the intro when the hero has no button. Desktop keeps `backdrop`.
+   */
+  plate?: ReactNode;
 }) {
   return (
     <section
@@ -58,6 +64,7 @@ export function PageHero({
               <BookButton />
             </div>
           ) : null}
+          {plate ? <div className="mt-8 lg:hidden">{plate}</div> : null}
         </div>
       </Container>
     </section>

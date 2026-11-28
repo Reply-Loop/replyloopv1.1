@@ -16,8 +16,10 @@
    * Before-state, from first paint, scoped to exactly where the timeline is built: full or paused
    * motion, full tier, GSAP not failed. The timeline builds at every width (whichever drawing is
    * shown), so there is no width condition. It matches the timeline at progress 0: dust in the air,
-   * no reply, no thread. The thread is hidden by opacity, not only by its dash: DrawSVG measures the
-   * real length (no pathLength), and a zero-length round-capped dash would still paint a dot.
+   * no reply, no thread. [data-p="thread"] is the <g> around the LoopThread parts (loop, lead-in,
+   * lead-out): opacity hides the group, and stroke-dasharray (inherited) gives every part an empty
+   * dash until DrawSVG writes its own. DrawSVG measures the real length (no pathLength), so the
+   * dash is a large gap, not 1; the parts' butt caps paint nothing at zero length.
    */
   :root:is([data-motion="full"], [data-motion="paused"])[data-tier="full"]:not(.rl-gsap-failed)
     .problem-scene:not([data-animated])

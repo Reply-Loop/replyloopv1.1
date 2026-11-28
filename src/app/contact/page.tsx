@@ -4,6 +4,7 @@ import { BookButton, EmailLink, PhoneLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { PageHero } from "@/components/ui/PageHero";
+import { HeroPlate } from "@/components/scenes/HeroPlate";
 import { Section } from "@/components/ui/Section";
 import { breadcrumbSchema, graph, type Crumb } from "@/lib/schema";
 import { pageMetadata } from "@/lib/seo";
@@ -32,6 +33,7 @@ export default function ContactPage() {
         title="Talk with ReplyLoop"
         intro="The easiest first step is a short intro call. You can also call or email."
         showButton={false}
+        plate={<HeroPlate variant="contact" />}
       />
       <PageBody>
         <Section labelledBy="ways-title" rhythm="tight">

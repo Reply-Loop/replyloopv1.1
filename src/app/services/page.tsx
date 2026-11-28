@@ -6,6 +6,7 @@ import { TextLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { PageHero } from "@/components/ui/PageHero";
+import { HeroPlate } from "@/components/scenes/HeroPlate";
 import { PillarCard } from "@/components/ui/PillarCard";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -45,6 +46,7 @@ export default function ServicesPage() {
         eyebrow="Services"
         title="Local SEO and review replies for health practices"
         intro="One monthly bundle, built around your Google reviews: replies in your voice, 16 new pieces of content a month, care for your Google Business Profile, and a growth workbook."
+        plate={<HeroPlate variant="services" />}
       />
       <PageBody>
 

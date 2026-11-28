@@ -21,14 +21,18 @@ const ART_QUERIES = {
 /**
  * Brief §8.3.2, on normalised time (the master is ease "none", scrub 1):
  * 0–0.38 dust drifts down and the light cools; 0.25–0.40 the dust settles on the card;
- * 0.40–0.70 the thread draws from the card's tail; 0.62–0.86 the reply lands at the
- * thread's end; 0.74–0.96 the dust lifts, the warm light returns and the grey wash
- * clears; 0.96–1 hold. End state: no dust, no wash, thread drawn, reply arrived.
+ * 0.40–0.70 the thread draws (every LoopThread part '0%' -> '100%' together; each part
+ * starts at the loop's crossing, so it grows outward from the loop to the card's edge and
+ * to the reply's); 0.62–0.86 the reply lands at the thread's end; 0.74–0.96 the dust lifts,
+ * the warm light returns and the grey wash clears; 0.96–1 hold. End state: no dust, no wash, thread drawn, reply arrived.
  */
 function buildTimeline(gsap: Gsap, art: SVGSVGElement, landscape: boolean) {
   const q = (p: string) => art.querySelector(`[data-p="${p}"]`);
   const dust = art.querySelectorAll('[data-p="dust"] [data-d]');
+  // The thread hook is a <g> around the LoopThread parts (loop, lead-in, lead-out paths):
+  // opacity on the group, the draw on each part.
   const thread = q("thread");
+  const threadParts = art.querySelectorAll('[data-p="thread"] path');
   const warm = q("warm-light");
   const cool = q("cool-light");
   const settled = q("dust-settled");
@@ -51,14 +55,16 @@ function buildTimeline(gsap: Gsap, art: SVGSVGElement, landscape: boolean) {
     .fromTo(warm, { opacity: 1 }, { opacity: 0.35, duration: 0.38, ease: "sine.inOut" }, 0)
     .fromTo(cool, { opacity: 0 }, { opacity: 1, duration: 0.38, ease: "sine.inOut" }, 0)
     .fromTo(settled, { opacity: 0 }, { opacity: 1, duration: 0.15, ease: "rl.inOut" }, 0.25)
-    // Hidden until it starts drawing: a zero-length round-capped dash would show as a dot.
+    // Hidden until it starts drawing (belt and braces: the parts have butt caps, so a
+    // zero-length dash paints nothing, but a stray dot must never show).
     .set(thread, { opacity: 0, immediateRender: true }, 0)
-    .fromTo(thread, { drawSVG: "0%" }, { drawSVG: "100%", duration: 0.3, ease: "rl.draw" }, 0.4)
+    .fromTo(threadParts, { drawSVG: "0%" }, { drawSVG: "100%", duration: 0.3, ease: "rl.draw" }, 0.4)
     .set(thread, { opacity: 1 }, 0.4)
     .fromTo(
       q("reply"),
-      // Pivots on its tail, where the thread arrives.
-      { opacity: 0, y: 18, scale: 0.97, transformOrigin: landscape ? "18% 100%" : "14% 0%" },
+      // Pivots where the thread arrives: its left edge (landscape), its top edge (portrait).
+      // Percentages of the reply group's box, which includes its pre-baked shadow.
+      { opacity: 0, y: 18, scale: 0.97, transformOrigin: landscape ? "3% 49%" : "32% 0%" },
       { opacity: 1, y: 0, scale: 1, duration: 0.24, ease: "rl.out" },
       0.62,
     )

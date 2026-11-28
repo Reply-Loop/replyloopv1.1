@@ -21,12 +21,7 @@ const ALLOWED_STEPS = new Set(["0", "px", "1", "2", "3", "4", "5", "6", "7", "8"
 const ALLOWED_PX = new Set([0, 1, 4, 8, 12, 16, 20, 24, 28, 32, 48, 64, 72, 80, 96, 128, 160]);
 
 /** file → tokens tolerated until the phase that redraws them. */
-const EXCEPTIONS = {
-  "src/components/scenes/TrustLoop.tsx": {
-    tokens: ["text-[10px]"],
-    reason: "SVG numerals in viewBox units (scaled with the drawing); redrawn in Phase 6",
-  },
-};
+const EXCEPTIONS = {};
 
 const SPACING = /(?<![\w-])(-?)((?:m|mx|my|mt|mb|ml|mr|ms|me|p|px|py|pt|pb|pl|pr|ps|pe|gap|gap-x|gap-y|space-x|space-y))-(\[[^\]\s]+\]|[0-9]+(?:\.[0-9]+)?|px)(?![\w.\-[])/g;
 const TEXT_SIZE = /(?<![\w-])text-(xs|\[[0-9.]+(?:px|rem)\])(?![\w-])/g;

@@ -8,6 +8,7 @@ import { Icon } from "@/components/ui/Icon";
 import { LoopDivider } from "@/components/ui/LoopDivider";
 import { PageHero } from "@/components/ui/PageHero";
 import { RibbonBackdrop } from "@/components/scenes/RibbonBackdrop";
+import { HeroPlate } from "@/components/scenes/HeroPlate";
 import { PillarCard } from "@/components/ui/PillarCard";
 import { PromiseList } from "@/components/ui/PromiseList";
 import { Section } from "@/components/ui/Section";
@@ -72,6 +73,7 @@ export default function HomeCarePage() {
     <>
       <PageHero
         backdrop={<RibbonBackdrop />}
+        plate={<HeroPlate variant="hca" />}
         crumbs={crumbs}
         eyebrow="For home care owners and administrators"
         eyebrowShort="For home care owners"

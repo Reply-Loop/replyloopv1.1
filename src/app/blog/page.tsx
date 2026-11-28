@@ -3,6 +3,7 @@ import Link from "next/link";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { Card, cardLinkOverlay } from "@/components/ui/Card";
 import { PageHero } from "@/components/ui/PageHero";
+import { HeroPlate } from "@/components/scenes/HeroPlate";
 import { Section } from "@/components/ui/Section";
 import { allPostMeta } from "@/content/posts";
 import { breadcrumbSchema, graph, type Crumb } from "@/lib/schema";
@@ -38,6 +39,7 @@ export default function BlogIndex() {
         title="Guides for home care owners"
         intro="Plain answers about Google reviews, your Google Business Profile, and local search."
         showButton={false}
+        plate={<HeroPlate variant="blog" />}
       />
       <PageBody>
         <Section rhythm="tight">
