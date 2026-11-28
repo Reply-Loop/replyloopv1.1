@@ -13,9 +13,10 @@ const step = (i: number) => ({ "--i": i }) as CSSProperties;
  * .reveal-art), the caption in cols 9–12, centred on the frame.
  *
  * The caption is the film's on-screen words as real text, verbatim and in the
- * film's order (video/src/Film.tsx: the "ReplyLoop" wordmark, then the
- * tagline), and nothing else. If the film's words change in the re-cut, this
- * caption changes with it.
+ * film's order (video/src/Film.tsx, Phase 8 re-cut: the lockup's "ReplyLoop"
+ * wordmark, then "Based in Salt Lake County, Utah."), and nothing else. The
+ * film's chapters are shown as objects only, with no words. If the film's
+ * words change, this caption changes with it.
  */
 export function FilmFeature({ className }: { className?: string }) {
   return (
@@ -27,7 +28,7 @@ export function FilmFeature({ className }: { className?: string }) {
           {site.name}
         </p>
         <p className="reveal mt-3 text-lede text-slate" style={step(1)}>
-          {site.tagline}
+          Based in Salt Lake County, Utah.
         </p>
       </figcaption>
     </figure>

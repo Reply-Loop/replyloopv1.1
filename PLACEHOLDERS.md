@@ -45,4 +45,4 @@ The cinematic scenes use code-built stand-ins until the stills in `ASSET_BRIEF.m
 | Seeded noise tile `public/brand/textures/felt-256.avif` (`.felt`, from `scripts/brand/textures.mjs`) | Charcoal bands and the CTA band | 3. Charcoal felt texture |
 | Procedural brushed brass (anisotropic `MeshPhysicalMaterial`) | `src/components/hero/LoopScene.tsx` | 4. Brushed brass swatch |
 
-Brand film plates come from the kit (`07-video-thumbnail`), not from stand-ins. Re-render with `cd video && npm run render` after any change to `video/src`.
+The brand film (Phase 8 re-cut) is drawn in vector inside `video/src`: the window-light plate is a code stand-in for ASSET_BRIEF #2 (golden-hour window light). Re-render with `cd video && npm run render` after any change to `video/src`.

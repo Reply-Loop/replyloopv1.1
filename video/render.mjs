@@ -1,4 +1,6 @@
-// Renders the brand film into ../public/media: H.264 MP4, VP9 WebM, and an AVIF poster.
+// Renders the brand film into ../public/media: H.264 MP4, VP9 WebM, and AVIF + WebP posters.
+// Budget (brief §1.2): each video file <= 450,000 B; film plus both posters <= 859,457 B. The
+// script measures and fails if a file is over.
 // Usage: npm run render   (CHROME=/path/to/headless-shell to override the browser)
 import { bundle } from "@remotion/bundler";
 import { renderMedia, renderStill, selectComposition } from "@remotion/renderer";
@@ -33,17 +35,24 @@ const sharp = require("sharp");
 const avif = path.join(outDir, "brand-film-poster.avif");
 await sharp(png).avif({ quality: 55, effort: 6 }).toFile(avif);
 const webp = path.join(outDir, "brand-film-poster.webp");
-await sharp(png).webp({ quality: 76 }).toFile(webp);
+await sharp(png).webp({ quality: 76, smartSubsample: true }).toFile(webp);
 rmSync(png);
 console.log("poster", kb(avif), "webp", kb(webp));
 
-// The film is silent and decorative; small files matter more than pixel-peeping.
+// The film is silent, decorative and flat vector, so it compresses well: the CRFs below are
+// set for clean hairlines and gradients while staying well inside the byte budget.
 const mp4 = path.join(outDir, "brand-film.mp4");
-await renderMedia({ ...common, codec: "h264", crf: 26, pixelFormat: "yuv420p", x264Preset: "slow", outputLocation: mp4 });
+await renderMedia({ ...common, codec: "h264", crf: 20, pixelFormat: "yuv420p", x264Preset: "veryslow", outputLocation: mp4 });
 console.log("mp4", kb(mp4));
 
 const webm = path.join(outDir, "brand-film.webm");
-await renderMedia({ ...common, codec: "vp9", crf: 36, pixelFormat: "yuv420p", outputLocation: webm });
+await renderMedia({ ...common, codec: "vp9", crf: 30, pixelFormat: "yuv420p", outputLocation: webm });
 console.log("webm", kb(webm));
 
-
+const files = [mp4, webm, avif, webp];
+const total = files.reduce((n, f) => n + statSync(f).size, 0);
+for (const f of [mp4, webm]) {
+  if (statSync(f).size > 450_000) throw new Error(`${path.basename(f)} is ${statSync(f).size} B, over 450,000 B`);
+}
+if (total > 859_457) throw new Error(`film plus posters is ${total} B, over 859,457 B`);
+console.log("total", total, "B (budget 859,457 B)");
