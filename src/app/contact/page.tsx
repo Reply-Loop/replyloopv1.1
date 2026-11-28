@@ -41,7 +41,6 @@ export default function ContactPage() {
         intro="The easiest first step is a short intro call. You can also call or email."
         showButton={false}
         backdrop={<ServiceEmblem variant="loop" />}
-        plate={<HeroPlate variant="contact" />}
       />
       <PageBody>
         {/*
@@ -79,6 +78,13 @@ export default function ContactPage() {
               ))}
             </ul>
           </Card>
+          {/*
+            Phone art sits under the booking card, not in the hero: this hero has no button, and a
+            plate above the card would push the page's one booking button below the fold (§8.13).
+          */}
+          <div className="mt-12 lg:hidden">
+            <HeroPlate variant="contact" />
+          </div>
           <div className="mt-12 flex items-start gap-3 text-lede">
             <Icon name="pin" className="mt-1 size-5 shrink-0 text-brass" />
             <p>{site.areaServedSentence}</p>

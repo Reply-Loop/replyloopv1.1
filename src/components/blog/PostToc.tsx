@@ -54,7 +54,7 @@ export function PostToc({ items }: { items: OutlineItem[] }) {
                 href={`#${id}`}
                 aria-current={on ? "true" : undefined}
                 className={
-                  "-ml-px flex min-h-11 items-center border-l py-1 pl-4 text-[0.875rem] leading-[1.45] underline-offset-4 hover:underline " +
+                  "-ml-px block border-l py-2 pl-4 text-[0.875rem] leading-[1.45] underline-offset-4 hover:underline " +
                   (on ? "border-brass text-brass" : "border-transparent text-slate")
                 }
               >

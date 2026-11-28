@@ -4,6 +4,7 @@ import { Breadcrumbs } from "./Breadcrumbs";
 import { BookButton } from "./Button";
 import { Container } from "./Container";
 import { Eyebrow } from "./Eyebrow";
+import { InsetRule } from "./InsetRule";
 import { keepPhrases } from "@/lib/typography";
 
 /** Inner-page hero: breadcrumbs, eyebrow, the page's one H1, intro, and the booking button. */
@@ -32,41 +33,46 @@ export function PageHero({
    */
   plate?: ReactNode;
 }) {
+  // The hero is ivory, and so is most first band after it: an InsetRule separates them,
+  // as on home (brief §6.1: same surfaces touch only across an InsetRule).
   return (
-    <section
-      aria-labelledby="page-title"
-      className="relative overflow-hidden border-b border-rule pt-8 pb-16 sm:pt-12 sm:pb-20"
-    >
-      {backdrop}
-      <Container className="relative">
-        <Breadcrumbs crumbs={crumbs} />
-        <div
-          className={
-            backdrop
-              ? "lg:max-w-[calc(100%-25rem)] xl:max-w-[calc(100%-29rem)]"
-              : undefined
-          }
-        >
-          <Eyebrow short={eyebrowShort} className="mt-12">
-            {eyebrow}
-          </Eyebrow>
-          <h1
-            id="page-title"
-            className="mt-5 max-w-4xl font-serif text-h1 font-medium"
+    <>
+      <section
+        aria-labelledby="page-title"
+        className="relative overflow-hidden pt-8 pb-16 sm:pt-12 sm:pb-20"
+      >
+        {backdrop}
+        <Container className="relative">
+          <Breadcrumbs crumbs={crumbs} />
+          <div
+            className={
+              backdrop
+                ? "lg:max-w-[calc(100%-25rem)] xl:max-w-[calc(100%-29rem)]"
+                : undefined
+            }
           >
-            {keepPhrases(title)}
-          </h1>
-          <div className="mt-6 max-w-lede text-lede text-slate [&>p+p]:mt-4">
-            {typeof intro === "string" ? <p>{intro}</p> : intro}
-          </div>
-          {showButton ? (
-            <div data-hero-cta className="mt-8">
-              <BookButton />
+            <Eyebrow short={eyebrowShort} className="mt-12">
+              {eyebrow}
+            </Eyebrow>
+            <h1
+              id="page-title"
+              className="mt-5 max-w-4xl font-serif text-h1 font-medium"
+            >
+              {keepPhrases(title)}
+            </h1>
+            <div className="mt-6 max-w-lede text-lede text-slate [&>p+p]:mt-4">
+              {typeof intro === "string" ? <p>{intro}</p> : intro}
             </div>
-          ) : null}
-          {plate ? <div className="mt-8 lg:hidden">{plate}</div> : null}
-        </div>
-      </Container>
-    </section>
+            {showButton ? (
+              <div data-hero-cta className="mt-8">
+                <BookButton />
+              </div>
+            ) : null}
+            {plate ? <div className="mt-8 lg:hidden">{plate}</div> : null}
+          </div>
+        </Container>
+      </section>
+      <InsetRule />
+    </>
   );
 }

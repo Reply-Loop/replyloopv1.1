@@ -69,7 +69,7 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
               <h1 id="page-title" className="mt-6 font-serif text-h2 font-medium lg:mt-5">
                 {post.title}
               </h1>
-              <p className="mt-5 text-lede text-slate">{post.description}</p>
+              <p className="mt-5 max-w-lede text-lede text-slate">{post.description}</p>
               <p className="mt-6 text-small text-slate">
                 ReplyLoop<span aria-hidden className="mx-2">·</span>
                 <time dateTime={post.date}>{formatDate(post.date)}</time>
